@@ -323,6 +323,9 @@
 		88E8DB7214C6755000082F83 /* KeyboardView.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E8DB7114C6755000082F83 /* KeyboardView.m */; };
 		88E8DB7614C67D5E00082F83 /* keyboard-Landscape.png in Resources */ = {isa = PBXBuildFile; fileRef = 88E8DB7414C67D5E00082F83 /* keyboard-Landscape.png */; };
 		88E8DB7714C67D5E00082F83 /* keyboardPressed-Landscape.png in Resources */ = {isa = PBXBuildFile; fileRef = 88E8DB7514C67D5E00082F83 /* keyboardPressed-Landscape.png */; };
+		C16802A423FC44F000EA85B3 /* sp0256.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802A323FC44F000EA85B3 /* sp0256.c */; };
+		C16802A623FC457400EA85B3 /* idsa.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802A523FC457400EA85B3 /* idsa.c */; };
+		C16802A823FC45D800EA85B3 /* playsnd.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802A723FC45D800EA85B3 /* playsnd.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -809,6 +812,10 @@
 		88E8DB7414C67D5E00082F83 /* keyboard-Landscape.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "keyboard-Landscape.png"; sourceTree = "<group>"; };
 		88E8DB7514C67D5E00082F83 /* keyboardPressed-Landscape.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "keyboardPressed-Landscape.png"; sourceTree = "<group>"; };
 		C15004DF23FA5974007445CC /* ios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ios.h; sourceTree = "<group>"; };
+		C16802A223FC44EF00EA85B3 /* sp0256.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sp0256.h; sourceTree = "<group>"; };
+		C16802A323FC44F000EA85B3 /* sp0256.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sp0256.c; sourceTree = "<group>"; };
+		C16802A523FC457400EA85B3 /* idsa.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = idsa.c; sourceTree = "<group>"; };
+		C16802A723FC45D800EA85B3 /* playsnd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = playsnd.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1304,8 +1311,6 @@
 		8893340B14BE62530095D115 /* sound */ = {
 			isa = PBXGroup;
 			children = (
-				8893361C14BE664F0095D115 /* filter.c */,
-				8893361D14BE664F0095D115 /* filter.h */,
 				8893340C14BE62530095D115 /* 2151intf.c */,
 				8893340D14BE62530095D115 /* 2151intf.h */,
 				8893340E14BE62530095D115 /* 2203intf.c */,
@@ -1326,6 +1331,8 @@
 				8893341D14BE62530095D115 /* dac.h */,
 				8893342414BE62530095D115 /* discrete.c */,
 				8893342514BE62530095D115 /* discrete.h */,
+				8893361C14BE664F0095D115 /* filter.c */,
+				8893361D14BE664F0095D115 /* filter.h */,
 				8893342814BE62530095D115 /* fm.c */,
 				8893342914BE62530095D115 /* fm.h */,
 				8893342A14BE62530095D115 /* fmopl.c */,
@@ -1348,6 +1355,8 @@
 				8893343B14BE62530095D115 /* sn76496.h */,
 				8893343C14BE62530095D115 /* sp0250.c */,
 				8893343D14BE62530095D115 /* sp0250.h */,
+				C16802A323FC44F000EA85B3 /* sp0256.c */,
+				C16802A223FC44EF00EA85B3 /* sp0256.h */,
 				8893343E14BE62530095D115 /* streams.c */,
 				8893343F14BE62530095D115 /* streams.h */,
 				8893344014BE62530095D115 /* tms320av120.c */,
@@ -1450,6 +1459,7 @@
 				889334C914BE62FE0095D115 /* hnks.c */,
 				889334CA14BE62FE0095D115 /* hnks.h */,
 				889334CB14BE62FE0095D115 /* icecoldbeer.c */,
+				C16802A523FC457400EA85B3 /* idsa.c */,
 				889334CC14BE62FE0095D115 /* inder.c */,
 				889334CD14BE62FE0095D115 /* inder.h */,
 				889334CE14BE62FE0095D115 /* indergames.c */,
@@ -1477,11 +1487,9 @@
 				889334E414BE62FE0095D115 /* play.c */,
 				889334E514BE62FE0095D115 /* play.h */,
 				889334E614BE62FE0095D115 /* playgames.c */,
+				C16802A723FC45D800EA85B3 /* playsnd.c */,
 				889334E714BE62FE0095D115 /* rotation.c */,
 				889334E814BE62FE0095D115 /* rowamet.c */,
-				889334E914BE62FE0095D115 /* s11.c */,
-				889334EA14BE62FE0095D115 /* s11.h */,
-				889334EB14BE62FE0095D115 /* s11games.c */,
 				889334EC14BE62FE0095D115 /* s3games.c */,
 				889334ED14BE62FE0095D115 /* s4.c */,
 				889334EE14BE62FE0095D115 /* s4.h */,
@@ -1492,6 +1500,9 @@
 				889334F314BE62FE0095D115 /* s7.c */,
 				889334F414BE62FE0095D115 /* s7.h */,
 				889334F514BE62FE0095D115 /* s7games.c */,
+				889334E914BE62FE0095D115 /* s11.c */,
+				889334EA14BE62FE0095D115 /* s11.h */,
+				889334EB14BE62FE0095D115 /* s11games.c */,
 				889334F614BE62FE0095D115 /* se.c */,
 				889334F714BE62FE0095D115 /* se.h */,
 				889334F814BE62FE0095D115 /* segames.c */,
@@ -1921,6 +1932,7 @@
 				8893346A14BE62530095D115 /* sn76477.c in Sources */,
 				8893346B14BE62530095D115 /* sn76496.c in Sources */,
 				8893346C14BE62530095D115 /* sp0250.c in Sources */,
+				C16802A423FC44F000EA85B3 /* sp0256.c in Sources */,
 				8893346D14BE62530095D115 /* streams.c in Sources */,
 				8893346E14BE62530095D115 /* tms320av120.c in Sources */,
 				8893346F14BE62530095D115 /* tms5110.c in Sources */,
@@ -1963,6 +1975,7 @@
 				8893358314BE62FE0095D115 /* gp.c in Sources */,
 				8893358414BE62FE0095D115 /* gpgames.c in Sources */,
 				8893358514BE62FE0095D115 /* gpsnd.c in Sources */,
+				C16802A823FC45D800EA85B3 /* playsnd.c in Sources */,
 				8893358614BE62FE0095D115 /* gts1.c in Sources */,
 				8893358714BE62FE0095D115 /* gts1games.c in Sources */,
 				8893358814BE62FE0095D115 /* gts3.c in Sources */,
@@ -2036,6 +2049,7 @@
 				889335CF14BE62FE0095D115 /* rs.c in Sources */,
 				889335D014BE62FE0095D115 /* ss.c in Sources */,
 				889335D114BE62FE0095D115 /* sttng.c in Sources */,
+				C16802A623FC457400EA85B3 /* idsa.c in Sources */,
 				889335D214BE62FE0095D115 /* t2.c in Sources */,
 				889335D314BE62FE0095D115 /* taf.c in Sources */,
 				889335D414BE62FE0095D115 /* tom.c in Sources */,
@@ -2176,7 +2190,7 @@
 		0BDD4B9014B20DE000BE1EAC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer: jsm174@gmail.com (S7TY7RE76G)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = UKWC4J7BE5;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -2194,7 +2208,7 @@
 		0BDD4B9114B20DE000BE1EAC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer: jsm174@gmail.com (S7TY7RE76G)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = UKWC4J7BE5;
 				GCC_C_LANGUAGE_STANDARD = gnu99;

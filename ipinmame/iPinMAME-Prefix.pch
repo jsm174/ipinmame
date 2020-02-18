@@ -71,6 +71,7 @@
 #define HAS_YM2203     1
 #define HAS_YM3526     1
 #define HAS_TMS5110    1
+#define HAS_SP0256     1
 
 #define INLINE static __inline
 #define asm __asm__ __volatile__
