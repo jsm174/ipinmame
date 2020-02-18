@@ -63,6 +63,11 @@ DRIVERNV(punchy3)       //Punchy the Clown R03 (1993)
 #endif
 
 // ---------------
+// ASTILL ENTERTAINMENT
+// ---------------
+DRIVER(rush,10)         //Rush (custom pin, based on WPC fliptronics hardware)
+
+// ---------------
 // ASTRO GAMES
 // ---------------
 DRIVERNV(blkshpsq)      //Black Sheep Squadron (1979) - using old Stern hardware
@@ -338,6 +343,12 @@ DRIVERNV(bbb108)        // 11/96    Big Bang Bar (Beta, 1.8)
 DRIVERNV(bbb109)        // 11/96    Big Bang Bar (Beta, 1.9)
 DRIVERNV(kpv106)        // 12/96    Kingpin
 
+// ----------------
+// CICPLAY GAMES
+// ----------------
+DRIVERNV(glxplay)       //Galaxy Play (1987)
+DRIVERNV(glxplay2)      //Galaxy Play 2 (1988)
+
 // -------------------
 // DATA EAST GAMES
 // -------------------
@@ -352,6 +363,7 @@ DRIVER(ssvc,a42)        //Data East MPU: 03/88 Secret Service (4.2 Alternate Sou
 DRIVER(torp,e21)        //Data East MPU: 08/88 Torpedo Alley (2.1 Europe)
 DRIVER(torp,a16)        //Data East MPU: 08/88 Torpedo Alley (1.6)
 DRIVER(tmac,a18)        //Data East MPU: 12/88 Time Machine (1.8)
+DRIVER(tmac,g18)        //Data East MPU: 12/88 Time Machine (1.8 German)
 DRIVER(tmac,a24)        //Data East MPU: 12/88 Time Machine (2.4)
 DRIVER(play,a24)        //Data East MPU: 05/89 Playboy 35th Anniversary
 //2 x 16 A/N Display
@@ -407,17 +419,19 @@ DRIVER(lah,l104)        //Data East MPU: 08/93 Last Action Hero (1.04 Spain)
 DRIVER(lah,l108)        //Data East MPU: 08/93 Last Action Hero (1.08 Spain)
 DRIVER(lah,110)         //Data East MPU: 08/93 Last Action Hero (1.10)
 DRIVER(lah,112)         //Data East MPU: 08/93 Last Action Hero (1.12)
+DRIVER(lah,113)         //Data East MPU: 11/14 Last Action Hero (1.13 unofficial MOD)
 DRIVER(tftc,104)        //Data East MPU: 11/93 Tales From the Crypt (1.04 Spain)
 DRIVER(tftc,200)        //Data East MPU: 11/93 Tales From the Crypt (2.00)
-DRIVER(tftc,300)	//Data East MPU: 11/93 Tales From the Crypt (3.00)
-DRIVER(tftc,302)	//Data East MPU: 11/93 Tales From the Crypt (3.02 Dutch)
+DRIVER(tftc,300)		//Data East MPU: 11/93 Tales From the Crypt (3.00)
+DRIVER(tftc,302)		//Data East MPU: 11/93 Tales From the Crypt (3.02 Dutch)
 DRIVER(tftc,303)        //Data East MPU: 11/93 Tales From the Crypt (3.03)
 DRIVER(tomy,102)        //Data East MPU: 02/94 Tommy (1.02)
 DRIVER(tomy,h30)        //Data East MPU: 02/94 Tommy (3.00 Holland)
 DRIVER(tomy,400)        //Data East MPU: 02/94 Tommy (4.00)
 DRIVER(wwfr,103)        //Data East MPU: 05/94 WWF Royal Rumble (1.03)
 DRIVER(wwfr,106)        //Data East MPU: 08/94 WWF Royal Rumble (1.06)
-DRIVER(gnr,300)         //Data East MPU: 07/94 Guns N Roses
+DRIVER(gnr,300)         //Data East MPU: 07/94 Guns N Roses (3.00)
+DRIVER(gnr,300f)        //Data East MPU: 07/94 Guns N Roses (3.00 French)
 //MISC
 DRIVERNV(detest)        //Data East MPU: ??/?? DE Test Chip
 
@@ -504,6 +518,7 @@ DRIVERNV(forceii7)      //          01/08 Force II, 7-digit conversion)
 DRIVERNV(pnkpnthr)      //S80-664:  03/81 Pink Panther
 DRIVERNV(pnkpntr7)      //          01/08 Pink Panther, 7-digit conversion)
 DRIVERNV(mars)          //S80-666:  03/81 Mars God of War
+DRIVERNV(marsf)         //S80-666:  03/81 Mars God of War (French speech)
 DRIVERNV(mars7)         //          01/08 Mars God of War, 7-digit conversion)
 DRIVERNV(vlcno_ax)      //S80-667:  09/81 Volcano (Sound & Speech)
 DRIVERNV(vlcno_a7)      //          01/08 Volcano (Sound & Speech, 7-digit conversion)
@@ -695,15 +710,16 @@ DRIVERNV(olympic)       //Olympic Games (??/1984)
 // JUEGOS POPULARES
 // ----------------
 DRIVERNV(petaco  )      //1101  - Petaco (1984)
-DRIVERNV(petaco2 )      //1102? - Petaco 2 (1985)
+DRIVERNV(petacon )      //        Petaco (1985, using the new hardware)
+DRIVERNV(jpgame  )      //1102? - Unknown 6-digit game, maybe an alternative version of Petaco?
 DRIVERNV(faeton  )      //1103  - Faeton (1985)
 DRIVERNV(halley  )      //1104  - Halley Comet (1986)
 DRIVERNV(halleya )      //        Halley Comet (alternate version)
 DRIVERNV(aqualand)      //1105  - Aqualand (1986)
-DRIVERNV(jpgame  )      //1106  - UNKNOWN (1986, certified because sound ROMs exist!)
+DRIVERNV(petaco2 )      //1106  - Petaco 2 (1986)
 DRIVERNV(america )      //1107  - America 1492 (1986)
 DRIVERNV(olympus )      //1108  - Olympus (1986)
-                        //1109  - UNKNOWN, maybe never produced?
+                        //1109  - Unknown game, maybe never produced?
 DRIVERNV(lortium )      //1110  - Lortium (1987)
 DRIVERNV(pimbal  )      //????  - Pimbal (Pinball 3000, 19??)
 
@@ -739,6 +755,17 @@ DRIVERNV(pecmen  )      //Mr. & Mrs. Pec-Men (clone of Bally's... guess the game
                         //Time Machine
                         //Trick Shooter
                         //Viking King
+
+// ----------------
+// MAC GAMES
+// ----------------
+DRIVERNV(macgalxy)      //MAC Galaxy (1986)
+DRIVERNV(spctrain)      //Space Train (1987)
+//DRIVERNV(macjungl)    //MAC Jungle (1987)
+DRIVERNV(spcpnthr)      //Space Panther (1988)
+DRIVERNV(mac_1808)      //Unknown MAC game #1808 (19??)
+//DRIVERNV(macjungn)    //New MAC Jungle (1995)
+DRIVERNV(nbamac)        //MBA MAC (1996)
 
 // ----------------
 // MICROPIN GAMES
@@ -838,6 +865,7 @@ DRIVERNV(frankstg)      //DE/Sega MPU: 01/95 Frankenstein (Germany)
 DRIVERNV(baywatch)      //DE/Sega MPU: 03/95 Baywatch 4.00
 DRIVERNV(bay_d400)      //DE/Sega MPU: 03/95 Baywatch 4.00 (Dutch/Holland/Netherlands)
 DRIVERNV(bay_e400)      //DE/Sega MPU: 03/95 Baywatch 4.00 (England)
+DRIVERNV(bay_d300)      //DE/Sega MPU: 03/95 Baywatch 3.00 (Dutch/Holland/Netherlands)
 DRIVERNV(batmanf)       //DE/Sega MPU: 07/95 Batman Forever (4.0)
 DRIVERNV(batmanf3)      //DE/Sega MPU: 07/95 Batman Forever (3.0)
 DRIVERNV(batmanf2)      //DE/Sega MPU: 07/95 Batman Forever (2.02)
@@ -892,6 +920,7 @@ DRIVERNV(vipr_102)      //Whitestar: 02/98 Viper Night Drivin' (1.02)
 DRIVERNV(lostspc)       //Whitestar: 06/98 Lost in Space
 DRIVERNV(goldcue)       //Whitestar: 06/98 Golden Cue
 DRIVERNV(godzilla)      //Whitestar: 09/98 Godzilla (2.05)
+DRIVERNV(godz_100)      //Whitestar: 09/98 Godzilla (1.00)
 DRIVERNV(godz_090)      //Whitestar: 09/98 Godzilla (0.90)
 DRIVER  (sprk,090)      //Whitestar: 01/99 South Park (0.90)
 DRIVER  (sprk,096)      //Whitestar: 01/99 South Park (0.96)
@@ -907,7 +936,7 @@ DRIVER  (harl,l13)      //Whitestar: 10/99 Harley Davidson (1.03 Spain)
 // ----------------
 // SLEIC
 // ----------------
-                        // Bike Race (1992)
+DRIVERNV(bikerace)      // Bike Race (1992)
 DRIVERNV(sleicpin)      // Pin-Ball (1993)
 DRIVERNV(iomoon)        // Io Moon (1994)
                         // Dona Elvira 2 (1996)
@@ -1310,31 +1339,35 @@ DRIVERNV(gpr301g)       //Whitestar: 09/05 Grand Prix (3.01 Germany)
 DRIVERNV(gpr301l)       //Whitestar: 09/05 Grand Prix (3.01 Spain)
 DRIVERNV(gpr301f)       //Whitestar: 09/05 Grand Prix (3.01 France)
 DRIVERNV(gpr301i)       //Whitestar: 09/05 Grand Prix (3.01 Italy)
+DRIVERNV(dalejr)        //Whitestar: 07/06 Dale Jr. (Nascar 5.00)
                         //Whitestar: ??/06 The Brain (Simpsons Pinball Party conversion)
 
 // Stern S.A.M System
 #ifdef INCLUDE_STERN_SAM
 DRIVER(sam1_flashb,0102)//S.A.M: 02/06 S.A.M System Flash Boot - V1.02
 DRIVER(sam1_flashb,0106)//S.A.M: 08/06 S.A.M System Flash Boot - V1.06
+DRIVER(sam1_flashb,0210)//S.A.M: ??/07 S.A.M System Flash Boot - V2.10
+DRIVER(sam1_flashb,0230)//S.A.M: ??/07 S.A.M System Flash Boot - V2.30
 DRIVER(sam1_flashb,0310)//S.A.M: 01/08 S.A.M System Flash Boot - V3.10
-DRIVER(wpt,103a)        //S.A.M: ??/06 World Poker Tour - V1.03
-DRIVER(wpt,105a)        //S.A.M: 02/06 World Poker Tour - V1.05
-DRIVER(wpt,106a)        //S.A.M: 02/06 World Poker Tour - V1.06
+DRIVER(wpt,103a)        //S.A.M: 02/06 World Poker Tour - V1.03 (English)
+DRIVER(wpt,105a)        //S.A.M: 02/06 World Poker Tour - V1.05 (English)
+DRIVER(wpt,106a)        //S.A.M: 02/06 World Poker Tour - V1.06 (English)
 DRIVER(wpt,106f)        //S.A.M: 02/06 World Poker Tour - V1.06 (French)
 DRIVER(wpt,106g)        //S.A.M: 02/06 World Poker Tour - V1.06 (German)
 DRIVER(wpt,106i)        //S.A.M: 02/06 World Poker Tour - V1.06 (Italian)
 DRIVER(wpt,106l)        //S.A.M: 02/06 World Poker Tour - V1.06 (Spanish)
-DRIVER(wpt,108a)        //S.A.M: 03/06 World Poker Tour - V1.08
+DRIVER(wpt,108a)        //S.A.M: 03/06 World Poker Tour - V1.08 (English)
 DRIVER(wpt,108f)        //S.A.M: 03/06 World Poker Tour - V1.08 (French)
 DRIVER(wpt,108g)        //S.A.M: 03/06 World Poker Tour - V1.08 (German)
 DRIVER(wpt,108i)        //S.A.M: 03/06 World Poker Tour - V1.08 (Italian)
 DRIVER(wpt,108l)        //S.A.M: 03/06 World Poker Tour - V1.08 (Spanish)
-DRIVER(wpt,109a)        //S.A.M: 03/06 World Poker Tour - V1.09
+DRIVER(wpt,109a)        //S.A.M: 03/06 World Poker Tour - V1.09 (English)
 DRIVER(wpt,109f)        //S.A.M: 03/06 World Poker Tour - V1.09 (French)
+DRIVER(wpt,109f2)       //S.A.M: 03/06 World Poker Tour - V1.09.2 (French)
 DRIVER(wpt,109g)        //S.A.M: 03/06 World Poker Tour - V1.09 (German)
 DRIVER(wpt,109i)        //S.A.M: 03/06 World Poker Tour - V1.09 (Italian)
 DRIVER(wpt,109l)        //S.A.M: 03/06 World Poker Tour - V1.09 (Spanish)
-DRIVER(wpt,111a)        //S.A.M: 08/06 World Poker Tour - V1.11
+DRIVER(wpt,111a)        //S.A.M: 08/06 World Poker Tour - V1.11 (English)
 DRIVER(wpt,111af)       //S.A.M: 08/06 World Poker Tour - V1.11 (English, French)
 DRIVER(wpt,111ai)       //S.A.M: 08/06 World Poker Tour - V1.11 (English, Italian)
 DRIVER(wpt,111al)       //S.A.M: 08/06 World Poker Tour - V1.11 (English, Spanish)
@@ -1343,7 +1376,7 @@ DRIVER(wpt,111g)        //S.A.M: 08/06 World Poker Tour - V1.11 (German)
 DRIVER(wpt,111gf)       //S.A.M: 08/06 World Poker Tour - V1.11 (German, French)
 DRIVER(wpt,111i)        //S.A.M: 08/06 World Poker Tour - V1.11 (Italian)
 DRIVER(wpt,111l)        //S.A.M: 08/06 World Poker Tour - V1.11 (Spanish)
-DRIVER(wpt,112a)        //S.A.M: 11/06 World Poker Tour - V1.12
+DRIVER(wpt,112a)        //S.A.M: 11/06 World Poker Tour - V1.12 (English)
 DRIVER(wpt,112af)       //S.A.M: 11/06 World Poker Tour - V1.12 (English, French)
 DRIVER(wpt,112ai)       //S.A.M: 11/06 World Poker Tour - V1.12 (English, Italian)
 DRIVER(wpt,112al)       //S.A.M: 11/06 World Poker Tour - V1.12 (English, Spanish)
@@ -1352,7 +1385,8 @@ DRIVER(wpt,112g)        //S.A.M: 11/06 World Poker Tour - V1.12 (German)
 DRIVER(wpt,112gf)       //S.A.M: 11/06 World Poker Tour - V1.12 (German, French)
 DRIVER(wpt,112i)        //S.A.M: 11/06 World Poker Tour - V1.12 (Italian)
 DRIVER(wpt,112l)        //S.A.M: 11/06 World Poker Tour - V1.12 (Spanish)
-DRIVER(wpt,140a)        //S.A.M: 01/08 World Poker Tour - V14.0
+DRIVER(wpt,1129f)       //S.A.M: 11/06 World Poker Tour - V1.129 (French)
+DRIVER(wpt,140a)        //S.A.M: 01/08 World Poker Tour - V14.0 (English)
 DRIVER(wpt,140af)       //S.A.M: 01/08 World Poker Tour - V14.0 (English, French)
 DRIVER(wpt,140ai)       //S.A.M: 01/08 World Poker Tour - V14.0 (English, Italian)
 DRIVER(wpt,140al)       //S.A.M: 01/08 World Poker Tour - V14.0 (English, Spanish)
@@ -1363,12 +1397,16 @@ DRIVER(wpt,140i)        //S.A.M: 01/08 World Poker Tour - V14.0 (Italian)
 DRIVER(wpt,140l)        //S.A.M: 01/08 World Poker Tour - V14.0 (Spanish)
 DRIVERNV(scarn9nj)      //S.A.M: ??/06 Simpsons Kooky Carnival (Redemption) - V0.9 New Jersey
 DRIVERNV(scarn103)      //S.A.M: 04/06 Simpsons Kooky Carnival (Redemption) - V1.03
-DRIVERNV(scarn)         //S.A.M: 08/06 Simpsons Kooky Carnival (Redemption) - V1.05
+DRIVERNV(scarn105)      //S.A.M: 08/06 Simpsons Kooky Carnival (Redemption) - V1.05
+DRIVERNV(scarn200)      //S.A.M: 02/08 Simpsons Kooky Carnival (Redemption) - V2.00
 DRIVER(potc,108as)      //S.A.M: 07/06 Pirates of the Caribbean - V1.08 (English, Spanish)
 DRIVER(potc,109af)      //S.A.M: 08/06 Pirates of the Caribbean - V1.09 (English, French)
 DRIVER(potc,109ai)      //S.A.M: 08/06 Pirates of the Caribbean - V1.09 (English, Italian)
 DRIVER(potc,109as)      //S.A.M: 08/06 Pirates of the Caribbean - V1.09 (English, Spanish)
 DRIVER(potc,109gf)      //S.A.M: 08/06 Pirates of the Caribbean - V1.09 (German, French)
+DRIVER(potc,110af)      //S.A.M: 08/06 Pirates of the Caribbean - V1.10 (English, French)
+DRIVER(potc,110ai)      //S.A.M: 08/06 Pirates of the Caribbean - V1.10 (English, Italian)
+DRIVER(potc,110gf)      //S.A.M: 08/06 Pirates of the Caribbean - V1.10 (German, French)
 DRIVER(potc,111as)      //S.A.M: 08/06 Pirates of the Caribbean - V1.11 (English, Spanish)
 DRIVER(potc,113af)      //S.A.M: 09/06 Pirates of the Caribbean - V1.13 (English, French)
 DRIVER(potc,113ai)      //S.A.M: 09/06 Pirates of the Caribbean - V1.13 (English, Italian)
@@ -1378,16 +1416,24 @@ DRIVER(potc,115af)      //S.A.M: 11/06 Pirates of the Caribbean - V1.15 (English
 DRIVER(potc,115ai)      //S.A.M: 11/06 Pirates of the Caribbean - V1.15 (English, Italian)
 DRIVER(potc,115as)      //S.A.M: 11/06 Pirates of the Caribbean - V1.15 (English, Spanish)
 DRIVER(potc,115gf)      //S.A.M: 11/06 Pirates of the Caribbean - V1.15 (German, French)
+DRIVER(potc,300af)      //S.A.M: ??/07 Pirates of the Caribbean - V3.0  (English, French)
+DRIVER(potc,300ai)      //S.A.M: ??/07 Pirates of the Caribbean - V3.0  (English, Italian)
+DRIVER(potc,300al)      //S.A.M: ??/07 Pirates of the Caribbean - V3.0  (English, Spanish)
+DRIVER(potc,300gf)      //S.A.M: ??/07 Pirates of the Caribbean - V3.0  (German, French)
 DRIVER(potc,400af)      //S.A.M: 04/07 Pirates of the Caribbean - V4.0  (English, French)
 DRIVER(potc,400ai)      //S.A.M: 04/07 Pirates of the Caribbean - V4.0  (English, Italian)
-DRIVER(potc,400al)      //S.A.M: 04/07 Pirates of the Caribbean - V4.0  (English, Spanish)
+DRIVER(potc,400al)      //S.A.M: 04/07 Pirates of the Caribbean - V4.0 (English, Spanish)
 DRIVER(potc,400gf)      //S.A.M: 04/07 Pirates of the Caribbean - V4.0  (German, French)
 DRIVER(potc,600af)      //S.A.M: 01/08 Pirates of the Caribbean - V6.0  (English, French)
 DRIVER(potc,600ai)      //S.A.M: 01/08 Pirates of the Caribbean - V6.0  (English, Italian)
 DRIVER(potc,600as)      //S.A.M: 01/08 Pirates of the Caribbean - V6.0  (English, Spanish)
 DRIVER(potc,600gf)      //S.A.M: 01/08 Pirates of the Caribbean - V6.0  (German, French)
-DRIVER(fg,200a)         //S.A.M: 02/07 Family Guy - V2.00
+DRIVER(fg,200a)         //S.A.M: 02/07 Family Guy - V2.00  (English)
 DRIVER(fg,300ai)        //S.A.M: 02/07 Family Guy - V3.00  (English, Italian)
+DRIVER(fg,400a)			//S.A.M: 02/07 Family Guy - V4.00  (English)
+DRIVER(fg,400ag)		//S.A.M: 02/07 Family Guy - V4.00  (English, German)
+DRIVER(fg,700af)		//S.A.M: 03/07 Family Guy - V7.00  (English, French)
+DRIVER(fg,700al)		//S.A.M: 03/07 Family Guy - V7.00  (English, Spanish)
 DRIVER(fg,800al)        //S.A.M: 03/07 Family Guy - V8.00  (English, Spanish)
 DRIVER(fg,1000af)       //S.A.M: 03/07 Family Guy - V10.00 (English, French)
 DRIVER(fg,1000ag)       //S.A.M: 03/07 Family Guy - V10.00 (English, German)
@@ -1406,6 +1452,17 @@ DRIVER(sman,130ai)      //S.A.M: 06/07 Spider-Man - V1.30 (English, Italian)
 DRIVER(sman,130al)      //S.A.M: 06/07 Spider-Man - V1.30 (English, Spanish)
 DRIVER(sman,130gf)      //S.A.M: 06/07 Spider-Man - V1.30 (German, French)
 DRIVER(sman,132)        //S.A.M: ??/07 Spider-Man - V1.32
+DRIVER(sman,140)        //S.A.M: ??/07 Spider-Man - V1.40
+DRIVER(sman,140af)      //S.A.M: ??/07 Spider-Man - V1.40 (English, French)
+DRIVER(sman,140ai)      //S.A.M: ??/07 Spider-Man - V1.40 (English, Italian)
+DRIVER(sman,140al)      //S.A.M: ??/07 Spider-Man - V1.40 (English, Spanish)
+DRIVER(sman,140gf)      //S.A.M: ??/07 Spider-Man - V1.40 (German, French)
+DRIVER(sman,142)        //S.A.M: ??/07 Spider-Man - V1.42
+DRIVER(sman,160)        //S.A.M: ??/07 Spider-Man - V1.60
+DRIVER(sman,160af)      //S.A.M: ??/07 Spider-Man - V1.60 (English, French)
+DRIVER(sman,160ai)      //S.A.M: ??/07 Spider-Man - V1.60 (English, Italian)
+DRIVER(sman,160al)      //S.A.M: ??/07 Spider-Man - V1.60 (English, Spanish)
+DRIVER(sman,160gf)      //S.A.M: ??/07 Spider-Man - V1.60 (German, French)
 DRIVER(sman,170)        //S.A.M: ??/07 Spider-Man - V1.70
 DRIVER(sman,170af)      //S.A.M: ??/07 Spider-Man - V1.70 (English, French)
 DRIVER(sman,170ai)      //S.A.M: ??/07 Spider-Man - V1.70 (English, Italian)
@@ -1421,12 +1478,20 @@ DRIVER(sman,192af)      //S.A.M: 01/08 Spider-Man - V1.92 (English, French)
 DRIVER(sman,192ai)      //S.A.M: 01/08 Spider-Man - V1.92 (English, Italian)
 DRIVER(sman,192al)      //S.A.M: 01/08 Spider-Man - V1.92 (English, Spanish)
 DRIVER(sman,192gf)      //S.A.M: 01/08 Spider-Man - V1.92 (German, French)
+DRIVER(sman,200)        //S.A.M: 12/08 Spider-Man - V2.0
 DRIVER(sman,210)        //S.A.M: 12/08 Spider-Man - V2.1
 DRIVER(sman,210af)      //S.A.M: 12/08 Spider-Man - V2.1  (English, French)
 DRIVER(sman,210ai)      //S.A.M: 12/08 Spider-Man - V2.1  (English, Italian)
 DRIVER(sman,210al)      //S.A.M: 12/08 Spider-Man - V2.1  (English, Spanish)
 DRIVER(sman,210gf)      //S.A.M: 12/08 Spider-Man - V2.1  (German, French)
+DRIVER(sman,220)        //S.A.M: ??/0? Spider-Man - V2.2
+DRIVER(sman,230)        //S.A.M: ??/0? Spider-Man - V2.3
 DRIVER(sman,240)        //S.A.M: 11/09 Spider-Man - V2.4
+DRIVER(sman,250)        //S.A.M: ??/?? Spider-Man - V2.5
+DRIVER(sman,260)		//S.A.M: 11/10 Spider-Man - V2.6
+DRIVER(sman,261)		//S.A.M: ??/1? Spider-Man - V2.61
+DRIVER(sman,261x)       //S.A.M: ??/1? Spider-Man - V2.61x (hacked 2.60 plunger lane music)
+DRIVER(sman,262x)       //S.A.M: ??/1? Spider-Man - V2.62x (hacked 2.60 music)
 DRIVER(wof,100)         //S.A.M: 11/07 Wheel of Fortune - V1.0
 DRIVER(wof,200)         //S.A.M: 11/07 Wheel of Fortune - V2.0
 DRIVER(wof,200f)        //S.A.M: 11/07 Wheel of Fortune - V2.0 (French)
@@ -1441,7 +1506,7 @@ DRIVER(wof,400)         //S.A.M: 12/07 Wheel of Fortune - V4.0
 DRIVER(wof,400f)        //S.A.M: 12/07 Wheel of Fortune - V4.0 (French)
 DRIVER(wof,400g)        //S.A.M: 12/07 Wheel of Fortune - V4.0 (German)
 DRIVER(wof,400i)        //S.A.M: 12/07 Wheel of Fortune - V4.0 (Italian)
-DRIVER(wof,400l)        //S.A.M: 12/07 Wheel of Fortune - V4.0 (Spanish)
+DRIVER(wof,401l)        //S.A.M: 12/07 Wheel of Fortune - V4.01 (Spanish)
 DRIVER(wof,500)         //S.A.M: 12/07 Wheel of Fortune - V5.0
 DRIVER(wof,500f)        //S.A.M: 12/07 Wheel of Fortune - V5.0 (French)
 DRIVER(wof,500g)        //S.A.M: 12/07 Wheel of Fortune - V5.0 (German)
@@ -1464,16 +1529,21 @@ DRIVER(ij4,116f)        //S.A.M: 09/08 Indiana Jones - V1.16 (French)
 DRIVER(ij4,116g)        //S.A.M: 09/08 Indiana Jones - V1.16 (German)
 DRIVER(ij4,116i)        //S.A.M: 09/08 Indiana Jones - V1.16 (Italian)
 DRIVER(ij4,116l)        //S.A.M: 09/08 Indiana Jones - V1.16 (Spanish)
-DRIVER(ij4,210)         //S.A.M: ??/09 Indiana Jones - V2.1
-DRIVER(ij4,210f)        //S.A.M: ??/09 Indiana Jones - V2.1 (French)
-DRIVER(bdk,130)         //S.A.M: 07/08 Batman - The Dark Knight - V1.3
-DRIVER(bdk,200)         //S.A.M: 08/08 Batman - The Dark Knight - V2.0
+DRIVER(ij4,210)         //S.A.M: 01/09 Indiana Jones - V2.10
+DRIVER(ij4,210f)        //S.A.M: 01/09 Indiana Jones - V2.10 (French)
+DRIVER(bdk,130)         //S.A.M: 07/08 Batman - The Dark Knight - V1.30
+DRIVER(bdk,150)         //S.A.M: 07/08 Batman - The Dark Knight - V1.50
+DRIVER(bdk,160)         //S.A.M: 07/08 Batman - The Dark Knight - V1.60
+DRIVER(bdk,200)         //S.A.M: 08/08 Batman - The Dark Knight - V2.00
 DRIVER(bdk,201)         //S.A.M: 08/08 Batman - The Dark Knight - V2.01
 DRIVER(bdk,202)         //S.A.M: 08/08 Batman - The Dark Knight - V2.02
-DRIVER(bdk,240)         //S.A.M: 11/09 Batman - The Dark Knight - V2.4
-DRIVER(bdk,290)         //S.A.M: 05/10 Batman - The Dark Knight - V2.9
-DRIVER(bdk,294)         //S.A.M: 05/10 Batman - The Dark Knight - V2.94
+DRIVER(bdk,240)         //S.A.M: 11/09 Batman - The Dark Knight - V2.40 (scarecrow sometimes 2 balls, sometimes 3 balls)
+DRIVER(bdk,290)         //S.A.M: 05/10 Batman - The Dark Knight - V2.90 (with 3 ball scarecrow multiball)
+DRIVER(bdk,294)         //S.A.M: 05/10 Batman - The Dark Knight - V2.94 (back to 2 ball scarecrow multiball)
+DRIVER(bdk,300)         //S.A.M: ??/1? Batman - The Dark Knight - V3.00 Home Edition/Costco
 DRIVER(csi,102)         //S.A.M: 11/08 C.S.I. - V1.02
+DRIVER(csi,103)         //S.A.M: 11/08 C.S.I. - V1.03
+DRIVER(csi,104)         //S.A.M: 11/08 C.S.I. - V1.04
 DRIVER(csi,200)         //S.A.M: 12/08 C.S.I. - V2.0
 DRIVER(csi,210)         //S.A.M: 01/09 C.S.I. - V2.1
 DRIVER(csi,230)         //S.A.M: 08/09 C.S.I. - V2.3
@@ -1482,6 +1552,7 @@ DRIVER(twenty4,130)     //S.A.M: 03/09 24 - V1.3
 DRIVER(twenty4,140)     //S.A.M: 03/09 24 - V1.4
 DRIVER(twenty4,144)     //S.A.M: 09/09 24 - V1.44
 DRIVER(twenty4,150)     //S.A.M: 05/10 24 - V1.5
+DRIVER(nba,500)         //S.A.M: 05/09 NBA - V5.0
 DRIVER(nba,600)         //S.A.M: 06/09 NBA - V6.0
 DRIVER(nba,700)         //S.A.M: 06/09 NBA - V7.0
 DRIVER(nba,801)         //S.A.M: 08/09 NBA - V8.01
@@ -1489,10 +1560,127 @@ DRIVER(nba,802)         //S.A.M: 11/09 NBA - V8.02
 DRIVER(bbh,140)         //S.A.M: 02/10 Big Buck Hunter Pro - V1.4
 DRIVER(bbh,150)         //S.A.M: 02/10 Big Buck Hunter Pro - V1.5
 DRIVER(bbh,160)         //S.A.M: 05/10 Big Buck Hunter Pro - V1.6
+DRIVER(bbh,170)         //S.A.M: 11/10 Big Buck Hunter Pro - V1.7
 DRIVER(im2,100)         //S.A.M: 04/10 Iron Man 2 - V1.0
 DRIVER(im2,110)         //S.A.M: 04/10 Iron Man 2 - V1.1
 DRIVER(im2,120)         //S.A.M: 04/10 Iron Man 2 - V1.2
 DRIVER(im2,140)         //S.A.M: 04/10 Iron Man 2 - V1.4
+DRIVER(im2,160)         //S.A.M: 11/11 Iron Man 2 - V1.6
+DRIVER(im2,181)         //S.A.M: 07/14 Iron Man 2 - V1.81
+DRIVER(im2,182)         //S.A.M: 07/14 Iron Man 2 - V1.82
+DRIVER(im2,183)         //S.A.M: 08/14 Iron Man 2 - V1.83
+DRIVER(im2,183ve)       //S.A.M: 08/14 Iron Man 2 - V1.83 Vault Edition
+DRIVER(avr,101h)        //S.A.M: 12/10 Avatar - V1.01 Limited Edition
+DRIVER(avr,106)         //S.A.M: 10/10 Avatar - V1.06
+DRIVER(avr,110)         //S.A.M: 11/11 Avatar - V1.10
+DRIVER(avr,120h)        //S.A.M: 11/11 Avatar - V1.20 Limited Edition
+DRIVER(avr,200)         //S.A.M: ??/14 Avatar - V2.00 (New CPU)
+DRIVER(rsn,100h)        //S.A.M: 04/11 Rolling Stones - V1.00 Limited Edition
+DRIVER(rsn,103)         //S.A.M: 03/11 Rolling Stones - V1.03
+DRIVER(rsn,105)         //S.A.M: 03/11 Rolling Stones - V1.05
+DRIVER(rsn,110)         //S.A.M: 11/11 Rolling Stones - V1.10
+DRIVER(rsn,110h)        //S.A.M: 11/11 Rolling Stones - V1.10 Limited Edition
+DRIVER(trn,100h)        //S.A.M: 05/11 Tron Limited Edition - V1.00
+DRIVER(trn,110)         //S.A.M: 05/11 Tron - V1.10
+DRIVER(trn,110h)        //S.A.M: 05/11 Tron Limited Edition - V1.10
+DRIVER(trn,120)         //S.A.M: 06/11 Tron - V1.20
+DRIVER(trn,130h)        //S.A.M: ??/1? Tron Limited Edition - V1.30 (Stern skipped over Tron LE 1.20)
+DRIVER(trn,140)         //S.A.M: 06/11 Tron - V1.40 (Stern skipped over Tron 1.30)
+DRIVER(trn,140h)        //S.A.M: ??/1? Tron Limited Edition - V1.40
+DRIVER(trn,150)         //S.A.M: 06/11 Tron - V1.50
+DRIVER(trn,160)         //S.A.M: 08/11 Tron - V1.60
+DRIVER(trn,170)         //S.A.M: 11/11 Tron - V1.70
+DRIVER(trn,174)         //S.A.M: ??/1? Tron - V1.74
+DRIVER(trn,174h)        //S.A.M: ??/1? Tron Limited Edition - V1.74
+DRIVER(trn,17402)       //S.A.M: ??/14 Tron - V1.7402 (New CPU)
+DRIVER(tf,088h)         //S.A.M: ??/11 Transformers - V0.88 Limited Edition
+DRIVER(tf,100h)         //S.A.M: ??/11 Transformers - V1.00 Limited Edition
+DRIVER(tf,120)          //S.A.M: 10/11 Transformers - V1.20
+DRIVER(tf,120h)         //S.A.M: 12/11 Transformers - V1.20 Limited Edition
+DRIVER(tf,130h)         //S.A.M: 01/12 Transformers - V1.30 Limited Edition
+DRIVER(tf,140)          //S.A.M: 12/11 Transformers - V1.40
+DRIVER(tf,140h)         //S.A.M: 01/12 Transformers - V1.40 Limited Edition
+DRIVER(tf,150)          //S.A.M: 01/12 Transformers - V1.50
+DRIVER(tf,150h)         //S.A.M: ??/1? Transformers - V1.50 Limited Edition
+DRIVER(tf,160)          //S.A.M: ??/1? Transformers - V1.60
+DRIVER(tf,170)          //S.A.M: ??/1? Transformers - V1.70
+DRIVER(tf,180)          //S.A.M: ??/1? Transformers - V1.80
+DRIVER(tf,180h)         //S.A.M: ??/1? Transformers - V1.80 Limited Edition
+DRIVER(acd,121)         //S.A.M: 02/12 AC/DC
+DRIVER(acd,125)
+DRIVER(acd,130)
+DRIVER(acd,140)
+DRIVER(acd,150)
+DRIVER(acd,150h)
+DRIVER(acd,152)
+DRIVER(acd,152h)
+DRIVER(acd,160)
+DRIVER(acd,160h)
+DRIVER(acd,161)
+DRIVER(acd,161h)
+DRIVER(acd,163)
+DRIVER(acd,163h)
+DRIVER(acd,165)
+DRIVER(acd,165h)
+DRIVER(acd,168)
+DRIVER(acd,168h)
+DRIVER(xmn,102)         //S.A.M: ??/12 X-Men
+DRIVER(xmn,104)
+DRIVER(xmn,105)
+DRIVER(xmn,120h)
+DRIVER(xmn,121h)
+DRIVER(xmn,122h)
+DRIVER(xmn,123h)
+DRIVER(xmn,124h)
+DRIVER(xmn,130)
+DRIVER(xmn,130h)
+DRIVER(xmn,150)
+DRIVER(xmn,150h)
+DRIVER(xmn,151)
+DRIVER(xmn,151h)
+DRIVER(avs,110)         //S.A.M: ??/12 Avengers
+DRIVER(avs,120h)
+DRIVER(avs,140)
+DRIVER(avs,140h)
+DRIVER(mtl,103)         //S.A.M: ??/13 Metallica
+DRIVER(mtl,105)
+DRIVER(mtl,106)
+DRIVER(mtl,112)
+DRIVER(mtl,113)
+DRIVER(mtl,113h)
+DRIVER(mtl,116)
+DRIVER(mtl,116h)
+DRIVER(mtl,120)
+DRIVER(mtl,120h)
+DRIVER(mtl,122)
+DRIVER(mtl,122h)
+DRIVER(mtl,150)
+DRIVER(mtl,150h)
+DRIVER(mtl,151)
+DRIVER(mtl,151h)
+DRIVER(mtl,160)
+DRIVER(mtl,160h)
+DRIVER(mtl,163)
+DRIVER(mtl,163d)        // LED version
+DRIVER(mtl,163h)
+DRIVER(st,120)          //S.A.M: ??/13 Star Trek
+DRIVER(st,130)
+DRIVER(st,140)
+DRIVER(st,140h)
+DRIVER(st,141h)
+DRIVER(st,142h)
+DRIVER(st,150)
+DRIVER(st,150h)
+DRIVER(mt,120)          //S.A.M: ??/14 Mustang
+DRIVER(mt,130)
+DRIVER(mt,130h)
+DRIVER(mt,140)
+DRIVER(mt,140h)
+DRIVER(twd,105)         //S.A.M: ??/14 The Walking Dead - V1.05
+DRIVER(twd,111)         //S.A.M: 10/14 The Walking Dead - V1.11
+DRIVER(twd,111h)        //S.A.M: 10/14 The Walking Dead - V1.11 Limited Edition
+DRIVER(twd,119)         //S.A.M: 11/14 The Walking Dead - V1.19
+DRIVER(twd,119h)        //S.A.M: 11/14 The Walking Dead - V1.19 Limited Edition
 #endif
 
 // ---------------
@@ -1800,6 +1988,7 @@ DRIVER(bbnny,lu)        //          12/90 B Bugs Bunny's Birthday Ball (LU-2) Eu
 DRIVER(dd,p06)          //WPC-2016: 08/90 B Dr. Dude (P-6 WPC)
 DRIVER(dd,p7)           //          09/90 B Dr. Dude (P-7 WPC)
                         //WPC-503:  11/90 W Funhouse (L-1)
+DRIVER(fh,l2)           //          12/90 W Funhouse (L-2)
 DRIVER(fh,l3)           //          12/90 W Funhouse (L-3)
 DRIVER(fh,d3)           //                  Funhouse (D-3) LED Ghost Fix
 DRIVER(fh,l4)           //          01/91 W Funhouse (L-4)
@@ -2042,6 +2231,8 @@ DRIVER(dm,dh5)          //                  Demolition Man (DH-5) with rude spee
 DRIVER(dm,dh5b)         //                  Demolition Man (DH-5) with rude speech LED Ghost Fix (Coin Play)
 DRIVER(dm,h6)           //          08/95 W Demolition Man (H-6) with rude speech
 DRIVER(dm,h6b)          //                  Demolition Man (H-6) with rude speech (Coin Play)
+DRIVER(dm,dt099)        //          04/14   Demolition Man (FreeWPC/Demolition Time 0.99)
+DRIVER(dm,dt101)        //          09/14   Demolition Man (FreeWPC/Demolition Time 1.01)
 DRIVER(tafg,h3)         //WPC-538:  08/94 B The Addams Family Special Collectors Edition (Home version)
 DRIVER(tafg,i3)         //                  The Addams Family Special Collectors Edition (Home version, LED Ghost Fix)
 DRIVER(tafg,lx3)        //          10/94 B The Addams Family Special Collectors Edition (LX-3)

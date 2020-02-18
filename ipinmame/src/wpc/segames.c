@@ -125,9 +125,6 @@ CORE_CLONEDEF(twst,300,405,"Twister (3.00)",1996,"Sega",de_mSES1,0)
 /*-------------------------------------------------------------------
 / ID4: Independence Day
 /-------------------------------------------------------------------*/
-/*-------------------------------------------------------------------
-/ ID4: Independence Day
-/-------------------------------------------------------------------*/
 INITGAME(id4,GEN_WS,se_dmd128x32,0)
 SE128_ROMSTART(id4, "id4cpu.202",CRC(108d88fd) SHA1(8317944201acfb97dadfdd364696c9e81a21d2c5))
 DE_DMD32ROM8x(    "id4dspa.200",CRC(2d3fbcc4) SHA1(0bd69ebb68ae880ac9aae40916f13e1ff84ecfaa))
@@ -394,6 +391,18 @@ DE2S_SOUNDROM14444("gdzu7.100" ,CRC(a0afe8b7) SHA1(33e4a824b26b58e8f963fa8a525a6
 SE_ROMEND
 #define input_ports_godzilla input_ports_se
 CORE_GAMEDEFNV(godzilla,"Godzilla (2.05)",1998,"Sega",de_mSES1,0)
+
+INITGAME(godz_100,GEN_WS,se_dmd128x32,0)
+SE128_ROMSTART(godz_100,"gdzcpu.100",CRC(55c46a98) SHA1(535c363fed2359add260149b6407dc95da32a1e3))
+DE_DMD32ROM8x(  "gzdspa.100",CRC(9b97cd98) SHA1(6fd002a6986aa32832c0628899ba1bafe3642354))
+DE2S_SOUNDROM14444("gdzu7.100" ,CRC(a0afe8b7) SHA1(33e4a824b26b58e8f963fa8a525a64f4779b45db),
+                  "gdzu17.100",CRC(6bba69c8) SHA1(51341e188b4191eb1836349dfdd456163d464ad6),
+                  "gdzu21.100",CRC(db738958) SHA1(23082cf98bbcc6d356145414267da887a5ca9305),
+                  "gdzu36.100",CRC(e3f24234) SHA1(eb123200928221a647e10839ebb7f4628501c581),
+                  "gdzu37.100",CRC(2c1acb14) SHA1(4d710e09f5500da937932b4b01d862abb4a89e5a))
+SE_ROMEND
+#define input_ports_godz_100 input_ports_se
+CORE_GAMEDEFNV(godz_100,"Godzilla (1.00)",1998,"Sega",de_mSES1,0)
 
 INITGAME(godz_090,GEN_WS,se_dmd128x32,0)
 SE128_ROMSTART(godz_090,"gdzcpu.090",CRC(54e3b6d7) SHA1(c11cf71140c00c96c7feea569fa04f75061b9af7))
@@ -2362,6 +2371,17 @@ SE_ROMEND
 #define input_ports_nas301l input_ports_se
 #define init_nas301l init_nascar
 CORE_CLONEDEFNV(nas301l,nascar,"Nascar (3.01 Spain)",2005,"Stern",de_mSES3,GAME_IMPERFECT_SOUND)
+
+/*-------------------------------------------------------------------
+/ Dale Jr. (NASCAR 5.00)
+/-------------------------------------------------------------------*/
+INITGAME(dalejr,GEN_WS,se_dmd128x32,SE_LED)
+SE128_ROMSTART(dalejr, "dalecpu.500", CRC(b723b7db) SHA1(ee5f96599f8ccb0fda0695e5e8af438c3f559df3))
+DE_DMD32ROM8x(      "daledisp.500", CRC(5dad91cd) SHA1(ef9ce5573f580abc720a184625c96672b5337191))
+NASCAR_SND
+SE_ROMEND
+#define input_ports_dalejr input_ports_se
+CORE_GAMEDEFNV(dalejr,"Dale Jr. (5.00)",2006,"Stern",de_mSES3,0)
 
 /*-------------------------------------------------------------------
 / Grand Prix

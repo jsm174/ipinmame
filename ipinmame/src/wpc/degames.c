@@ -212,6 +212,14 @@ DE1S_SOUNDROM244(   "tmachf7.rom",CRC(0f518bd4) SHA1(05e24ca0e76d576c65d9d2a0141
 DE_ROMEND
 CORE_CLONEDEF(tmac,a18,a24,"Time Machine (1.8)",1988,"Data East",de_mDEAS1, 0)
 
+DE_ROMSTART48(tmac_g18,"tmachg18.b5",CRC(513d70ad) SHA1(dacdfc77956b1b5fb9bebca59fdb705aefa1b5b2),
+                    "tmachg18.c5",CRC(5a348def) SHA1(bf2b9a69d516d38e6f87c5886e0ba768c2dc28ab))
+DE1S_SOUNDROM244(   "tmachf7.rom",CRC(0f518bd4) SHA1(05e24ca0e76d576c65d9d2a01417f1ad2aa984bb),      //F7 on schem (sound)
+                    "tmachf6.rom",CRC(47e61641) SHA1(93cd946ebc9f69d82512429a9ae5f2754499b00a),      //F6 on schem (voice1)
+                    "tmachf4.rom",CRC(51e3aade) SHA1(38fc0f3a9c727bfd07fbcb16c3ca6d0560dc65c3))      //F4 on schem (voice2)
+DE_ROMEND
+CORE_CLONEDEF(tmac,g18,a24,"Time Machine (1.8 German)",1988,"Data East",de_mDEAS1, 0)
+
 /*-----------------------------------------------------------------------------------
 / Playboy 35th Anniversary - CPU Rev 2 /Alpha Type 2 - 32K Roms - 32/64K Sound Roms
 /-----------------------------------------------------------------------------------*/
@@ -608,7 +616,7 @@ DE2S_SOUNDROM042(     "s-wars.u7"  ,CRC(cefa19d5) SHA1(7ddf9cc85ab601514305bc460
                       "s-wars.u21" ,CRC(7b08fdf1) SHA1(489d21a10e97e886f948d81dedd7f8de3acecd2b))
 DE_ROMEND
 #define input_ports_stwr input_ports_des11
-CORE_GAMEDEF(stwr,104,"Star Wars (1.04)",1992,"Data East",de_mDEDMD32S2A,0)
+CORE_GAMEDEF(stwr,104,"Star Wars (1.04)",2012,"Data East",de_mDEDMD32S2A,0)
 
 DE_ROMSTARTx0(stwr_103,"starcpua.103",CRC(318085ca) SHA1(7c35bdee52e8093fe05f0624615baabe559a1917))
 DE_DMD32ROM8x(        "sw4mrom.a15",CRC(00c87952) SHA1(cd2f491f03fcb3e3ceff7ee7f678aa1957a5d14b))
@@ -616,15 +624,7 @@ DE2S_SOUNDROM042(     "s-wars.u7"  ,CRC(cefa19d5) SHA1(7ddf9cc85ab601514305bc460
                       "s-wars.u17" ,CRC(7950a147) SHA1(f5bcd5cf6b35f9e4f14d62b084495c3a743d92a1),
                       "s-wars.u21" ,CRC(7b08fdf1) SHA1(489d21a10e97e886f948d81dedd7f8de3acecd2b))
 DE_ROMEND
-CORE_CLONEDEF(stwr,103,104,"Star Wars (1.03)",1992,"Data East",de_mDEDMD32S2A,0)
-
-DE_ROMSTARTx0(stwr_g11,"starcpug.101",CRC(c74b4576) SHA1(67db9294cd802be8d62102fe756648f750821960))
-DE_DMD32ROM8x(        "swdsp_g.102",CRC(afdfbfc4) SHA1(1c3cd90b9cd4f88ee2b556abef863a0ae9a10056))
-DE2S_SOUNDROM042(     "s-wars.u7"  ,CRC(cefa19d5) SHA1(7ddf9cc85ab601514305bc46083a07a3d087b286),
-                      "s-wars.u17" ,CRC(7950a147) SHA1(f5bcd5cf6b35f9e4f14d62b084495c3a743d92a1),
-                      "s-wars.u21" ,CRC(7b08fdf1) SHA1(489d21a10e97e886f948d81dedd7f8de3acecd2b))
-DE_ROMEND
-CORE_CLONEDEF(stwr,g11,104,"Star Wars (1.01, Germany)",1992,"Data East",de_mDEDMD32S2A,0)
+CORE_CLONEDEF(stwr,103,104,"Star Wars (1.03, Display 1.05)",1992,"Data East",de_mDEDMD32S2A,0)
 
 DE_ROMSTARTx0(stwr_a14,"starcpua.103",CRC(318085ca) SHA1(7c35bdee52e8093fe05f0624615baabe559a1917))
 DE_DMD32ROM44(     "swrom1.a14",CRC(4d577828) SHA1(8b1f302621fe2ee13a067b9c97e3dc33f4519cea),
@@ -633,7 +633,7 @@ DE2S_SOUNDROM042(     "s-wars.u7"  ,CRC(cefa19d5) SHA1(7ddf9cc85ab601514305bc460
                       "s-wars.u17" ,CRC(7950a147) SHA1(f5bcd5cf6b35f9e4f14d62b084495c3a743d92a1),
                       "s-wars.u21" ,CRC(7b08fdf1) SHA1(489d21a10e97e886f948d81dedd7f8de3acecd2b))
 DE_ROMEND
-CORE_CLONEDEF(stwr,a14,104,"Star Wars (Display Rev.1.04)",1992,"Data East",de_mDEDMD32S2A,0)
+CORE_CLONEDEF(stwr,a14,104,"Star Wars (1.03, Display 1.04)",1992,"Data East",de_mDEDMD32S2A,0)
 
 /* USA CPU 1.02 (11/20/92) */
 DE_ROMSTARTx0(stwr_102,"starcpua.102",CRC(8b9d90d6) SHA1(2fb7594e6f4aae1dc3a07192546fabd2901acbed))
@@ -653,6 +653,13 @@ DE2S_SOUNDROM042(     "s-wars.u7"  ,CRC(cefa19d5) SHA1(7ddf9cc85ab601514305bc460
 DE_ROMEND
 CORE_CLONEDEF(stwr,e12,104,"Star Wars (1.02, England)",1992,"Data East",de_mDEDMD32S2A,0)
 
+DE_ROMSTARTx0(stwr_g11,"starcpug.101",CRC(c74b4576) SHA1(67db9294cd802be8d62102fe756648f750821960))
+DE_DMD32ROM8x(        "swdsp_g.102",CRC(afdfbfc4) SHA1(1c3cd90b9cd4f88ee2b556abef863a0ae9a10056))
+DE2S_SOUNDROM042(     "s-wars.u7"  ,CRC(cefa19d5) SHA1(7ddf9cc85ab601514305bc46083a07a3d087b286),
+                      "s-wars.u17" ,CRC(7950a147) SHA1(f5bcd5cf6b35f9e4f14d62b084495c3a743d92a1),
+                      "s-wars.u21" ,CRC(7b08fdf1) SHA1(489d21a10e97e886f948d81dedd7f8de3acecd2b))
+DE_ROMEND
+CORE_CLONEDEF(stwr,g11,104,"Star Wars (1.01, Germany)",1992,"Data East",de_mDEDMD32S2A,0)
 
 /*-------------------------------------------------------------
 / Rocky & Bullwinkle - CPU Rev 3b /DMD  Type 2 512K Rom - 64K CPU Rom
@@ -748,6 +755,14 @@ DE2S_SOUNDROM142(   "lahsnd.u7"  ,CRC(0279c45b) SHA1(14daf6b711d1936352209e90240
                     "lahsnd.u21" ,CRC(4571dc2e) SHA1(a1068cb080c30dbc07d164eddfc5dfd0afd52d3b))
 DE_ROMEND
 CORE_CLONEDEF(lah,110,112,"Last Action Hero (1.10)",1993,"Data East",de_mDEDMD32S2A,0)
+
+DE_ROMSTARTx0(lah_113,"lahcpua.113",CRC(d05fd307) SHA1(49c9e5ac509498a521f5dae062df5442d4e954ac))
+DE_DMD32ROM8x(      "lahdispa.106",CRC(ca6cfec5) SHA1(5e2081387d76bed17c14120cd347d6aaf435276b))
+DE2S_SOUNDROM142(   "lahsnd.u7"  ,CRC(0279c45b) SHA1(14daf6b711d1936352209e90240f51812ebe76e0),
+                    "lahsnd.u17" ,CRC(d0c15fa6) SHA1(5dcd13b578fa53c82353cda5aa774ca216c5ddfe),
+                    "lahsnd.u21" ,CRC(4571dc2e) SHA1(a1068cb080c30dbc07d164eddfc5dfd0afd52d3b))
+DE_ROMEND
+CORE_CLONEDEF(lah,113,112,"Last Action Hero (1.13 unofficial MOD)",2014,"Data East",de_mDEDMD32S2A,0)
 
 /*-------------------------------------------------------------
 / Tales From the Crypt - CPU Rev 3b /DMD  Type 2 512K Rom - 64K CPU Rom
@@ -896,6 +911,16 @@ DE_ROMEND
 #define input_ports_gnr input_ports_des11
 CORE_GAMEDEF(gnr,300,"Guns N Roses (3.00)",1994,"Data East",de_mDEDMD32S2A,0)
 
+DE_ROMSTARTx0(gnr_300f,"gnrcpuf.300",CRC(7f9006b2) SHA1(429d90fa27ea39176b94d1293a313ec3d1033dbc))
+DE_DMD32ROM8x(     "gnrdispf.300",CRC(63e9761a) SHA1(05e5a61b66148da7728779d8e5fa14a489e09441))
+DE2S_SOUNDROM14444("gnru7.snd"  ,CRC(3b9de915) SHA1(a901a1f37bf5433c819393c4355f9d13164b32ce),
+                   "gnru17.snd" ,CRC(3d3219d6) SHA1(ac4a6d3eff0cdd02b8c79dddcb8fec2e22faa9b9),
+                   "gnru21.snd" ,CRC(d2ca17ab) SHA1(db7c4f74a2e2c099fe14f38de922fdc851bd4a6b),
+                   "gnru36.snd" ,CRC(5b32396e) SHA1(66462a6a929c869d668968e057fac199d05df267),
+                   "gnru37.snd" ,CRC(4930e1f2) SHA1(1569d0c7fea1af008acbdc492c3677ace7d1897a))
+DE_ROMEND
+#define input_ports_gnrf input_ports_gnr
+CORE_CLONEDEF(gnr,300f,300,"Guns N Roses (3.00 French)",1994,"Data East",de_mDEDMD32S2A,0)
 
 /*****************************************************************************************************************************/
 /* NOTE: SEGA Began Distribution of the following games, although they run on Data East Hardware, so they stay in this file! */
@@ -1010,6 +1035,17 @@ DE2S_SOUNDROM1444(       "bw-u7.bin"  ,   CRC(a5e57557) SHA1(a884c1118331b872450
 DE_ROMEND
 #define input_ports_bay_e400 input_ports_baywatch
 CORE_CLONEDEFNV(bay_e400,baywatch,"Baywatch 4.00 (England)",1995,"Sega",de_mDEDMD64S2A,0)
+
+#define init_bay_d300 init_baywatch
+DE_ROMSTARTx0(bay_d300, "baycpud.300", CRC(c160f045) SHA1(d1f75d5ba292b25278539b01e0f4908276d34e34))
+DE_DMD64ROM88(          "bayrom0d.300",CRC(3f195829) SHA1(a10a1b7f125f239b0eff87ee6667c8250b7ffc87),
+                        "bayrom3d.300",CRC(ae3d8585) SHA1(28b38ebc2755ffb3859f8091a9bf50d868794a3e))
+DE2S_SOUNDROM144(       "bayw.u7"  ,   CRC(90d6d8a8) SHA1(482c5643453f21a078257aa13398845ef19cab3c),
+                        "bayw.u17" ,   CRC(b20fde56) SHA1(2f2db49245e4a6a8251cbe896b2437fcec88d42d),
+                        "bayw.u21" ,   CRC(b7598881) SHA1(19d1dde1cb6634a7c7b5cdb4fa01cd09cc7d7777))
+DE_ROMEND
+#define input_ports_bay_d300 input_ports_baywatch
+CORE_CLONEDEFNV(bay_d300,baywatch,"Baywatch 3.00 (Dutch/Holland/Netherlands)",1995,"Sega",de_mDEDMD64S2A,0)
 
 /*-------------------------------------------------------------
 / Batman Forever 4.0 - CPU Rev 3b / DMD Type 3 2x512K Rom - 64K CPU Rom

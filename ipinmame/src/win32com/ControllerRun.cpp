@@ -26,6 +26,11 @@ int g_fMechSamples      = TRUE;		// Signal the common library to load the mech s
 HANDLE g_hGameRunning	= INVALID_HANDLE_VALUE;
 int volatile g_fPause   = 0;		// referenced in usrintf.c to pause the game
 
+char g_fShowPinDMD		= FALSE;	// pinDMD not active by default
+int g_fDumpFrames		= FALSE;	// pinDMD dump frames
+
+BOOL cabinetMode		= FALSE;
+
 int    g_iSyncFactor     = 0;
 HANDLE g_hEnterThrottle  = INVALID_HANDLE_VALUE;
 extern int g_iSyncFactor;
@@ -122,8 +127,9 @@ DWORD FAR PASCAL CController::RunController(CController* pController)
 		options.samplerate = 0; // indicates game sound disabled
 
 #ifndef DEBUG
-	// display the splash screen
 	void* pSplashWnd = NULL;
+	if(!cabinetMode)
+	// display the splash screen
 	CreateSplashWnd(&pSplashWnd, pController->m_szSplashInfoLine);
 #endif
 
@@ -182,10 +188,10 @@ DWORD FAR PASCAL CController::RunController(CController* pController)
 	// reset the global pointer to Controller
 	m_pController = NULL;
 
-
 #ifndef DEBUG
+	if(!cabinetMode)
 	// destroy the splash screensync
-	DestroySplashWnd(&pSplashWnd);
+		DestroySplashWnd(&pSplashWnd); 
 #endif
 
 	return 0;
@@ -216,12 +222,14 @@ extern "C" int osd_init(void)
 	RECT windowRect;
 	GetClientRect(win_video_window, &windowRect);
 
-	int maxX = GetSystemMetrics(SM_CXSCREEN) - windowRect.right;
-	int maxY = GetSystemMetrics(SM_CYSCREEN) - windowRect.bottom;
+	int maxX = GetSystemMetrics(cabinetMode ? 78/*SM_CXVIRTUALSCREEN*/ : SM_CXSCREEN) - windowRect.right;
+	if(cabinetMode)
+		maxX = (maxX+40)*2 + 40;
+	int maxY = GetSystemMetrics(cabinetMode ? 79/*SM_CYVIRTUALSCREEN*/ : SM_CYSCREEN) - windowRect.bottom + (cabinetMode ? 40 : 0);
 
 	if ( dmd_pos_x<0 )
 		dmd_pos_x = 0;
-	else if ( dmd_pos_x>maxX)
+	else if ( dmd_pos_x>maxX )
 		dmd_pos_x = maxX;
 
 	CComVariant vValueX(dmd_pos_x);
@@ -229,7 +237,7 @@ extern "C" int osd_init(void)
 
 	if ( dmd_pos_y<0 )
 		dmd_pos_y = 0;
-	else if ( dmd_pos_y>maxY)
+	else if ( dmd_pos_y>maxY )
 		dmd_pos_y = maxY;
 
 	CComVariant vValueY(dmd_pos_y);
@@ -368,11 +376,10 @@ void SaveWindowPosition(HWND hWnd, CController *pController)
 	pController->m_pGameSettings->put_Value(CComBSTR("dmd_pos_y"), vValueY);
 
 	GetClientRect(hWnd, &Rect);
-	if ( dmd_doublesize )
+	if ( dmd_doublesize ) {
 		Rect.right /= 2;
-
-	if ( dmd_doublesize )
 		Rect.bottom /= 2;
+	}
 
 	vValueX = Rect.right;
 	pController->m_pGameSettings->put_Value(CComBSTR("dmd_width"), vValueX);

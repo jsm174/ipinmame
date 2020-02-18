@@ -332,6 +332,7 @@
 		C16802B323FC994000EA85B3 /* 410ops.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802AF23FC994000EA85B3 /* 410ops.c */; };
 		C16802B623FC99D300EA85B3 /* astrocde.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802B523FC99D300EA85B3 /* astrocde.c */; };
 		C16802B923FC99E700EA85B3 /* ymdeltat.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802B823FC99E700EA85B3 /* ymdeltat.c */; };
+		C16802BB23FCA7DD00EA85B3 /* mac.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802BA23FCA7DD00EA85B3 /* mac.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -831,6 +832,7 @@
 		C16802B523FC99D300EA85B3 /* astrocde.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = astrocde.c; sourceTree = "<group>"; };
 		C16802B723FC99E700EA85B3 /* ymdeltat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ymdeltat.h; sourceTree = "<group>"; };
 		C16802B823FC99E700EA85B3 /* ymdeltat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ymdeltat.c; sourceTree = "<group>"; };
+		C16802BA23FCA7DD00EA85B3 /* mac.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mac.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1492,6 +1494,7 @@
 				889334D514BE62FE0095D115 /* ltd.c */,
 				889334D614BE62FE0095D115 /* ltd.h */,
 				889334D714BE62FE0095D115 /* ltdgames.c */,
+				C16802BA23FCA7DD00EA85B3 /* mac.c */,
 				889334D814BE62FE0095D115 /* mech.c */,
 				889334D914BE62FE0095D115 /* mech.h */,
 				889334DA14BE62FE0095D115 /* mephisto.c */,
@@ -1872,6 +1875,7 @@
 				889332F314BE5FAE0095D115 /* inptport.c in Sources */,
 				889332F414BE5FAE0095D115 /* input.c in Sources */,
 				889332F514BE5FAE0095D115 /* mame.c in Sources */,
+				C16802BB23FCA7DD00EA85B3 /* mac.c in Sources */,
 				889332F614BE5FAE0095D115 /* mamedbg.c in Sources */,
 				889332F714BE5FAE0095D115 /* md5.c in Sources */,
 				889332F814BE5FAE0095D115 /* memory.c in Sources */,

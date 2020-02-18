@@ -6,7 +6,7 @@ OBJDIRS += $(OBJ)/cpu/z80
 CPUDEFS += -DHAS_Z80=1
 CPUOBJS += $(OBJ)/cpu/z80/z80.o
 DBGOBJS += $(OBJ)/cpu/z80/z80dasm.o
-$(OBJ)/cpu/z80/z80.o: src/cpu/z80/z80.c src/cpu/z80/z80.h src/cpu/z80/z80daa.h
+$(OBJ)/cpu/z80/z80.o: src/cpu/z80/z80.c src/cpu/z80/z80.h
 else
 CPUDEFS += -DHAS_Z80=0
 endif
@@ -28,7 +28,7 @@ OBJDIRS += $(OBJ)/cpu/i8085
 CPUDEFS += -DHAS_8080=1
 CPUOBJS += $(OBJ)/cpu/i8085/i8085.o
 DBGOBJS += $(OBJ)/cpu/i8085/8085dasm.o
-$(OBJ)/cpu/i8085/i8085.o: src/cpu/i8085/i8085.c src/cpu/i8085/i8085.h src/cpu/i8085/i8085cpu.h src/cpu/i8085/i8085daa.h
+$(OBJ)/cpu/i8085/i8085.o: src/cpu/i8085/i8085.c src/cpu/i8085/i8085.h src/cpu/i8085/i8085cpu.h
 else
 CPUDEFS += -DHAS_8080=0
 endif
@@ -39,7 +39,7 @@ OBJDIRS += $(OBJ)/cpu/i8085
 CPUDEFS += -DHAS_8085A=1
 CPUOBJS += $(OBJ)/cpu/i8085/i8085.o
 DBGOBJS += $(OBJ)/cpu/i8085/8085dasm.o
-$(OBJ)/cpu/i8085/i8085.o: src/cpu/i8085/i8085.c src/cpu/i8085/i8085.h src/cpu/i8085/i8085cpu.h src/cpu/i8085/i8085daa.h
+$(OBJ)/cpu/i8085/i8085.o: src/cpu/i8085/i8085.c src/cpu/i8085/i8085.h src/cpu/i8085/i8085cpu.h
 else
 CPUDEFS += -DHAS_8085A=0
 endif

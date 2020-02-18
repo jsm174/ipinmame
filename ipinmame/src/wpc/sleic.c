@@ -75,7 +75,9 @@ static void showData(int data) {
 #endif /* MAME_DEBUG */
 
 static SWITCH_UPDATE(SLEIC) {
+#ifdef MAME_DEBUG
   static UINT8 data = 0;
+#endif
   if (inports) {
     CORE_SETKEYSW(inports[CORE_COREINPORT], 0xff, 0);
   }
@@ -115,17 +117,17 @@ static struct YM3812interface SLEIC_ym3812_intf =
 };
 static struct OKIM6295interface SLEIC_okim6376_intf =
 {
-	1,					/* 1 chip */
+	0,					/* 1 chip (but use 0 to indicate 6374 chip) */
 	{ 15151.51 },		/* sampling frequency at 2MHz chip clock */
 	{ REGION_USER1 },	/* memory region */
-	{ 100 }				/* volume */
+	{ 75 }				/* volume */
 };
 static struct OKIM6295interface SLEIC_okim6376_intf2 =
 {
-	1,					/* 1 chip */
+	0,					/* 1 chip (but use 0 to indicate 6374 chip)  */
 	{ 30303.03 },		/* sampling frequency at 4MHz chip clock */
 	{ REGION_USER1 },	/* memory region */
-	{ 100 }				/* volume */
+	{ 75 }				/* volume */
 };
 static struct DACinterface SLEIC_dac_intf = { 1, { 25 }};
 
@@ -304,6 +306,16 @@ MACHINE_DRIVER_START(SLEIC2)
   MDRV_SOUND_ADD(YM3812, SLEIC_ym3812_intf)
   MDRV_SOUND_ADD(OKIM6295, SLEIC_okim6376_intf2)
   MDRV_SOUND_ADD(DAC, SLEIC_dac_intf)
+MACHINE_DRIVER_END
+
+MACHINE_DRIVER_START(SLEIC3)
+  MDRV_IMPORT_FROM(SLEIC2)
+
+  // display section
+  MDRV_CPU_ADD_TAG("dcpu", I8039, 2000000)
+  MDRV_CPU_MEMORY(SLEIC_8039_readmem, SLEIC_8039_writemem)
+  MDRV_CPU_PORTS(SLEIC_8039_readport, SLEIC_8039_writeport)
+  MDRV_CPU_PERIODIC_INT(SLEIC_irq_i8039, 2000000/8192)
 MACHINE_DRIVER_END
 
 PINMAME_VIDEO_UPDATE(sleic_dmd_update) {

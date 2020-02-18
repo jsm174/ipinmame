@@ -8,7 +8,7 @@
 
 #define INITGAME(name, disptype, balls) \
 	JP_INPUT_PORTS_START(name, balls) JP_INPUT_PORTS_END \
-	static core_tGameData name##GameData = {GEN_JP,disptype,{FLIP_SW(FLIP_L), 0,12,0, SNDBRD_SPINB}}; \
+	static core_tGameData name##GameData = {GEN_JP,disptype,{FLIP_SW(FLIP_L),0,12}}; \
 	static void init_##name(void) { \
 		core_gameData = &name##GameData; \
 	}
@@ -119,7 +119,15 @@ JP_ROMEND
 CORE_GAMEDEFNV(petaco,"Petaco",1984,"Juegos Populares",gl_mJP2,0)
 
 /*-------------------------------------------------------------------
-/ Unknown game (#1102, using 6 digit displays)
+/ Petaco (using the new hardware)
+/-------------------------------------------------------------------*/
+INITGAME(petacon, jpDisp6a, 1)
+JP_ROMSTART1(petacon,	"petaco-n.dat", CRC(9e4d6944) SHA1(54b39e28152d481bd485433b4a7bf46174a78dbb))
+JP_ROMEND
+CORE_GAMEDEFNV(petacon,"Petaco (new hardware)",1985,"Juegos Populares",gl_mJP1,0)
+
+/*-------------------------------------------------------------------
+/ Unknown game (#1102?, using 6 digit displays)
 /-------------------------------------------------------------------*/
 INITGAME(jpgame, jpDisp6a, 1)
 JP_ROMSTART1(jpgame,	"jpgame.dat", CRC(81502083) SHA1(c67a095fb5e868467577e7a86de5d51c59b3a68e))
@@ -243,7 +251,7 @@ INITGAME(olympus, jpDisp7, 1)
 JP_ROMSTART1(olympus,	"olympus.dat", CRC(08b021e8) SHA1(9662d37ccef94b6e6bc3c8c81dea0c0a34c8052d))
 JP_SNDROM8( "cs.128", CRC(39b9107a) SHA1(8a11fa0c1558d0b1d309446b8a6f97e761b6559d),
 			"c1.256", CRC(93ceefbf) SHA1(be50b3d4485d4e8291047a52ca60656b55729555),
-			"c2.256", NO_DUMP,
+			"c2.256", CRC(8d404cf7) SHA1(e521ff1cf999496bada5348b7f845c468f053f0f),
 			"c3.256", CRC(266eb5dd) SHA1(0eb7c098ddb7f257daf625e5209a54c306d365bf),
 			"c4.256", CRC(082a052d) SHA1(f316fbe6ff63433861a8856e297c953ce29a8901),
 			"c5.256", CRC(402a3fb2) SHA1(1c078ca519271bf2bcbe0bc10e33078861085fcf),
