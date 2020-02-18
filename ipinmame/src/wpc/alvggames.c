@@ -81,6 +81,20 @@ ALVG_ROMEND
 #define input_ports_wrldtou2 input_ports_wrldtour
 CORE_CLONEDEFNV(wrldtou2,wrldtour,"Al's Garage Band Goes On A World Tour R02b",1992,"Alvin G",mALVGS2DMD,0)
 
+INITGAME(wrldtou3, DMD, FLIP78, 3/*?*/, SNDBRD_ALVGS2, SNDBRD_ALVGDMD, 0)
+ALVGROMSTART(wrldtou3,	"cpu03.512", CRC(56dee967) SHA1(f7b1f69d96c72b0cf738bdf45701502f7306a4a0))
+ALVGS_SOUNDROM(			"soundc.512", CRC(b44bee01) SHA1(795d8500e5bd73ce23756bf1f5c96db1a3621a70),
+						"samp_0.c21", CRC(37beb831) SHA1(2b90d2be0a1bd7c59469846631d2b44bdf9f5f9d),
+						"samp_1.c21", CRC(621533c6) SHA1(ca0ed9e89c340cb3b08f9a9002af9997372c1cbf),
+						"samp_2.c21", CRC(454a5cca) SHA1(66b1a5832134365fd762fcba4cf4d666f60ebd65),
+						"samp_3.c21", CRC(1f4928f4) SHA1(9949ab96644984fab8037224f52ec28d7d7cc967))
+ALVGDMD_SPLIT_ROM(		"dot03.512", CRC(f8a084bb) SHA1(30eb344ad96b5605693d3a7c703c9ed5c1770ca4),
+						"romdef1.c20",CRC(045b21c1) SHA1(134b7eb0f71506d12d9ded24999d530126c558fc),
+						"romdef2.c20",CRC(23c32ee5) SHA1(429b3b069251bb8b681bbc6382ceb6b85125eb79))
+ALVG_ROMEND
+#define input_ports_wrldtou3 input_ports_wrldtour
+CORE_CLONEDEFNV(wrldtou3,wrldtour,"Al's Garage Band Goes On A World Tour R06a",1992,"Alvin G",mALVGS2DMD,0)
+
 /*-------------------------------------------------------------------
 / U.S.A. Football
 /-------------------------------------------------------------------*/
@@ -134,7 +148,21 @@ ALVGDMD_ROM(			"p_peteu4.512", CRC(caa0cabd) SHA1(caff6ca4a9cce4e3d846502696c883
 						"p_peteu5.c20", CRC(1d2cecd8) SHA1(6072a0f744fb9eef728fe7cf5e17d0007edbddd7),
 						"p_peteu6.c20", CRC(3a56376c) SHA1(69febc17b8416c03a58e651447bbe1e14ff27e50))
 ALVG_ROMEND
-CORE_GAMEDEFNV(pstlpkr,"Pistol Poker",1993,"Alvin G",mALVGS2DMD,0)
+CORE_GAMEDEFNV(pstlpkr,"Pistol Poker R02",1993,"Alvin G",mALVGS2DMD,0)
+
+INITGAME(pstlpkr1, DMD2, FLIP78, 3/*?*/, SNDBRD_ALVGS2, SNDBRD_ALVGDMD, 1)
+ALVGROMSTART(pstlpkr1,	"u2-ddff.512", CRC(83fa0595) SHA1(d6ebb0e63fd964ccaee3979a7fc13b6adf7b837c))
+ALVGS_SOUNDROM(			"p_pu102.512" , CRC(b8fb806e) SHA1(c2dc19820ea22bbcf5808db2fb4be76a4033d6ea),
+						"p_parom0.c20", CRC(99986af2) SHA1(52fa7d2979f7f2d6d65ab6d4f7bbfbed16303991),
+						"p_parom1.c20", CRC(ae2af238) SHA1(221d3a0e3fb1daad261d723e873ef0727b88889e),
+						"p_parom2.c20", CRC(f39560a4) SHA1(cdfdf7b44ff4c3f9f4d39fbd8ecbf141d8568088),
+						"p_parom3.c20", CRC(19d5e4de) SHA1(fb59166ebf992e81b92a42898e351d8443adb1c3))
+ALVGDMD_ROM(			"p_peteu4.512", CRC(caa0cabd) SHA1(caff6ca4a9cce4e3d846502696c8838805673261),
+						"p_peteu5.c20", CRC(1d2cecd8) SHA1(6072a0f744fb9eef728fe7cf5e17d0007edbddd7),
+						"p_peteu6.c20", CRC(3a56376c) SHA1(69febc17b8416c03a58e651447bbe1e14ff27e50))
+ALVG_ROMEND
+#define input_ports_pstlpkr1 input_ports_pstlpkr
+CORE_CLONEDEFNV(pstlpkr1,pstlpkr,"Pistol Poker R01",1993,"Alvin G",mALVGS2DMD,0)
 
 /*-------------------------------------------------------------------
 / Punchy The Clown
@@ -144,7 +172,15 @@ ALVGROMSTART(punchy,	"epc061.r02", CRC(732fca88) SHA1(dff0aa4b856bafb95b08dae675
 ALVGS_SOUNDROM11(		"eps061.r02", CRC(cfde1b9a) SHA1(cbf9e67df6a6762843272493c2caa1413f70fb27),
 						"eps062.r02", CRC(7462a5cd) SHA1(05141bcc91b1a786444bff7fa8ba2a785dc0d376))
 ALVG_ROMEND
-CORE_GAMEDEFNV(punchy,"Punchy The Clown",1993,"Alvin G",mALVGS1,0)
+CORE_GAMEDEFNV(punchy,"Punchy The Clown (R02)",1993,"Alvin G",mALVGS1,0)
+
+INITGAME(punchy3, alvg_alpha, FLIP78, 3/*?*/, SNDBRD_ALVGS1, 0, 0)
+ALVGROMSTART(punchy3,	"epc061.r03", CRC(8e91131c) SHA1(1bf1408e4e512b764048f4847cf8e4b7a0bf824d))
+ALVGS_SOUNDROM11(		"eps061.r02", CRC(cfde1b9a) SHA1(cbf9e67df6a6762843272493c2caa1413f70fb27),
+						"eps062.r02", CRC(7462a5cd) SHA1(05141bcc91b1a786444bff7fa8ba2a785dc0d376))
+ALVG_ROMEND
+#define input_ports_punchy3 input_ports_punchy
+CORE_CLONEDEFNV(punchy3,punchy,"Punchy The Clown (R03)",1993,"Alvin G",mALVGS1,0)
 
 /*-------------------------------------------------------------------
 / Dinosaur Eggs

@@ -52,8 +52,30 @@ DE2S_SOUNDROM1444("apollo13.u7" ,CRC(e58a36b8) SHA1(ae60470a7b6c41cd40dbb7c0bea6
                   "apollo13.u21",CRC(28169e37) SHA1(df5209d24187b546a4296fc4629c58bf729349d2),
                   "apollo13.u36",CRC(cede5e0f) SHA1(fa3b5820ed58e57b3c6185d91e9aea28aebc28d7))
 SE_ROMEND
-#define input_ports_apollo1 input_ports_se
-CORE_GAMEDEFNV(apollo1,"Apollo 13 (v1.00)",1995,"Sega",de_mSES1,0)
+#define input_ports_apollo1 input_ports_apollo13
+CORE_CLONEDEFNV(apollo1,apollo13,"Apollo 13 (v1.00)",1995,"Sega",de_mSES1,0)
+
+INITGAME(apollo2,GEN_WS,se_apollo,SE_DIGIT)
+SE128_ROMSTART(apollo2,"a13cpu.203",CRC(4af048fc) SHA1(c82459247707a6cf07a10cc884f1391d0ca536a3))
+DE_DMD32ROM8x(   "a13dps.201",CRC(ab97a71c) SHA1(1e01d3c2ac1b9153fb4f3f888fe01fcebbf853d7))
+DE2S_SOUNDROM1444("apollo13.u7" ,CRC(e58a36b8) SHA1(ae60470a7b6c41cd40dbb7c0bea6f2f148f7b088),
+                  "apollo13.u17",CRC(4e863aca) SHA1(264f9176a1abf758b7a894d83883330ef91b7388),
+                  "apollo13.u21",CRC(28169e37) SHA1(df5209d24187b546a4296fc4629c58bf729349d2),
+                  "apollo13.u36",CRC(cede5e0f) SHA1(fa3b5820ed58e57b3c6185d91e9aea28aebc28d7))
+SE_ROMEND
+#define input_ports_apollo2 input_ports_apollo13
+CORE_CLONEDEFNV(apollo2,apollo13,"Apollo 13 (v2.03)",1995,"Sega",de_mSES1,0)
+
+INITGAME(apollo14,GEN_WS,se_apollo,SE_DIGIT)
+SE128_ROMSTART(apollo14,"apolcpu.501",CRC(5afb8801) SHA1(65608148817f487c384dd36c221138962f1d9824))
+DE_DMD32ROM8x(   "a13dspa.401",CRC(6516ee16) SHA1(17011df142707917af2e0ec77c0e5ae78df91c0d))
+DE2S_SOUNDROM1444("apollo13.u7" ,CRC(e58a36b8) SHA1(ae60470a7b6c41cd40dbb7c0bea6f2f148f7b088),
+                  "apollo13.u17",CRC(4e863aca) SHA1(264f9176a1abf758b7a894d83883330ef91b7388),
+                  "apollo13.u21",CRC(28169e37) SHA1(df5209d24187b546a4296fc4629c58bf729349d2),
+                  "apollo13.u36",CRC(cede5e0f) SHA1(fa3b5820ed58e57b3c6185d91e9aea28aebc28d7))
+SE_ROMEND
+#define input_ports_apollo14 input_ports_apollo13
+CORE_CLONEDEFNV(apollo14,apollo13,"Apollo 13 (Game 5.01, Display 4.01)",1995,"Sega",de_mSES1,0)
 
 /*-------------------------------------------------------------------
 / Goldeneye
@@ -103,6 +125,9 @@ CORE_CLONEDEF(twst,300,405,"Twister (3.00)",1996,"Sega",de_mSES1,0)
 /*-------------------------------------------------------------------
 / ID4: Independence Day
 /-------------------------------------------------------------------*/
+/*-------------------------------------------------------------------
+/ ID4: Independence Day
+/-------------------------------------------------------------------*/
 INITGAME(id4,GEN_WS,se_dmd128x32,0)
 SE128_ROMSTART(id4, "id4cpu.202",CRC(108d88fd) SHA1(8317944201acfb97dadfdd364696c9e81a21d2c5))
 DE_DMD32ROM8x(    "id4dspa.200",CRC(2d3fbcc4) SHA1(0bd69ebb68ae880ac9aae40916f13e1ff84ecfaa))
@@ -111,7 +136,37 @@ DE2S_SOUNDROM144 ("id4sndu7.512",CRC(deeaed37) SHA1(06d79967a25af0b90a5f1d6360a5
                   "id4sdu21.400",CRC(f384a9ab) SHA1(06bd607e7efd761017a7b605e0294a34e4c6255c))
 SE_ROMEND
 #define input_ports_id4 input_ports_se
-CORE_GAMEDEFNV(id4,"ID4: Independence Day",1996,"Sega",de_mSES1,0)
+CORE_GAMEDEFNV(id4,"ID4: Independence Day (v2.02)",1996,"Sega",de_mSES1,0)
+
+INITGAME(id4f,GEN_WS,se_dmd128x32,0)
+SE128_ROMSTART(id4f, "id4cpu.202",CRC(108d88fd) SHA1(8317944201acfb97dadfdd364696c9e81a21d2c5))
+DE_DMD32ROM8x(    "id4dspf.200",CRC(4b52676b) SHA1(a881efb28d8bab424d8c12be2c16b8afc7472208))
+DE2S_SOUNDROM144 ("id4sndu7.512",CRC(deeaed37) SHA1(06d79967a25af0b90a5f1d6360a5b5fdbb972d5a),
+                  "id4sdu17.400",CRC(89ffeca3) SHA1(b94c60e3a433f797d6c5ea793c3ecff0a3b6ba60),
+                  "id4sdu21.400",CRC(f384a9ab) SHA1(06bd607e7efd761017a7b605e0294a34e4c6255c))
+SE_ROMEND
+#define input_ports_id4f input_ports_se
+CORE_GAMEDEFNV(id4f,"ID4: Independence Day (v2.02 French)",1996,"Sega",de_mSES1,0)
+
+INITGAME(id4_201,GEN_WS,se_dmd128x32,0)
+SE128_ROMSTART(id4_201, "id4cpu.201",CRC(c0cd47a1) SHA1(63bb6da28b4f6fcc8525a8f1a6d262e35931efc9))
+DE_DMD32ROM8x(    "id4dspa.200",CRC(2d3fbcc4) SHA1(0bd69ebb68ae880ac9aae40916f13e1ff84ecfaa))
+DE2S_SOUNDROM144 ("id4sndu7.512",CRC(deeaed37) SHA1(06d79967a25af0b90a5f1d6360a5b5fdbb972d5a),
+                  "id4sdu17.400",CRC(89ffeca3) SHA1(b94c60e3a433f797d6c5ea793c3ecff0a3b6ba60),
+                  "id4sdu21.400",CRC(f384a9ab) SHA1(06bd607e7efd761017a7b605e0294a34e4c6255c))
+SE_ROMEND
+#define input_ports_id4_201 input_ports_se
+CORE_GAMEDEFNV(id4_201,"ID4: Independence Day (v2.01)",1996,"Sega",de_mSES1,0)
+
+INITGAME(id4_201f,GEN_WS,se_dmd128x32,0)
+SE128_ROMSTART(id4_201f, "id4cpu.201",CRC(c0cd47a1) SHA1(63bb6da28b4f6fcc8525a8f1a6d262e35931efc9))
+DE_DMD32ROM8x(    "id4dspf.200",CRC(4b52676b) SHA1(a881efb28d8bab424d8c12be2c16b8afc7472208))
+DE2S_SOUNDROM144 ("id4sndu7.512",CRC(deeaed37) SHA1(06d79967a25af0b90a5f1d6360a5b5fdbb972d5a),
+                  "id4sdu17.400",CRC(89ffeca3) SHA1(b94c60e3a433f797d6c5ea793c3ecff0a3b6ba60),
+                  "id4sdu21.400",CRC(f384a9ab) SHA1(06bd607e7efd761017a7b605e0294a34e4c6255c))
+SE_ROMEND
+#define input_ports_id4_201f input_ports_se
+CORE_GAMEDEFNV(id4_201f,"ID4: Independence Day (v2.01 French)",1996,"Sega",de_mSES1,0)
 
 /*-------------------------------------------------------------------
 / Space Jam
@@ -128,7 +183,15 @@ DE_DMD32ROM8x(  "jamdspa.300",CRC(198e5e34) SHA1(e2ba9ff1cea84c5d41f32afc50229cb
 JAM_SND
 SE_ROMEND
 #define input_ports_spacejam input_ports_se
-CORE_GAMEDEFNV(spacejam,"Space Jam",1997,"Sega",de_mSES1,0)
+CORE_GAMEDEFNV(spacejam,"Space Jam (3.00)",1997,"Sega",de_mSES1,0)
+
+SE128_ROMSTART(spacejm2,"jamcpu.200",CRC(d80c069b) SHA1(bf6e96100b158f058b5f07f537ad0fa0a0fbe31d))
+DE_DMD32ROM8x(  "jamdspa.200",CRC(4a05ec31) SHA1(eb962f5f2160508e0f81b252e8644d8aa833d7fd))
+JAM_SND
+SE_ROMEND
+#define input_ports_spacejm2 input_ports_spacejam
+#define init_spacejm2 init_spacejam
+CORE_CLONEDEFNV(spacejm2,spacejam,"Space Jam (2.00)",1997,"Sega",de_mSES1,0)
 
 SE128_ROMSTART(spacejmg,"jamcpu.300",CRC(9dc8df2e) SHA1(b3b111afb5b1f1236be73e899b34a5d5a73813e9))
 DE_DMD32ROM8x(  "jamdspg.300",CRC(41f6e188) SHA1(da2247022aadb0ead5a3b1d7b829c13ff1153ec8))
@@ -226,6 +289,16 @@ SE_ROMEND
 #define init_xfiles2 init_xfiles
 CORE_CLONEDEFNV(xfiles2,xfiles,"X-Files (2.04)",1997,"Sega",de_mSES1,0)
 
+INITGAME(xfiles20,GEN_WS,se_dmd128x32,0)
+SE128_ROMSTART(xfiles20,"xfcpu.200",CRC(fd9e8ae8) SHA1(7f904eaae437bf938f01e9df875b9415167fc4c5))
+DE_DMD32ROM8x(   "xfildspa.200",CRC(3fb161c3) SHA1(ea00c5c5a1e4908fcc34b0558b89325db091595d))
+DE2S_SOUNDROM144( "xfsndu7.512" ,CRC(01d65239) SHA1(9e680de940a15ef85a5615b789c58cd5973ff11b),
+                  "xfsndu17.c40",CRC(40bfc835) SHA1(2d6ac82acbbf9645bcb84fab7f285f2373e516a8),
+                  "xfsndu21.c40",CRC(b56a5ca6) SHA1(5fa23a8bb57e45aca159882226e603d9a6be078b))
+SE_ROMEND
+#define input_ports_xfiles20 input_ports_xfiles
+CORE_CLONEDEFNV(xfiles20,xfiles,"X-Files (2.00)",1997,"Sega",de_mSES1,0)
+
 /*-------------------------------------------------------------------
 / Starship Troopers
 /-------------------------------------------------------------------*/
@@ -238,7 +311,18 @@ DE2S_SOUNDROM1444("u7_b130.512" ,CRC(f1559e4f) SHA1(82b56f097412052bc1638a3f1c13
                   "u36_95a7.040",CRC(c1e4ca6a) SHA1(487de78ebf1ee8cc721f2ef7b1bd42d2f7b27456))
 SE_ROMEND
 #define input_ports_startrp input_ports_se
-CORE_GAMEDEFNV(startrp,"Starship Troopers",1997,"Sega",de_mSES1,0)
+CORE_GAMEDEFNV(startrp,"Starship Troopers (2.01)",1997,"Sega",de_mSES1,0)
+
+INITGAME(startrp2,GEN_WS,se_dmd128x32,0)
+SE128_ROMSTART(startrp2, "sstcpu.200",CRC(1bd865a5) SHA1(770d87d5108b58e214e551cfdcd4b75a11d6b88b))
+DE_DMD32ROM8x(    "sstdspa.200",CRC(76a0e09e) SHA1(a4103aeee752d824a3811124079e40acc7286271))
+DE2S_SOUNDROM1444("u7_b130.512" ,CRC(f1559e4f) SHA1(82b56f097412052bc1638a3f1c1319009df707f4),
+                  "u17_152a.040",CRC(8caeccdb) SHA1(390f07e48a176a24fe99a202f3fa2b9767d84230),
+                  "u21_0291.040",CRC(0c5321f6) SHA1(4a51daa16d489ab61d462d44f887c8422f863c5c),
+                  "u36_95a7.040",CRC(c1e4ca6a) SHA1(487de78ebf1ee8cc721f2ef7b1bd42d2f7b27456))
+SE_ROMEND
+#define input_ports_startrp2 input_ports_startrp
+CORE_CLONEDEFNV(startrp2,startrp,"Starship Troopers (2.00)",1997,"Sega",de_mSES1,0)
 
 /*-------------------------------------------------------------------
 / Viper Night Drivin'
@@ -253,7 +337,19 @@ DE2S_SOUNDROM14444("vpru7.dat" ,CRC(f21617d7) SHA1(78d1ade400b83c62bb6288bccf386
                   "vpru37.dat",CRC(0bf23e0e) SHA1(b5724ed6cfe791320a8cf208cc20a2d3f0db85c8))
 SE_ROMEND
 #define input_ports_viprsega input_ports_se
-CORE_GAMEDEFNV(viprsega,"Viper Night Drivin'",1998,"Sega",de_mSES1,0)
+CORE_GAMEDEFNV(viprsega,"Viper Night Drivin' (2.01)",1998,"Sega",de_mSES1,0)
+
+INITGAME(vipr_102,GEN_WS,se_dmd128x32,0)
+SE128_ROMSTART(vipr_102, "vipcpu.102",CRC(6046974b) SHA1(56e3de5ccb5a04d6ee5555ee6755835e75e7454f))
+DE_DMD32ROM8x(   "vipdspa.100",CRC(25acf3db) SHA1(3476f2b95cfff9dfb4fe9cf7c5cccae85f23343a))
+DE2S_SOUNDROM14444("vpru7.dat" ,CRC(f21617d7) SHA1(78d1ade400b83c62bb6288bccf386ef34050dd04),
+                  "vpru17.dat",CRC(47b1317c) SHA1(32259965b5a12f63267af96eef8396bf71895a65),
+                  "vpru21.dat",CRC(0e0e2dd6) SHA1(b409c837a52eb399c9a4896ca0c502360c93dcc9),
+                  "vpru36.dat",CRC(7b482876) SHA1(c8960c2d45a77a35d22408c7bb8ba322e7af36f0),
+                  "vpru37.dat",CRC(0bf23e0e) SHA1(b5724ed6cfe791320a8cf208cc20a2d3f0db85c8))
+SE_ROMEND
+#define input_ports_vipr_102 input_ports_viprsega
+CORE_CLONEDEFNV(vipr_102, viprsega,"Viper Night Drivin' (1.02)",1998,"Sega",de_mSES1,0)
 
 /*-------------------------------------------------------------------
 / Lost in Space
@@ -297,7 +393,19 @@ DE2S_SOUNDROM14444("gdzu7.100" ,CRC(a0afe8b7) SHA1(33e4a824b26b58e8f963fa8a525a6
                   "gdzu37.100",CRC(2c1acb14) SHA1(4d710e09f5500da937932b4b01d862abb4a89e5a))
 SE_ROMEND
 #define input_ports_godzilla input_ports_se
-CORE_GAMEDEFNV(godzilla,"Godzilla",1998,"Sega",de_mSES1,0)
+CORE_GAMEDEFNV(godzilla,"Godzilla (2.05)",1998,"Sega",de_mSES1,0)
+
+INITGAME(godz_090,GEN_WS,se_dmd128x32,0)
+SE128_ROMSTART(godz_090,"gdzcpu.090",CRC(54e3b6d7) SHA1(c11cf71140c00c96c7feea569fa04f75061b9af7))
+DE_DMD32ROM8x(  "gzdspa.090",CRC(56dde3a4) SHA1(332f09ade962e07a2979ad7bf743f632ea942440))
+DE2S_SOUNDROM14444("gdzu7.090" ,CRC(076401a9) SHA1(17aa63c2b26e6fc4849a5101ff9704606de3de65),
+                  "gdzu17.090",CRC(b15be745) SHA1(395631df3fef80641c189e57cddfc0ec5dcdbcef),
+                  "gdzu21.090",CRC(019207d5) SHA1(a98d191d686d4a04f7fad90dd0e86e8b48ff3a3b),
+                  "gdzu36.090",CRC(3913ccb9) SHA1(ddce224661894438a12135306484f711d10ce8be),
+                  "gdzu37.090",CRC(1410ae6b) SHA1(28d025403fd60b1bb132cffcc14be21be48d808c))
+SE_ROMEND
+#define input_ports_godz_090 input_ports_se
+CORE_GAMEDEFNV(godz_090,"Godzilla (0.90)",1998,"Sega",de_mSES1,0)
 
 /********************* SEGA GAMES DISTRIBUTED BY STERN  **********************/
 
@@ -327,7 +435,7 @@ SE_ROMEND
 CORE_CLONEDEF(sprk,096,103,"South Park (0.96)",1999,"Sega",de_mSES1,0)
 
 SE128_ROMSTART(sprk_090,"spkcpu.090",CRC(bc3f8531) SHA1(5408e008c4f545bb4f82308b118d15525f8a263a))
-DE_DMD32ROM8x(    "spdspa.101",CRC(48ca598d) SHA1(0827ac7bb5cf12b0e63860b73a808273d984509e))
+DE_DMD32ROM8x(    "spdspa.090",CRC(c333dd48) SHA1(fe2be9274c06b2f39fa2e14e0d44ce7213282f3b))
 DE2S_SOUNDROM18888("spku7.090",CRC(19937fbd) SHA1(ebd7c8f1604accbeb7c00066ecf811193a2cb588),
                   "spku17.090",CRC(05a8670e) SHA1(7c0f1f0c9b94f0327c820f002bffc4ea05670ec8),
                   "spku21.090",CRC(c8629ee7) SHA1(843a742cb5cfce21a83618d14ae08ee1930d36cc),

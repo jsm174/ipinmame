@@ -326,6 +326,12 @@
 		C16802A423FC44F000EA85B3 /* sp0256.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802A323FC44F000EA85B3 /* sp0256.c */; };
 		C16802A623FC457400EA85B3 /* idsa.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802A523FC457400EA85B3 /* idsa.c */; };
 		C16802A823FC45D800EA85B3 /* playsnd.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802A723FC45D800EA85B3 /* playsnd.c */; };
+		C16802B023FC994000EA85B3 /* cop420.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802AB23FC994000EA85B3 /* cop420.c */; };
+		C16802B123FC994000EA85B3 /* cop420ds.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802AD23FC994000EA85B3 /* cop420ds.c */; };
+		C16802B223FC994000EA85B3 /* 420ops.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802AE23FC994000EA85B3 /* 420ops.c */; };
+		C16802B323FC994000EA85B3 /* 410ops.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802AF23FC994000EA85B3 /* 410ops.c */; };
+		C16802B623FC99D300EA85B3 /* astrocde.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802B523FC99D300EA85B3 /* astrocde.c */; };
+		C16802B923FC99E700EA85B3 /* ymdeltat.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802B823FC99E700EA85B3 /* ymdeltat.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -816,6 +822,15 @@
 		C16802A323FC44F000EA85B3 /* sp0256.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sp0256.c; sourceTree = "<group>"; };
 		C16802A523FC457400EA85B3 /* idsa.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = idsa.c; sourceTree = "<group>"; };
 		C16802A723FC45D800EA85B3 /* playsnd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = playsnd.c; sourceTree = "<group>"; };
+		C16802AB23FC994000EA85B3 /* cop420.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cop420.c; sourceTree = "<group>"; };
+		C16802AC23FC994000EA85B3 /* cop400.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cop400.h; sourceTree = "<group>"; };
+		C16802AD23FC994000EA85B3 /* cop420ds.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cop420ds.c; sourceTree = "<group>"; };
+		C16802AE23FC994000EA85B3 /* 420ops.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = 420ops.c; sourceTree = "<group>"; };
+		C16802AF23FC994000EA85B3 /* 410ops.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = 410ops.c; sourceTree = "<group>"; };
+		C16802B423FC99D300EA85B3 /* astrocde.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = astrocde.h; sourceTree = "<group>"; };
+		C16802B523FC99D300EA85B3 /* astrocde.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = astrocde.c; sourceTree = "<group>"; };
+		C16802B723FC99E700EA85B3 /* ymdeltat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ymdeltat.h; sourceTree = "<group>"; };
+		C16802B823FC99E700EA85B3 /* ymdeltat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ymdeltat.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1032,6 +1047,7 @@
 				8893330C14BE60060095D115 /* arm7 */,
 				8893331314BE60060095D115 /* at91 */,
 				8893331714BE60060095D115 /* cdp1802 */,
+				C16802AA23FC994000EA85B3 /* cop400 */,
 				8893331B14BE60060095D115 /* i86 */,
 				8893332E14BE60060095D115 /* i4004 */,
 				8893333414BE60060095D115 /* i8039 */,
@@ -1323,6 +1339,8 @@
 				8893341514BE62530095D115 /* 5220intf.h */,
 				8893341614BE62530095D115 /* adpcm.c */,
 				8893341714BE62530095D115 /* adpcm.h */,
+				C16802B523FC99D300EA85B3 /* astrocde.c */,
+				C16802B423FC99D300EA85B3 /* astrocde.h */,
 				8893341814BE62530095D115 /* ay8910.c */,
 				8893341914BE62530095D115 /* ay8910.h */,
 				8893341A14BE62530095D115 /* bsmt2000.c */,
@@ -1369,6 +1387,8 @@
 				8893344A14BE62530095D115 /* votrax.h */,
 				8893344E14BE62530095D115 /* ym2151.c */,
 				8893344F14BE62530095D115 /* ym2151.h */,
+				C16802B823FC99E700EA85B3 /* ymdeltat.c */,
+				C16802B723FC99E700EA85B3 /* ymdeltat.h */,
 			);
 			name = sound;
 			path = ipinmame/src/sound;
@@ -1732,6 +1752,19 @@
 			name = "Other Sources";
 			sourceTree = "<group>";
 		};
+		C16802AA23FC994000EA85B3 /* cop400 */ = {
+			isa = PBXGroup;
+			children = (
+				C16802AB23FC994000EA85B3 /* cop420.c */,
+				C16802AC23FC994000EA85B3 /* cop400.h */,
+				C16802AD23FC994000EA85B3 /* cop420ds.c */,
+				C16802AE23FC994000EA85B3 /* 420ops.c */,
+				C16802AF23FC994000EA85B3 /* 410ops.c */,
+			);
+			name = cop400;
+			path = ipinmame/src/cpu/cop400;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1851,6 +1884,7 @@
 				889332FF14BE5FAE0095D115 /* tilemap.c in Sources */,
 				8893330014BE5FAE0095D115 /* timer.c in Sources */,
 				8893330114BE5FAE0095D115 /* ui_text.c in Sources */,
+				C16802B323FC994000EA85B3 /* 410ops.c in Sources */,
 				8893330214BE5FAE0095D115 /* unzip.c in Sources */,
 				8893330314BE5FAE0095D115 /* usrintrf.c in Sources */,
 				8893330414BE5FAE0095D115 /* version.c in Sources */,
@@ -1877,6 +1911,7 @@
 				889333B414BE60060095D115 /* m6502.c in Sources */,
 				889333BB14BE60060095D115 /* 6800dasm.c in Sources */,
 				889333BE14BE60060095D115 /* m6800.c in Sources */,
+				C16802B023FC994000EA85B3 /* cop420.c in Sources */,
 				889333BF14BE60060095D115 /* 6809dasm.c in Sources */,
 				889333C214BE60060095D115 /* m6809.c in Sources */,
 				889333C514BE60060095D115 /* m68kopac.c in Sources */,
@@ -1908,6 +1943,7 @@
 				8893340214BE621C0095D115 /* 8255ppi.c in Sources */,
 				8893340314BE621C0095D115 /* eeprom.c in Sources */,
 				8893340514BE621C0095D115 /* mathbox.c in Sources */,
+				C16802B223FC994000EA85B3 /* 420ops.c in Sources */,
 				8893340714BE621C0095D115 /* pic8259.c in Sources */,
 				8893340914BE621C0095D115 /* ticket.c in Sources */,
 				8893340A14BE621C0095D115 /* z80fmly.c in Sources */,
@@ -1939,6 +1975,7 @@
 				8893347114BE62530095D115 /* tms5220.c in Sources */,
 				8893347414BE62530095D115 /* votrax.c in Sources */,
 				8893347714BE62530095D115 /* ym2151.c in Sources */,
+				C16802B123FC994000EA85B3 /* cop420ds.c in Sources */,
 				8893348614BE62D50095D115 /* avgdvg.c in Sources */,
 				8893348714BE62D50095D115 /* crtc6845.c in Sources */,
 				8893348814BE62D50095D115 /* generic.c in Sources */,
@@ -1996,6 +2033,7 @@
 				8893359714BE62FE0095D115 /* kissproto.c in Sources */,
 				8893359814BE62FE0095D115 /* ltd.c in Sources */,
 				8893359914BE62FE0095D115 /* ltdgames.c in Sources */,
+				C16802B623FC99D300EA85B3 /* astrocde.c in Sources */,
 				8893359A14BE62FE0095D115 /* mech.c in Sources */,
 				8893359B14BE62FE0095D115 /* mephisto.c in Sources */,
 				8893359C14BE62FE0095D115 /* micropin.c in Sources */,
@@ -2077,6 +2115,7 @@
 				889335EA14BE62FE0095D115 /* totan.c in Sources */,
 				889335EB14BE62FE0095D115 /* ts.c in Sources */,
 				889335EC14BE62FE0095D115 /* wd.c in Sources */,
+				C16802B923FC99E700EA85B3 /* ymdeltat.c in Sources */,
 				889335ED14BE62FE0095D115 /* sleic.c in Sources */,
 				889335EE14BE62FE0095D115 /* sleicgames.c in Sources */,
 				889335EF14BE62FE0095D115 /* snd_cmd.c in Sources */,
