@@ -387,7 +387,7 @@ ROM_START(mac_1808)
 ROM_END
 INITGAME(mac_1808,dispMAC,FLIP_SW(FLIP_L),2)
 MAC_COMPORTS(mac_1808, 1)
-CORE_GAMEDEFNV(mac_1808, "Unknown MAC game #1808", 19??, "MAC S.A.", macmsm, 0)
+CORE_GAMEDEFNV(mac_1808, "Unknown Game (MAC #1808)", 19??, "MAC S.A.", macmsm, 0)
 
 ROM_START(nbamac)
   NORMALREGION(0x10000, REGION_CPU1)
@@ -564,10 +564,19 @@ static core_tLCDLayout dispCIC[] = {
   {0}
 };
 
+ROM_START(kidnap)
+  NORMALREGION(0x10000, REGION_CPU1)
+    ROM_LOAD("kidnap_1.bin", 0x0000, 0x2000, CRC(4b8f9bb1) SHA1(16672c1a5e55ba5963fbd8834443dbead9bdff10) BAD_DUMP)
+    ROM_LOAD("kidnap_2.bin", 0x2000, 0x2000, CRC(4333d9ba) SHA1(362bcc9caaf37ad7efc116c3bee9b99cbbfa0563))
+ROM_END
+INITGAME(kidnap,dispCIC,FLIP_SW(FLIP_L),3)
+CIC_COMPORTS(kidnap, 1)
+CORE_GAMEDEFNV(kidnap, "Kidnap", 1986, "CICPlay", cic, 0)
+
 ROM_START(glxplay)
   NORMALREGION(0x10000, REGION_CPU1)
-    ROM_LOAD("1382-1.cpu", 0x0000, 0x2000, CRC(da43b0b9) SHA1(b13b260c61b3bd0b7632aabcdbcf4cdd5cbe4b22))
-    ROM_LOAD("1382-2.cpu", 0x2000, 0x2000, CRC(945c90fd) SHA1(8367992f8db8b402d82e4a3f02a35b796756ce0f))
+    ROM_LOAD("1083-1.cpu", 0x0000, 0x2000, NO_DUMP)
+    ROM_LOAD("1083-2.cpu", 0x2000, 0x2000, NO_DUMP)
 ROM_END
 INITGAME(glxplay,dispCIC,FLIP_SW(FLIP_L),3)
 CIC_COMPORTS(glxplay, 1)
@@ -575,7 +584,8 @@ CORE_GAMEDEFNV(glxplay, "Galaxy Play", 1986, "CICPlay", cic, 0)
 
 ROM_START(glxplay2)
   NORMALREGION(0x10000, REGION_CPU1)
-    ROM_LOAD("gp_27128.bin", 0x0000, 0x4000, NO_DUMP)
+    ROM_LOAD("1382-1.cpu", 0x0000, 0x2000, CRC(da43b0b9) SHA1(b13b260c61b3bd0b7632aabcdbcf4cdd5cbe4b22))
+    ROM_LOAD("1382-2.cpu", 0x2000, 0x2000, CRC(945c90fd) SHA1(8367992f8db8b402d82e4a3f02a35b796756ce0f))
 ROM_END
 INITGAME(glxplay2,dispCIC,FLIP_SW(FLIP_L),3)
 CIC_COMPORTS(glxplay2, 1)

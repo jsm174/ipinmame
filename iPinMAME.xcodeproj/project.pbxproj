@@ -333,6 +333,12 @@
 		C16802B623FC99D300EA85B3 /* astrocde.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802B523FC99D300EA85B3 /* astrocde.c */; };
 		C16802B923FC99E700EA85B3 /* ymdeltat.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802B823FC99E700EA85B3 /* ymdeltat.c */; };
 		C16802BB23FCA7DD00EA85B3 /* mac.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802BA23FCA7DD00EA85B3 /* mac.c */; };
+		C16802E523FCF55B00EA85B3 /* barni.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802E123FCF55B00EA85B3 /* barni.c */; };
+		C16802E623FCF55B00EA85B3 /* joctronic.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802E223FCF55B00EA85B3 /* joctronic.c */; };
+		C16802E723FCF55B00EA85B3 /* lancelot.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802E323FCF55B00EA85B3 /* lancelot.c */; };
+		C16802E823FCF55B00EA85B3 /* inderp.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802E423FCF55B00EA85B3 /* inderp.c */; };
+		C16802ED23FCF59000EA85B3 /* 262intf.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802E923FCF59000EA85B3 /* 262intf.c */; };
+		C16802EE23FCF59000EA85B3 /* ymf262.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802EB23FCF59000EA85B3 /* ymf262.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -834,6 +840,14 @@
 		C16802B823FC99E700EA85B3 /* ymdeltat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ymdeltat.c; sourceTree = "<group>"; };
 		C16802BA23FCA7DD00EA85B3 /* mac.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mac.c; sourceTree = "<group>"; };
 		C16802DD23FCE55300EA85B3 /* snd_alt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = snd_alt.h; sourceTree = "<group>"; };
+		C16802E123FCF55B00EA85B3 /* barni.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = barni.c; sourceTree = "<group>"; };
+		C16802E223FCF55B00EA85B3 /* joctronic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = joctronic.c; sourceTree = "<group>"; };
+		C16802E323FCF55B00EA85B3 /* lancelot.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lancelot.c; sourceTree = "<group>"; };
+		C16802E423FCF55B00EA85B3 /* inderp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = inderp.c; sourceTree = "<group>"; };
+		C16802E923FCF59000EA85B3 /* 262intf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = 262intf.c; sourceTree = "<group>"; };
+		C16802EA23FCF59000EA85B3 /* 262intf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = 262intf.h; sourceTree = "<group>"; };
+		C16802EB23FCF59000EA85B3 /* ymf262.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ymf262.c; sourceTree = "<group>"; };
+		C16802EC23FCF59000EA85B3 /* ymf262.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ymf262.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1330,6 +1344,8 @@
 		8893340B14BE62530095D115 /* sound */ = {
 			isa = PBXGroup;
 			children = (
+				C16802E923FCF59000EA85B3 /* 262intf.c */,
+				C16802EA23FCF59000EA85B3 /* 262intf.h */,
 				8893340C14BE62530095D115 /* 2151intf.c */,
 				8893340D14BE62530095D115 /* 2151intf.h */,
 				8893340E14BE62530095D115 /* 2203intf.c */,
@@ -1392,6 +1408,8 @@
 				8893344F14BE62530095D115 /* ym2151.h */,
 				C16802B823FC99E700EA85B3 /* ymdeltat.c */,
 				C16802B723FC99E700EA85B3 /* ymdeltat.h */,
+				C16802EB23FCF59000EA85B3 /* ymf262.c */,
+				C16802EC23FCF59000EA85B3 /* ymf262.h */,
 			);
 			name = sound;
 			path = ipinmame/src/sound;
@@ -1430,6 +1448,7 @@
 				8893349514BE62FE0095D115 /* atari.h */,
 				8893349614BE62FE0095D115 /* atarigames.c */,
 				8893349714BE62FE0095D115 /* atarisnd.c */,
+				C16802E123FCF55B00EA85B3 /* barni.c */,
 				8893349814BE62FE0095D115 /* bingo.c */,
 				8893349914BE62FE0095D115 /* bowarrow.c */,
 				8893349A14BE62FE0095D115 /* bowlgames.c */,
@@ -1486,12 +1505,15 @@
 				889334CC14BE62FE0095D115 /* inder.c */,
 				889334CD14BE62FE0095D115 /* inder.h */,
 				889334CE14BE62FE0095D115 /* indergames.c */,
+				C16802E423FCF55B00EA85B3 /* inderp.c */,
 				889334CF14BE62FE0095D115 /* jeutel.c */,
+				C16802E223FCF55B00EA85B3 /* joctronic.c */,
 				889334D014BE62FE0095D115 /* jp.c */,
 				889334D114BE62FE0095D115 /* jp.h */,
 				889334D214BE62FE0095D115 /* jpgames.c */,
 				889334D314BE62FE0095D115 /* jvh.c */,
 				889334D414BE62FE0095D115 /* kissproto.c */,
+				C16802E323FCF55B00EA85B3 /* lancelot.c */,
 				889334D514BE62FE0095D115 /* ltd.c */,
 				889334D614BE62FE0095D115 /* ltd.h */,
 				889334D714BE62FE0095D115 /* ltdgames.c */,
@@ -1918,15 +1940,18 @@
 				889333BB14BE60060095D115 /* 6800dasm.c in Sources */,
 				889333BE14BE60060095D115 /* m6800.c in Sources */,
 				C16802B023FC994000EA85B3 /* cop420.c in Sources */,
+				C16802E523FCF55B00EA85B3 /* barni.c in Sources */,
 				889333BF14BE60060095D115 /* 6809dasm.c in Sources */,
 				889333C214BE60060095D115 /* m6809.c in Sources */,
 				889333C514BE60060095D115 /* m68kopac.c in Sources */,
 				889333C614BE60060095D115 /* m68kopdm.c in Sources */,
+				C16802E723FCF55B00EA85B3 /* lancelot.c in Sources */,
 				889333C714BE60060095D115 /* m68kopnz.c in Sources */,
 				889333C814BE60060095D115 /* m68kops.c in Sources */,
 				889333CA14BE60060095D115 /* m68kcpu.c in Sources */,
 				889333CB14BE60060095D115 /* m68kdasm.c in Sources */,
 				889333CD14BE60060095D115 /* m68kmame.c in Sources */,
+				C16802E823FCF55B00EA85B3 /* inderp.c in Sources */,
 				889333CF14BE60060095D115 /* pps4.c in Sources */,
 				889333D014BE60060095D115 /* pps4dasm.c in Sources */,
 				889333D114BE60060095D115 /* 2650dasm.c in Sources */,
@@ -1975,6 +2000,7 @@
 				8893346B14BE62530095D115 /* sn76496.c in Sources */,
 				8893346C14BE62530095D115 /* sp0250.c in Sources */,
 				C16802A423FC44F000EA85B3 /* sp0256.c in Sources */,
+				C16802ED23FCF59000EA85B3 /* 262intf.c in Sources */,
 				8893346D14BE62530095D115 /* streams.c in Sources */,
 				8893346E14BE62530095D115 /* tms320av120.c in Sources */,
 				8893346F14BE62530095D115 /* tms5110.c in Sources */,
@@ -1999,6 +2025,7 @@
 				8893357014BE62FE0095D115 /* bowarrow.c in Sources */,
 				8893357114BE62FE0095D115 /* bowlgames.c in Sources */,
 				8893357214BE62FE0095D115 /* by35.c in Sources */,
+				C16802EE23FCF59000EA85B3 /* ymf262.c in Sources */,
 				8893357314BE62FE0095D115 /* by35games.c in Sources */,
 				8893357414BE62FE0095D115 /* by35snd.c in Sources */,
 				8893357514BE62FE0095D115 /* by6803.c in Sources */,
@@ -2042,6 +2069,7 @@
 				C16802B623FC99D300EA85B3 /* astrocde.c in Sources */,
 				8893359A14BE62FE0095D115 /* mech.c in Sources */,
 				8893359B14BE62FE0095D115 /* mephisto.c in Sources */,
+				C16802E623FCF55B00EA85B3 /* joctronic.c in Sources */,
 				8893359C14BE62FE0095D115 /* micropin.c in Sources */,
 				8893359D14BE62FE0095D115 /* mrgame.c in Sources */,
 				8893359E14BE62FE0095D115 /* mrgamegames.c in Sources */,

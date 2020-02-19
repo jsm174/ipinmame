@@ -7,7 +7,9 @@
 #endif
 
 #include ".\displayinfolist.h"
-#include <ddraw.h>
+#ifndef DISABLE_DX7
+ #include <ddraw.h>
+#endif
 
 #ifdef _MSC_VER
 #include "msc.h"
@@ -65,6 +67,7 @@ void CDisplayInfoList::AddDisplay(GUID FAR *lpGuid, LPSTR lpDriverDesc, LPSTR lp
 
 BOOL CDisplayInfoList::Enumerate()
 {
+#ifndef DISABLE_DX7
 	// Get to DirectDraw
 	HINSTANCE hDDraw = LoadLibrary("ddraw.dll");;
 
@@ -120,6 +123,11 @@ BOOL CDisplayInfoList::Enumerate()
 
 	// Indicate Success
 	return TRUE;
+#else
+	MessageBox(NULL, "Direct Draw not supported", NULL, MB_OK);
+
+	return FALSE;
+#endif
 }
 
 /************************************************

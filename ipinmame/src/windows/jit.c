@@ -1,9 +1,10 @@
 #include <stdlib.h>
-#include <memory.h>
 #include <string.h>
 #include <assert.h>
 
 #include <Windows.h>
+
+#include "memory.h"
 
 #define JIT_OPALIGN 0
 #include "jit.h"
@@ -250,10 +251,8 @@ static byte *emit_lookup_code(struct jit_ctl *jit, int patch)
 	byte addSp8[]  = { 0x83, 0xC4, 0x08 };   // ADD SP,8
 	byte addSp12[] = { 0x83, 0xC4, 0x0C };   // ADD SP,12
 	byte pushEDX[] = { 0x52 };               // PUSH EDX
-	byte pushIm8[] = { 0x5A, 0 };            // PUSH Imm8
 	byte popEDX[]  = { 0x5A };               // POP EDX
 	byte xchgED[]  = { 0x92 };               // XCHG EAX,EDX
-	byte retn[]    = { 0xC3 };               // RETN
 	byte jmpEDX[]  = { 0xFF, 0xE2 };         // JMP EDX
 	byte *code, *p;
 	byte *lookup = (patch ? (byte *)rtlookup_patch : (byte *)rtlookup);
@@ -335,7 +334,7 @@ static void delete_code_pages(struct jit_ctl *jit)
 
 void jit_create_map(struct jit_ctl *jit, data32_t minAddr, data32_t maxAddr)
 {
-	int i;
+	int i, nBytes, nAddrs;
 	
 	// if there's an existing map, delete it
 	if (jit->native != 0)
@@ -343,12 +342,12 @@ void jit_create_map(struct jit_ctl *jit, data32_t minAddr, data32_t maxAddr)
 
 	// figure the size in bytes of the address space (NB: the range is
 	// exclusive of maxAddr)
-	int nBytes = maxAddr - minAddr;
+	nBytes = maxAddr - minAddr;
 
 	// figure the size in indices of the address space, taking into account
 	// that we only store every other address for 2-byte alignment, every 4th
 	// address for 4-byte alignment, etc
-	int nAddrs = nBytes >> jit->rshift;
+	nAddrs = nBytes >> jit->rshift;
 
 	// store the new range parameters
 	jit->minAddr = minAddr;
@@ -397,16 +396,16 @@ void jit_enable(struct jit_ctl *jit)
 
 void jit_untranslate(struct jit_ctl *jit, data32_t addr)
 {
+	byte *p;
+
 	// if it's not in the JIT covered memory space, there's nothing to do
 	if (addr < jit->minAddr || addr >= jit->maxAddr)
 		return;
 
 	// un-translate only if the existing opcode is translated
-	byte *p = JIT_NATIVE(jit, addr);
+	p = JIT_NATIVE(jit, addr);
 	if (p != jit->pEmulate && p != jit->pPending)
 	{
-		byte mov[5] = { 0xB8, 0, 0, 0, 0 };  // MOV EAX,Imm32
-
 		// Replace the code with MOV EAX,<emulator address>, RETN.
 		// This will return to the emulator and resume emulation at the
 		// replaced code address.

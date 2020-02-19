@@ -375,6 +375,9 @@ unsigned arm7_dasm(char *buffer, unsigned int pc)
 
 void arm7_init(void)
 {
+	memset(&ARM7, 0, sizeof(ARM7));
+	ARM7_ICOUNT = 0;
+
 	//must call core 
 	arm7_core_init("arm7");
 
@@ -392,8 +395,6 @@ void arm7_init(void)
 	arm7_dasm_cop_do_callback = Spec_DO;
 #endif
 #endif
-
-	return;
 }
 
 //

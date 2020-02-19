@@ -35,14 +35,16 @@ extern int g_iSyncFactor;
 extern struct RunningMachine *Machine;
 extern struct mame_display *current_display_ptr;
 
-extern UINT8 g_raw_dmdbuffer[DMD_MAXY*DMD_MAXX];
+extern UINT8  g_raw_dmdbuffer[DMD_MAXY*DMD_MAXX];
+extern UINT32 g_raw_colordmdbuffer[DMD_MAXY*DMD_MAXX];
 extern UINT32 g_raw_dmdx;
 extern UINT32 g_raw_dmdy;
+extern UINT32 g_needs_DMD_update;
 
 extern char g_fShowWinDMD;
 
 // from ticker.c
-extern void uSleep(const unsigned long long u);
+extern void uSleep(const UINT64 u);
 }
 #include "alias.h"
 
@@ -503,23 +505,57 @@ STDMETHODIMP CController::get_RawDmdHeight(int *pVal)
  ************************************************************************************************/
 STDMETHODIMP CController::get_RawDmdPixels(VARIANT *pVal)
 {
-	if(Machine && (int)g_raw_dmdx > 0 && (int)g_raw_dmdy > 0 && pVal)
+	if(Machine && g_needs_DMD_update && (int)g_raw_dmdx > 0 && (int)g_raw_dmdy > 0 && pVal)
 	{
 		SAFEARRAY *psa = SafeArrayCreateVector(VT_VARIANT, 0, g_raw_dmdx*g_raw_dmdy);
 
 		VARIANT DMDState;
-		DMDState.vt = VT_UI8;
+		DMDState.vt = VT_UI1;
 	
 		LONG ofs = 0;
 		for(unsigned int y = 0; y < g_raw_dmdy; ++y)
 		for(unsigned int x = 0; x < g_raw_dmdx; ++x,++ofs)
 		{
-			DMDState.uintVal = g_raw_dmdbuffer[ofs];
+			DMDState.cVal = g_raw_dmdbuffer[ofs];
 			SafeArrayPutElement(psa, &ofs, &DMDState);
 		}
 
 		pVal->vt = VT_ARRAY|VT_VARIANT;
 		pVal->parray = psa;
+
+		g_needs_DMD_update = 0;
+
+		return S_OK;
+	}
+	else
+		return S_FALSE;
+}
+
+/******************************************************************************************************
+* IController.RawDmdColoredPixels (read-only): Copy whole DMD to a self allocated array (RGB(A) values)
+*******************************************************************************************************/
+STDMETHODIMP CController::get_RawDmdColoredPixels(VARIANT *pVal)
+{
+	if(Machine && g_needs_DMD_update && (int)g_raw_dmdx > 0 && (int)g_raw_dmdy > 0 && pVal)
+	{
+		SAFEARRAY *psa = SafeArrayCreateVector(VT_VARIANT, 0, g_raw_dmdx*g_raw_dmdy);
+
+		VARIANT DMDState;
+		DMDState.vt = VT_UI4;
+
+		LONG ofs = 0;
+		for(unsigned int y = 0; y < g_raw_dmdy; ++y)
+		for(unsigned int x = 0; x < g_raw_dmdx; ++x, ++ofs)
+		{
+			DMDState.uintVal = g_raw_colordmdbuffer[ofs];
+			SafeArrayPutElement(psa, &ofs, &DMDState);
+		}
+
+		pVal->vt = VT_ARRAY|VT_VARIANT;
+		pVal->parray = psa;
+
+		g_needs_DMD_update = 0;
+		
 		return S_OK;
 	}
 	else
@@ -1126,6 +1162,54 @@ STDMETHODIMP CController::get_ChangedLEDs(int nHigh, int nLow, int nnHigh, int n
 
   pVal->vt = VT_ARRAY | VT_VARIANT;
   pVal->parray = psa;
+
+  return S_OK;
+}
+
+
+/*****************************************************************************************
+ * get_ChangedLEDsState (read-only): Copy whole Changed LEDS digits/Segments array to a user allocated array
+ *****************************************************************************************/
+STDMETHODIMP CController::get_ChangedLEDsState(int nHigh, int nLow, int nnHigh, int nnLow, int **buf, int *pVal)
+{
+	UINT64 mask = (((UINT64)nHigh)<<32) | ((UINT32)nLow);
+	UINT64 mask2 = (((UINT64)nnHigh)<<32) | ((UINT32)nnLow);
+	vp_tChgLED chgLED;
+	
+	if (!pVal) return S_FALSE;
+	
+	if(!buf)
+	{
+		*pVal = 0;
+		return S_FALSE;
+	}
+
+
+  if (WaitForSingleObject(m_hEmuIsRunning, 0) == WAIT_TIMEOUT)
+    { pVal = 0; return S_OK; }
+
+  /*-- if enabled: wait for the worker thread to enter "throttle_speed()" --*/
+  if ( (g_hEnterThrottle!=INVALID_HANDLE_VALUE) && g_iSyncFactor ) 
+	WaitForSingleObject(g_hEnterThrottle, (synclevel<=20) ? synclevel : 50);
+  else if ( synclevel<0 )
+	  uSleep(-synclevel*1000);
+
+  /*-- Count changes --*/
+  int uCount = vp_getChangedLEDs(chgLED, mask, mask2);
+
+  if (uCount == 0)
+    { pVal = 0; return S_OK; }
+
+  /*-- add changed LEDs to array --*/
+  int *dst = reinterpret_cast<int*>(buf);
+  for (int i = 0; i < uCount; i++) {
+
+	  *(dst++) = chgLED[i].ledNo;
+	  *(dst++) = chgLED[i].chgSeg;
+	  *(dst++) = chgLED[i].currStat;
+  }
+
+  *pVal = uCount;
 
   return S_OK;
 }

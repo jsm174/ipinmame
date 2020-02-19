@@ -75,10 +75,10 @@
 
 #include <stdarg.h>
 #include <stdlib.h>
-#include <memory.h>
 #include <string.h>
 #include <assert.h>
 
+#include "memory.h"
 #include "jit.h"
 #include "jitemit.h"
 
@@ -259,9 +259,10 @@ static struct instr *alloc_instr(int len, const byte *b)
 {
 	struct instr *iop;
 	int alolen;
-	byte *op;
+	const byte *op;
 	int rem;
 	int twobyte = 0;
+	struct instr *i;
 
 	// Find the primary opcode, skipping any prefix bytes
 	op = b;
@@ -293,7 +294,7 @@ static struct instr *alloc_instr(int len, const byte *b)
 		alolen = 6;
 	
 	// allocate the instruction
-	struct instr *i = (struct instr *)malloc(sizeof(struct instr) + alolen - 1);
+	i = (struct instr *)malloc(sizeof(struct instr) + alolen - 1);
 	i->nxt = 0;
 	i->prv = 0;
 	i->nataddr = 0;
@@ -416,11 +417,13 @@ void end_instr()
  */
 void jit_emit_begin_instr(struct jit_ctl *jit, data32_t addr)
 {
+	struct instr *i;
+
 	// close out any existing instruction
 	end_instr();
 
 	// insert a pseudo-instruction to mark the address
-	struct instr *i = add_instr(0, 0);
+	i = add_instr(0, 0);
 	i->emuaddr = addr;
 
 	// put the instruction in the "working" state, saving its old state in case we cancel
@@ -594,6 +597,7 @@ void jit_emit_commit(struct jit_ctl *jit)
 	byte *nataddr;
 	byte *resp;
 	struct instr *i;
+	byte *p;
 
 	// if there's no code, there's nothing to do
 	if (stktop->ihead == 0)
@@ -947,7 +951,7 @@ void jit_emit_commit(struct jit_ctl *jit)
 				*(UINT32 *)(&i->b[1]) = lbldelta;
 			}
 			else if (i->len == 6
-					 && (i->effop >= opJO32 && i->op[0] <= opJG32))
+					 && (i->effop >= opJO32 && i->effop <= opJG32))
 			{
 				// 32-bit offset
 				*(UINT32 *)(&i->op[1]) = lbldelta;
@@ -959,7 +963,7 @@ void jit_emit_commit(struct jit_ctl *jit)
 		}
 		
 		// copy this instruction to the JIT executable code page
-		byte *p = jit_store_native(jit, i->b, i->len);
+		p = jit_store_native(jit, i->b, i->len);
 		ASSERT(p == i->nataddr);
 
 		// if this is the first native instruction for this emulated opcode,
@@ -1582,7 +1586,7 @@ static int immlen(optype t)
 	default:     return 0;
 	}
 }
-static int oplen(struct mnedef *o)
+static int oplen(const struct mnedef *o)
 {
 	// start with one byte for the opcode
 	int len = 1;
@@ -1686,7 +1690,7 @@ static int match_operand(optype t, struct opdesc *op)
 
 // Encode the MOD REG R/M byte for an instruction.  'rm' is the operand to encode
 // into the MOD RM fields, and 'r' is the operand to encode in the REG field.
-static byte *encode_modrm(byte *p, struct mnedef *o, struct opdesc *rm, struct opdesc *r)
+static byte *encode_modrm(byte *p, const struct mnedef *o, const struct opdesc *rm, const struct opdesc *r)
 {
 	// Start with the memory operand
 	if (rm->typ == opMem || rm->typ == opMem8 || rm->typ == opMem16 || rm->typ == opMem32)
@@ -1881,7 +1885,7 @@ void jit_emit(intelMneId mne, ...)
 	int n;
 	struct opdesc op[3];
 	int i;
-	struct mnedef *m, *mbest;
+	const struct mnedef *m, *mbest;
 	byte buf[32], *p;
 	struct instr *ins;
 	opdesctyp memType;
@@ -1948,6 +1952,8 @@ void jit_emit(intelMneId mne, ...)
 			ASSERT(memType == opMem);
 		}
 		else if (a == Idx) {
+			int r;
+
 			// Indexed register with no displacement, as in [BX] - get the register,
 			// and check that it's a 32-bit register (others can't be used in index
 			// mode in 32-bit code).  Also, indexed immediate address, as [1234h].
@@ -1959,7 +1965,7 @@ void jit_emit(intelMneId mne, ...)
 			op[n].val.mem.dispLen = 0;
 
 			// get the register or immediate value to index
-			int r = va_arg(va, int);
+			r = va_arg(va, int);
 			if (r == Imm)
 			{
 				// indexing an immediate address - MOD REG RM = 00 xxx 101

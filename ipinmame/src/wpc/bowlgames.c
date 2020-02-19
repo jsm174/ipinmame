@@ -6,6 +6,7 @@
 #include "driver.h"
 #include "core.h"
 #include "by35.h"
+#include "by35snd.h"
 #include "sndbrd.h"
 #include "wmssnd.h"
 #include "wpc.h"
@@ -178,6 +179,23 @@ S4_ROMSTART(tstrk,l1,"gamerom.716",CRC(b034c059) SHA1(76b3926b87b3c137fcaf33021a
 S4_ROMEND
 #define input_ports_tstrk input_ports_bowl
 CORE_GAMEDEF(tstrk,l1,"Triple Strike (Shuffle) (L-1)",1983,"Williams",s4_mS4,GAME_USES_CHIMES)
+
+/*--------------------------------
+/ Big Bat
+/-------------------------------*/
+static core_tLCDLayout dispBigbat[] = {
+  {0, 0,34, 6,CORE_SEG7}, {0}
+};
+static core_tGameData bigbatGameData = {GEN_BY35,dispBigbat,{FLIP_SW(FLIP_L),0,0,0,SNDBRD_BY61,0,BY35GD_NOSOUNDE}};
+static void init_bigbat(void) { core_gameData = &bigbatGameData; }
+BY35_ROMSTARTx00(bigbat,"u2.bin",CRC(2beda24d) SHA1(80fb9ed548e4886741c709979aa4f865f47d2257),
+                          "u6.bin",CRC(8f13469d) SHA1(00c626f7eb166f627f6498d75906b3c56bccdd62))
+BY61_SOUNDROMx000(        "u3.bin",CRC(b87a9335) SHA1(8a21bcbcbe91da1bab0af06b71604bb8f247d0d4),
+                          "u4.bin",CRC(4ab75b31) SHA1(46acd1c9250a635b51bffccd77ea4e67a0c5edf5),
+                          "u5.bin",CRC(0aec8204) SHA1(f44216cccc3652399549345d8c74bcae54662aa3))
+BY35_ROMEND
+BY35_INPUT_PORTS_START(bigbat,1) BY35_INPUT_PORTS_END
+CORE_GAMEDEFNV(bigbat,"Big Bat",1984,"Bally Midway",by35_mBY35_61S,0)
 
 /*------------------------------------------------
 / Midnight Marauders (BY35-???: 05/84) - Gun game
@@ -384,7 +402,7 @@ WPCS_SOUNDROM222("sf_u18.l1",CRC(78092c83) SHA1(7c922dfd8be4bb5e23d4c86b6eb18a29
 WPC_ROMEND
 WPC_INPUT_PORTS_START(sf, 0) WPC_INPUT_PORTS_END
 CORE_GAMEDEF(sf,l1,"Slugfest (L-1)",1991,"Williams",wpc_mDMDS,0)
-CORE_CLONEDEF(sf,d1,l1,"Slugfest (D-1) LED Ghost Fix",1991,"Williams",wpc_mDMDS,0)
+CORE_CLONEDEF(sf,d1,l1,"Slugfest (D-1 LED Ghost Fix)",1991,"Williams",wpc_mDMDS,0)
 
 /*-------------------
 / Strike Master
@@ -411,7 +429,7 @@ WPCS_SOUNDROM222("lc_u18.l1",CRC(beb84fd9) SHA1(b1d5472af5e3c0f5c67e7d636122eb79
 WPC_ROMEND
 WPC_INPUT_PORTS_START(strik, 0) WPC_INPUT_PORTS_END
 CORE_GAMEDEF(strik,l4,"Strike Master (L-4)",1992,"Williams",wpc_mFliptronS,0)
-CORE_CLONEDEF(strik,d4,l4,"Strike Master (D-4) LED Ghost Fix",1992,"Williams",wpc_mFliptronS,0)
+CORE_CLONEDEF(strik,d4,l4,"Strike Master (D-4 LED Ghost Fix)",1992,"Williams",wpc_mFliptronS,0)
 
 /*------------------
 / Hot Shot (#60017)
@@ -440,7 +458,7 @@ WPC_ROMSTART(hshot,p9,"hshot_p9.u6",0x80000,CRC(fa4d05df) SHA1(235aa096f2983f77a
 WPCS_SOUNDROM2x8("hshot_l1.u18",CRC(a0e5beba) SHA1(c54a22527d861df54891308752ebdec5829deceb),
                  "hshot_l1.u14",CRC(a3ccf557) SHA1(a8e518ea115cd1963544273c45d9ae9a6cab5e1f))
 WPC_ROMEND
-CORE_CLONEDEF(hshot,p9,p8,"Hot Shot Basketball (P-9) LED Ghost Fix",1992,"Midway",wpc_mFliptronS,0)
+CORE_CLONEDEF(hshot,p9,p8,"Hot Shot Basketball (P-9 LED Ghost Fix)",1992,"Midway",wpc_mFliptronS,0)
 
 /*-------------
 / Addams Family Values
@@ -506,11 +524,11 @@ INPUT_PORTS_START(afv)
       COREPORT_DIPSET(0x0000, "0" ) \
       COREPORT_DIPSET(0x0080, "1" ) \
 INPUT_PORTS_END
-CORE_GAMEDEF(afv,l4,"Addams Family Values (Coin Dropper, L-4)",1993,"Williams",wpc_mDCSS,0)
-CORE_CLONEDEF(afv,d4,l4,"Addams Family Values (Coin Dropper, D-4) LED Ghost Fix",1993,"Williams",wpc_mDCSS,0)
+CORE_GAMEDEF(afv,l4,"Addams Family Values (Coin Dropper) (L-4)",1993,"Williams",wpc_mDCSS,0)
+CORE_CLONEDEF(afv,d4,l4,"Addams Family Values (Coin Dropper) (D-4 LED Ghost Fix)",1993,"Williams",wpc_mDCSS,0)
 
 /*-------------------------------------------------------------------
-/ Strikes n' Spares (#N111)
+/ Strikes N' Spares (#N111)
 /-------------------------------------------------------------------*/
 static struct core_dispLayout GTS3_dispDMD[] = {
   {0,0,32,128,CORE_DMD|CORE_DMDNOAA,(genf *)gts3_dmd128x32},
@@ -525,7 +543,7 @@ NORMALREGION(0x100000, REGION_USER3) \
   GTS3S_ROMLOAD4(0x00000, "arom1.bin", CRC(e248574a) SHA1(d2bdc2b9a330bb81556d25d464f617e0934995eb)) \
 GTS3_ROMEND
 GTS32_INPUT_PORTS_START(snspares, 4) GTS3_INPUT_PORTS_END
-CORE_GAMEDEFNV(snspares,"Strikes n' Spares (rev.6)",1995,"Gottlieb",mGTS3DMDS2, 0)
+CORE_GAMEDEFNV(snspares,"Strikes N' Spares (rev. 6)",1995,"Gottlieb",mGTS3DMDS2, 0)
 
 #define init_snspare1 init_snspares
 #define input_ports_snspare1 input_ports_snspares
@@ -534,7 +552,7 @@ GTS3_DMD256_ROMSTART2(  "dsprom.bin",CRC(5c901899) SHA1(d106561b2e382afdb16e9380
 NORMALREGION(0x100000, REGION_USER3) \
   GTS3S_ROMLOAD4(0x00000, "arom1.bin", CRC(e248574a) SHA1(d2bdc2b9a330bb81556d25d464f617e0934995eb)) \
 GTS3_ROMEND
-CORE_CLONEDEFNV(snspare1,snspares,"Strikes n' Spares (rev.1)",1995,"Gottlieb",mGTS3DMDS2, 0)
+CORE_CLONEDEFNV(snspare1,snspares,"Strikes N' Spares (rev. 1)",1995,"Gottlieb",mGTS3DMDS2, 0)
 
 #define init_snspare2 init_snspares
 #define input_ports_snspare2 input_ports_snspares
@@ -543,7 +561,7 @@ GTS3_DMD256_ROMSTART2(  "dsprom.bin",CRC(5c901899) SHA1(d106561b2e382afdb16e9380
 NORMALREGION(0x100000, REGION_USER3) \
   GTS3S_ROMLOAD4(0x00000, "arom1.bin", CRC(e248574a) SHA1(d2bdc2b9a330bb81556d25d464f617e0934995eb)) \
 GTS3_ROMEND
-CORE_CLONEDEFNV(snspare2,snspares,"Strikes n' Spares (rev.2)",1995,"Gottlieb",mGTS3DMDS2, 0)
+CORE_CLONEDEFNV(snspare2,snspares,"Strikes N' Spares (rev. 2)",1995,"Gottlieb",mGTS3DMDS2, 0)
 
 /*-----------------------------
 / League Champ (Shuffle Alley)

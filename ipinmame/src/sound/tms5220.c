@@ -167,7 +167,7 @@ Interpolation is inhibited (i.e. interpolation at IP frames will not happen
     x100aaaa: LOAD ADDRESS (LA) Send a load address command (M0 low M1 high) to VSM with the 4 'a' bits; Note you need to send four or five of these in sequence to actually specify an address to the vsm.
     TALK STATUS must be CLEAR for this command to work; otherwise it is treated as a NOP.
 
-    x101xxxx: SPEAK (SPK) Begins speaking, pulling spech data from the current address pointer location of the VSM modules.
+    x101xxxx: SPEAK (SPK) Begins speaking, pulling speech data from the current address pointer location of the VSM modules.
 
     x110xxxx: SPEAK EXTERNAL (SPKEXT) Clears the FIFO using SPKEE line, then sets TALKD (TALKST remains zero) until 8 bytes have been written to the FIFO, at which point it begins speaking, pulling data from the 16 byte fifo.
     The patent implies TALK STATUS must be CLEAR for this command to work; otherwise it is treated as a NOP, but the decap shows that this is not true, and is an error on the patent diagram.
@@ -302,7 +302,7 @@ in MCU code). Look for a 16-pin chip at U6 labeled "ECHO-3 SN".
 #define PWIDTH 1
 
 /* Other hacks */
-/* HACK?: if defined, outputs the low 4 bits of the lattice filter to the i/o
+/* HACK: if defined, outputs the low 4 bits of the lattice filter to the i/o
  * or clip logic, even though the real hardware doesn't do this, partially verified by decap */
 #undef ALLOW_4_LSB
 
@@ -929,10 +929,13 @@ void tms5220_process_chip(void *chip, INT16 *buffer, unsigned int size)
   }
   /* loop until the buffer is full or we've stopped speaking */
   while ((size > 0) && tms->speaking_now) {
-    /* if it is the appropriate time to update the old energy/pitch idxes,
+    /* if it is the appropriate time to update the old energy/pitch indices,
      * i.e. when IP=7, PC=12, T=17, subcycle=2, do so. Since IP=7 PC=12 T=17
      * is JUST BEFORE the transition to IP=0 PC=0 T=0 sybcycle=(0 or 1),
-     * which happens 4 T-cycles later), we change on the latter. */
+     * which happens 4 T-cycles later), we change on the latter.
+     * The indices are updated here ~12 PCs before the new frame is applied.
+     */
+    /** TODO: the patents 4331836, 4335277, and 4419540 disagree about the timing of this **/
     if ((tms->interp_period == 0) && (tms->PC == 0) && (tms->subcycle < 2)) {
       tms->OLDE = (tms->new_frame_energy_idx == 0);
       tms->OLDP = (tms->new_frame_pitch_idx == 0);
@@ -962,13 +965,30 @@ void tms5220_process_chip(void *chip, INT16 *buffer, unsigned int size)
 #ifdef DEBUG_GENERATION
         fprintf(stderr,"tms5220_process: processing frame: talk status = 0 caused by stop frame or buffer empty, halting speech.\n");
 #endif
-        tms->speaking_now = 0; // finally halt speech
-        goto empty;
+        if (tms->speaking_now == 1) // we're done, set all coeffs to idle state but keep going for a bit...
+        {
+                /**TODO: should index clearing be done here, or elsewhere? **/
+                tms->new_frame_energy_idx = 0;
+                tms->new_frame_pitch_idx = 0;
+                for (i = 0; i < 4; i++)
+                        tms->new_frame_k_idx[i] = 0;
+                for (i = 4; i < 7; i++)
+                        tms->new_frame_k_idx[i] = 0xF;
+                for (i = 7; i < tms->coeff->num_k; i++)
+                        tms->new_frame_k_idx[i] = 0x7;
+				tms->speaking_now = 2; // wait 8 extra interp periods before shutting down so we can interpolate everything to zero state
+        }
+        else // speaking_now == 2 // now we're really done.
+        {
+				tms->speaking_now = 0; // finally halt speech
+                goto empty;
+        }
       }
 
 
-      /* Parse a new frame into the new_target_energy, new_target_pitch and new_target_k[] */
-      parse_frame(tms);
+      /* Parse a new frame into the new_target_energy, new_target_pitch and new_target_k[],
+       * but only if we're not just about to end speech */
+      if (tms->speaking_now == 1) parse_frame(tms);
 #ifdef DEBUG_PARSE_FRAME_DUMP
       fprintf(stderr,"\n");
 #endif
@@ -985,10 +1005,13 @@ void tms5220_process_chip(void *chip, INT16 *buffer, unsigned int size)
          * Old frame was voiced, new is unvoiced
          * Old frame was silence/zero energy, new has nonzero energy
          * Old frame was unvoiced, new is voiced
+         * Old frame was unvoiced, new frame is silence/zero energy (unique to tms52xx)
        */
-      if ( ((OLD_FRAME_UNVOICED_FLAG == 0) && (NEW_FRAME_UNVOICED_FLAG == 1))
-        || ((OLD_FRAME_UNVOICED_FLAG == 1) && (NEW_FRAME_UNVOICED_FLAG == 0))
-        || ((OLD_FRAME_SILENCE_FLAG == 1) && (NEW_FRAME_SILENCE_FLAG == 0)) ) {
+      if ( ((OLD_FRAME_UNVOICED_FLAG == 0) && NEW_FRAME_UNVOICED_FLAG)
+        || ((OLD_FRAME_UNVOICED_FLAG == 1) && !NEW_FRAME_UNVOICED_FLAG)
+        || ((OLD_FRAME_SILENCE_FLAG == 1) && !NEW_FRAME_SILENCE_FLAG)
+        || ((OLD_FRAME_UNVOICED_FLAG == 1) && NEW_FRAME_SILENCE_FLAG) )
+      {
         tms->inhibit = 1;
       } else { // normal frame, normal interpolation
         tms->inhibit = 0;
@@ -1193,6 +1216,7 @@ void tms5220_process_chip(void *chip, INT16 *buffer, unsigned int size)
 
     tms->subcycle++;
     if ((tms->subcycle == 2) && (tms->PC == 12)) {
+      if ((tms->interp_period == 7)&&(tms->inhibit==1)) tms->pitch_count = 0;
       tms->subcycle = tms->subc_reload;
       tms->PC = 0;
       tms->interp_period++;
@@ -1212,9 +1236,6 @@ void tms5220_process_chip(void *chip, INT16 *buffer, unsigned int size)
      */
     tms->pitch_count++;
     if (tms->pitch_count >= tms->current_pitch) {
-      tms->pitch_count = 0;
-    }
-    if ((tms->interp_period == 0) && (tms->inhibit == 1)) {
       tms->pitch_count = 0;
     }
     tms->pitch_count &= 0x1FF;
@@ -1332,7 +1353,7 @@ static INT32 matrix_multiply(INT32 a, INT32 b)
   while (a<-512) { a+=1024; }
   while (b>16383) { b-=32768; }
   while (b<-16384) { b+=32768; }
-	result = ((a*b)>>9)|1;//&(~1);
+  result = ((a*b)>>9); /** TODO: this isn't technically right to the chip, which truncates the lowest result bit, but it causes glitches otherwise. **/
 #ifdef VERBOSE
   if (result>16383) fprintf(stderr,"matrix multiplier overflowed! a: %x, b: %x, result: %x", a, b, result);
   if (result<-16384) fprintf(stderr,"matrix multiplier underflowed! a: %x, b: %x, result: %x", a, b, result);

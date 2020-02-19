@@ -501,7 +501,7 @@ bool RegSaveOpts(HKEY hKey, rc_option *pOpt, void* pValue)
 		break;
 
 	case rc_float:
-		sprintf(szTemp, "%f", pValue);
+		sprintf(szTemp, "%f", *(float*)pValue);
 		fFailed = (RegSetValueEx(hKey, pOpt->name, 0, REG_SZ, (LPBYTE) szTemp, lstrlen(szTemp)+1)!=ERROR_SUCCESS);
 		break;
 	}
@@ -590,7 +590,8 @@ void LoadGlobalSettings()
 				if ( IsPathOrFile(opts[sp]->name) )
 					lstrcpy(szDefault, szInstallDir);
 				
-				lstrcat(szDefault, opts[sp]->deflt);
+				if (opts[sp]->deflt)
+					lstrcat(szDefault, opts[sp]->deflt);
 
 				fNew |= RegLoadOpts(hKey, opts[sp], szDefault, szValue);
 				rc_set_option3(opts[sp], szValue, 0);

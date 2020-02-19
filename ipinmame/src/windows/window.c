@@ -153,7 +153,7 @@ static UINT8 video_dib_info_data[sizeof(BITMAPINFO) + 256 * sizeof(RGBQUAD)];
 static BITMAPINFO *video_dib_info = (BITMAPINFO *)video_dib_info_data;
 static UINT8 debug_dib_info_data[sizeof(BITMAPINFO) + 256 * sizeof(RGBQUAD)];
 static BITMAPINFO *debug_dib_info = (BITMAPINFO *)debug_dib_info_data;
-static UINT8 *converted_bitmap;
+static UINT8 *converted_bitmap = NULL;
 
 // video bounds
 static double aspect_ratio;
@@ -554,6 +554,7 @@ int win_create_window(int width, int height, int depth, int attributes, double a
 
 	// allocate a temporary bitmap in case we need it
 	converted_bitmap = malloc(MAX_VIDEO_WIDTH * MAX_VIDEO_HEIGHT * 4);
+	memset(converted_bitmap,0,MAX_VIDEO_WIDTH * MAX_VIDEO_HEIGHT * 4);
 	if (!converted_bitmap)
 		return 1;
 
@@ -588,10 +589,12 @@ int win_create_window(int width, int height, int depth, int attributes, double a
 	memcpy(debug_dib_info_data, video_dib_info_data, sizeof(debug_dib_info_data));
 
 	// Determine which DirectX components to use
+#ifndef DISABLE_DX7
 	if (win_use_d3d)
 		win_use_directx = USE_D3D;
 	else if (win_use_ddraw)
 		win_use_directx = USE_DDRAW;
+#endif
 
 	// determine the aspect ratio: hardware stretch case
 	if (win_force_int_stretch != FORCE_INT_STRECT_FULL && (win_use_directx == USE_D3D || (win_use_directx == USE_DDRAW && win_dd_hw_stretch)))
@@ -667,6 +670,10 @@ void win_destroy_window(void)
 	// kill the window if it still exists
 	if (win_video_window)
 		DestroyWindow(win_video_window);
+
+	if (converted_bitmap)
+		free(converted_bitmap);
+	converted_bitmap = NULL;
 }
 
 
@@ -766,6 +773,7 @@ static void draw_video_contents(HDC dc, struct mame_bitmap *bitmap, const struct
 
 	// if we have a blit surface, use that
 
+#ifndef DISABLE_DX7
 	if (win_use_directx)
 	{
 		if (win_use_directx == USE_D3D)
@@ -779,6 +787,7 @@ static void draw_video_contents(HDC dc, struct mame_bitmap *bitmap, const struct
 				return;
 		}
 	}
+#endif
 
 	// draw to the window with a DIB
 	dib_draw_window(dc, bitmap, bounds, vector_dirty_pixels, update);

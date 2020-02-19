@@ -44,7 +44,7 @@ ASTRO_ROMSTART88(st_game, "cpu_u2.716",CRC(b9ac5204) SHA1(1ac4e336eb62c091e61e9b
                           "cpu_u6.716",CRC(e16fbde1) SHA1(f7fe2f2ef9251792af1227f82dcc95239dd8baa1))
 BY35_ROMEND
 #define input_ports_st_game input_ports_st
-CORE_GAMEDEFNV(st_game,"Unknown Game",198?,"Unknown Manufacturer",by35_mAstro,GAME_NOT_WORKING)
+CORE_GAMEDEFNV(st_game,"Unknown Game (Unknown)",198?,"Unknown Manufacturer",by35_mAstro,GAME_NOT_WORKING)
 
 /*--------------------------------
 / Gamatron (Pinstar game, 1985)
@@ -285,6 +285,15 @@ BY35_ROMEND
 #define input_ports_meteor input_ports_st
 CORE_GAMEDEFNV(meteor,"Meteor",1979,"Stern",by35_mST200,0)
 
+INITGAME(meteorbf,GEN_STMPU200,dispst6,FLIP_SW(FLIP_L),0,SNDBRD_ST300,0)
+ST200_ROMSTART8888(meteorbf,"cpu_u1.716",CRC(e0fd8452) SHA1(a13215378a678e26a565742d81fdadd2e161ba7a),
+                          "cpu_u5.716",CRC(43a46997) SHA1(2c74ca10cf9091db10542960f499f39f3da277ee),
+						  "cpu_u2_bf.716", CRC(8d1a4a0b) SHA1(12c75b613fba34c4db87afb78f598c8cd9989bf4),
+						  "cpu_u6_bf.716", CRC(e185ca50) SHA1(b82521d2dd97a9af2a522745256f6ebc2db95eab))
+BY35_ROMEND
+#define input_ports_meteorbf input_ports_st
+CORE_CLONEDEFNV(meteorbf,meteor,"Meteor (Bonus Count Fix)",1979,"Stern",by35_mST200,0)
+
 INITGAME(meteorfp,GEN_STMPU200,dispst6,FLIP_SW(FLIP_L),0,SNDBRD_ST300,0)
 ST200_ROMSTART8888(meteorfp,"fpmet_u1.716",CRC(7a5472ce) SHA1(7e3be954b66e5f61cfdbb189fa60ca33ad40a975),
                           "cpu_u5.716",CRC(43a46997) SHA1(2c74ca10cf9091db10542960f499f39f3da277ee),
@@ -509,7 +518,7 @@ ST200_ROMSTART8888(stargzrb,"cpu_u1.716",CRC(83606fd4) SHA1(7f6448bc0dabe50de40f
                            "cpu_u6b.716",CRC(b68b11c5) SHA1(1af6aca8ecf70d2adf588a1e856f753193c05abd))
 BY35_ROMEND
 #define input_ports_stargzrb input_ports_stargzr
-CORE_CLONEDEFNV(stargzrb,stargzr,"Stargazer (modified rules rev.9)",2006,"Stern / Oliver",by35_mST200,0)
+CORE_CLONEDEFNV(stargzrb,stargzr,"Stargazer (modified rules rev. 9)",2006,"Stern / Oliver",by35_mST200,0)
 
 /*--------------------------------
 / Flight 2000
@@ -747,7 +756,7 @@ ST200_ROMSTART8888(dragfisb,"cpu_u1.716",CRC(4cbd1a38) SHA1(73b7291f38cd0a330010
                             "cpu_u6.716",CRC(7e8db47b) SHA1(4a42636c1baf39072bbe123855c9cc5f20ca6888))
 BY35_ROMEND
 #define input_ports_dragfisb input_ports_st
-CORE_CLONEDEFNV(dragfisb,dragfist,"Dragonfist (bootleg)",1982,"Stern",by35_mST200,0)
+CORE_CLONEDEFNV(dragfisb,dragfist,"Dragonfist (Bootleg)",1982,"Stern",by35_mST200,0)
 
 /*--------------------------------
 / Orbitor 1

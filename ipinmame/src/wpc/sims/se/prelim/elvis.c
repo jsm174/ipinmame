@@ -48,15 +48,27 @@ static struct {
   int direction, position, arms, legs;
 } locals;
 
-// The last used selocals variable is "flipsolPulse", so we can forget about the rest.
 extern struct {
-  int    vblankCount;
-  int    initDone;
-  UINT32 solenoids;
-  int    lampRow, lampColumn;
-  int    diagnosticLed;
-  int    swCol;
-  int	 flipsol, flipsolPulse;
+	int    vblankCount;
+	int    initDone;
+	UINT32 solenoids;
+	int    lampRow, lampColumn;
+	int    diagnosticLed;
+	int    swCol;
+	int	 flipsol, flipsolPulse;
+	int    sst0;			//SST0 bit from sound section
+	int	 plin;			//Plasma In (not connected prior to LOTR Hardware)
+	UINT8 *ram8000;
+	int    auxdata;
+	/* Mini DMD stuff */
+	int    lastgiaux, miniidx, miniframe;
+	int    minidata[7], minidmd[4][3][8];
+	/* trace ram related */
+#if SUPPORT_TRACERAM
+	UINT8 *traceRam;
+#endif
+	UINT8  curBank;                   /* current bank select */
+#define TRACERAM_SELECTED 0x10    /* this bit set maps trace ram to 0x0000-0x1FFF */
 } selocals;
 
 /*--------------------------
@@ -426,28 +438,28 @@ SE_ROMEND
 /  Game drivers
 /---------------*/
 CORE_GAMEDEFNV(elvis,"Elvis (5.00)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elvisl,elvis,"Elvis (5.00 Spain)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elvisg,elvis,"Elvis (5.00 Germany)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elvisf,elvis,"Elvis (5.00 France)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elvisi,elvis,"Elvis (5.00 Italy)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elvisl,elvis,"Elvis (5.00 Spanish)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elvisg,elvis,"Elvis (5.00 German)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elvisf,elvis,"Elvis (5.00 French)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elvisi,elvis,"Elvis (5.00 Italian)",2004,"Stern",de_mSES3,0)
 
 CORE_CLONEDEFNV(elv400,elvis,"Elvis (4.00)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elv400l,elvis,"Elvis (4.00 Spain)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elv400g,elvis,"Elvis (4.00 Germany)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elv400f,elvis,"Elvis (4.00 France)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elv400i,elvis,"Elvis (4.00 Italy)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elv400l,elvis,"Elvis (4.00 Spanish)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elv400g,elvis,"Elvis (4.00 German)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elv400f,elvis,"Elvis (4.00 French)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elv400i,elvis,"Elvis (4.00 Italian)",2004,"Stern",de_mSES3,0)
 
 CORE_CLONEDEFNV(elv303,elvis,"Elvis (3.03)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elv303l,elvis,"Elvis (3.03 Spain)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elv303g,elvis,"Elvis (3.03 Germany)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elv303f,elvis,"Elvis (3.03 France)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elv303i,elvis,"Elvis (3.03 Italy)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elv303l,elvis,"Elvis (3.03 Spanish)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elv303g,elvis,"Elvis (3.03 German)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elv303f,elvis,"Elvis (3.03 French)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elv303i,elvis,"Elvis (3.03 Italian)",2004,"Stern",de_mSES3,0)
 
 CORE_CLONEDEFNV(elv302,elvis,"Elvis (3.02)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elv302l,elvis,"Elvis (3.02 Spain)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elv302g,elvis,"Elvis (3.02 Germany)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elv302f,elvis,"Elvis (3.02 France)",2004,"Stern",de_mSES3,0)
-CORE_CLONEDEFNV(elv302i,elvis,"Elvis (3.02 Italy)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elv302l,elvis,"Elvis (3.02 Spanish)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elv302g,elvis,"Elvis (3.02 German)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elv302f,elvis,"Elvis (3.02 French)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(elv302i,elvis,"Elvis (3.02 Italian)",2004,"Stern",de_mSES3,0)
 
 /*-----------------------
 / Simulation Definitions
