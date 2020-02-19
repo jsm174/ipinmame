@@ -833,6 +833,7 @@
 		C16802B723FC99E700EA85B3 /* ymdeltat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ymdeltat.h; sourceTree = "<group>"; };
 		C16802B823FC99E700EA85B3 /* ymdeltat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ymdeltat.c; sourceTree = "<group>"; };
 		C16802BA23FCA7DD00EA85B3 /* mac.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mac.c; sourceTree = "<group>"; };
+		C16802DD23FCE55300EA85B3 /* snd_alt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = snd_alt.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1535,6 +1536,7 @@
 				8893354114BE62FE0095D115 /* sleic.c */,
 				8893354214BE62FE0095D115 /* sleic.h */,
 				8893354314BE62FE0095D115 /* sleicgames.c */,
+				C16802DD23FCE55300EA85B3 /* snd_alt.h */,
 				8893354414BE62FE0095D115 /* snd_cmd.c */,
 				8893354514BE62FE0095D115 /* snd_cmd.h */,
 				8893354614BE62FE0095D115 /* sndbrd.c */,

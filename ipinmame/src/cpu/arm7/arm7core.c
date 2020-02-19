@@ -164,12 +164,14 @@ INLINE data32_t arm7_cpu_read32( int addr )
 
 INLINE data16_t arm7_cpu_read16( int addr )
 {
-	if(addr&3)
+#if ARM7_DEBUG_CORE
+	if (addr & 3)
 	{
 		int val = addr & 3;
 		if(val != 2)
 			LOG(("%08x: MISALIGNED half word read @ %08x:\n",R15,addr));
 	}
+#endif
 
 	//Handle through normal 32 bit handler ( for 32 bit cpu )
 	return cpu_readmem32ledw_word(addr);
@@ -375,7 +377,9 @@ static data32_t decodeShift( data32_t insn, data32_t *pCarry)
 		break;
 	}
 
-	LOG(("%08x: Decodeshift error\n",R15));
+#if ARM7_DEBUG_CORE
+	LOG(("%08x: Decodeshift error\n", R15));
+#endif
 	return 0;
 } /* decodeShift */
 
@@ -533,21 +537,34 @@ static int storeIncMode(data32_t pat, data32_t rbv, int mode)
 	return result;
 } /* storeInc */
 
+// classic CV: 3005aa0 does the DMA thing
 static int storeDec( data32_t pat, data32_t rbv)
 {
-	int i,result;
+        int i, result = 0, cnt;
 
-	result = 0;
-	for( i=15; i>=0; i-- )
+	// pre-count the # of registers doing DMA
+	for (i = 15; i >= 0; i--)
 	{
-		if( (pat>>i)&1 )
+		if ((pat >> i) & 1)
 		{
-			#if ARM7_DEBUG_CORE
-				if(i==15) /* R15 is plus 12 from address of STM */
-					LOG(("%08x: StoreDec on R15\n",R15));
-			#endif
-			WRITE32( rbv -= 4, GET_REGISTER(i) );
 			result++;
+
+			// starting address
+			rbv -= 4;
+		}
+	}
+
+	cnt = 0;
+	for (i = 0; i <= 15; i++)
+	{
+		if ((pat >> i) & 1)
+		{
+#if ARM7_DEBUG_CORE
+			if (i == 15) /* R15 is plus 12 from address of STM */
+				LOG(("%08x: StoreDec on R15\n", R15));
+#endif
+			WRITE32(rbv + (cnt * 4), GET_REGISTER(i));
+			cnt++;
 		}
 	}
 	return result;
@@ -749,8 +766,10 @@ static void HandleCoProcDO(data32_t insn)
 	// This instruction simply instructs the co-processor to do something, no data is returned to ARM7 core
 	if(arm7_coproc_do_callback)
 		arm7_coproc_do_callback(insn,0,0);		//simply pass entire opcode to callback - since data format is actually dependent on co-proc implementation
+#if ARM7_DEBUG_CORE
 	else
 		LOG(("%08x: Co-Processor Data Operation executed, but no callback defined!\n",R15));
+#endif
 }
 
 //Co-Processor Register Transfer - To/From Arm to Co-Proc
@@ -767,16 +786,20 @@ static void HandleCoProcRT(data32_t insn)
 				data32_t res = arm7_coproc_rt_r_callback(insn,0);	//RT Read handler must parse opcode & return appropriate result
 				SET_REGISTER((insn>>12)&0xf,res);
 			}
+#if ARM7_DEBUG_CORE
 			else
 				LOG(("%08x: Co-Processor Register Transfer executed, but no RT Read callback defined!\n",R15));
+#endif
 		}
 	// Store (MCR) data from ARM7 to Co-Proc register
 	else
 		{
 		if(arm7_coproc_rt_r_callback)
 			arm7_coproc_rt_w_callback(insn,GET_REGISTER((insn>>12)&0xf),0);
+#if ARM7_DEBUG_CORE
 		else
 			LOG(("%08x: Co-Processor Register Transfer executed, but no RT Write callback defined!\n",R15));
+#endif
 		}
 }
 
@@ -826,16 +849,20 @@ static void HandleCoProcDT(data32_t insn)
 		{
 			if(arm7_coproc_dt_r_callback)
 				arm7_coproc_dt_r_callback(insn,prn,read32);
+#if ARM7_DEBUG_CORE
 			else
 				LOG(("%08x: Co-Processer Data Transfer executed, but no READ callback defined!\n",R15));
+#endif
 		}
 	// Store (STC) data from Co-Proc to ARM7 memory
 	else
 		{
 			if(arm7_coproc_dt_w_callback)
 				arm7_coproc_dt_w_callback(insn,prn,write32);
+#if ARM7_DEBUG_CORE
 			else
 				LOG(("%08x: Co-Processer Data Transfer executed, but no WRITE callback defined!\n",R15));
+#endif
 		}
 		
 	if (ARM7.pendingUnd != 0) return;
@@ -1001,8 +1028,10 @@ static void HandleMemSingle( data32_t insn )
 			}
 			else {
 
-				if ((insn&INSN_SDT_W)!=0)
+			#if ARM7_DEBUG_CORE
+				if ((insn&INSN_SDT_W) != 0)
 					LOG(("%08x:  RegisterWritebackIncrement %d %d %d\n",R15,(insn & INSN_SDT_P)!=0,(insn&INSN_SDT_W)!=0,(insn & INSN_SDT_U)!=0));
+			#endif
 
 				SET_REGISTER(rn,(rnv + off));
 			}
@@ -1017,8 +1046,10 @@ static void HandleMemSingle( data32_t insn )
 			else {
 				SET_REGISTER(rn,(rnv - off));
 
-				if ((insn&INSN_SDT_W)!=0)
-				LOG(("%08x:  RegisterWritebackDecrement %d %d %d\n",R15,(insn & INSN_SDT_P)!=0,(insn&INSN_SDT_W)!=0,(insn & INSN_SDT_U)!=0));
+			#if ARM7_DEBUG_CORE
+				if ((insn&INSN_SDT_W) != 0)
+					LOG(("%08x:  RegisterWritebackDecrement %d %d %d\n",R15,(insn & INSN_SDT_P)!=0,(insn&INSN_SDT_W)!=0,(insn & INSN_SDT_U)!=0));
+			#endif
 			}
 		}
 	}
@@ -1212,8 +1243,10 @@ static void HandleHalfWordDT(data32_t insn)
 			}
 			else {
 
-				if ((insn&INSN_SDT_W)!=0)
+			#if ARM7_DEBUG_CORE
+				if ((insn&INSN_SDT_W) != 0)
 					LOG(("%08x:  RegisterWritebackIncrement %d %d %d\n",R15,(insn & INSN_SDT_P)!=0,(insn&INSN_SDT_W)!=0,(insn & INSN_SDT_U)!=0));
+			#endif
 
 				SET_REGISTER(rn,(rnv + off));
 			}
@@ -1228,8 +1261,10 @@ static void HandleHalfWordDT(data32_t insn)
 			else {
 				SET_REGISTER(rn,(rnv - off));
 
-				if ((insn&INSN_SDT_W)!=0)
+			#if ARM7_DEBUG_CORE
+				if ((insn&INSN_SDT_W) != 0)
 					LOG(("%08x:  RegisterWritebackDecrement %d %d %d\n",R15,(insn & INSN_SDT_P)!=0,(insn&INSN_SDT_W)!=0,(insn & INSN_SDT_U)!=0));
+			#endif
 			}
 		}
 	}
@@ -1245,7 +1280,9 @@ static void HandleSwap(data32_t insn)
 	// Todo: I have no valid source to verify this function works.. so it needs to be tested
 	data32_t rn,rm,rd,tmp;
 
-	LOG(("%08x: HandleSwap called!\n",R15));
+#if ARM7_DEBUG_CORE
+	LOG(("%08x: HandleSwap called!\n", R15));
+#endif
 
 	rn = GET_REGISTER((insn>>16)&0xf);
 	rm = GET_REGISTER(insn&0xf);
@@ -1766,7 +1803,9 @@ static void HandleMemBlock( data32_t insn)
 				// set to user mode - then do the transfer, and set back
 				//int curmode = GET_MODE;
 				//SwitchMode(eARM7_MODE_USER);
-				LOG(("%08x: User Bank Transfer not fully tested - please check if working properly!\n",R15));
+			#if ARM7_DEBUG_CORE
+				LOG(("%08x: User Bank Transfer not fully tested - please check if working properly!\n", R15));
+			#endif
 				result = loadIncMode(insn & 0xffff, rbp, insn & INSN_BDT_S, eARM7_MODE_USER);
 				//todo - not sure if Writeback occurs on User registers also.. 
 				//SwitchMode(curmode);
@@ -1814,7 +1853,9 @@ static void HandleMemBlock( data32_t insn)
 				//set to user mode - then do the transfer, and set back
 				//int curmode = GET_MODE;
 				//SwitchMode(eARM7_MODE_USER);
+			#if ARM7_DEBUG_CORE
 				LOG(("%08x: User Bank Transfer not fully tested - please check if working properly!\n",R15));
+			#endif
 				result = loadDecMode(insn & 0xffff, rbp, insn & INSN_BDT_S, eARM7_MODE_USER);
 				//todo - not sure if Writeback occurs on User registers also.. 
 				//SwitchMode(curmode);
@@ -1824,8 +1865,10 @@ static void HandleMemBlock( data32_t insn)
 
 			if ((insn & INSN_BDT_W) && (ARM7.pendingAbtD == 0))
 			{
-				if (rb==0xf)
+			#if ARM7_DEBUG_CORE
+				if (rb == 0xf)
 					LOG(("%08x:  Illegal LDRM writeback to r15\n",R15));
+			#endif
 				// "A LDM will always overwrite the updated base if the base is in the list." (also for a user bank transfer?)
 				if (((insn >> rb) & 1) == 0)
 				{
@@ -1850,7 +1893,7 @@ static void HandleMemBlock( data32_t insn)
 	} /* Loading */
 	else
 	{
-		/* Storing */
+		/* Storing - STM*/
 		if (insn & (1<<eR15))
 		{
 			#if ARM7_DEBUG_CORE
@@ -1875,7 +1918,9 @@ static void HandleMemBlock( data32_t insn)
 				//set to user mode - then do the transfer, and set back
 				//int curmode = GET_MODE;
 				//SwitchMode(eARM7_MODE_USER);
+			#if ARM7_DEBUG_CORE
 				LOG(("%08x: User Bank Transfer not fully tested - please check if working properly!\n",R15));
+			#endif
 				result = storeIncMode(insn & 0xffff, rbp, eARM7_MODE_USER);
 				//todo - not sure if Writeback occurs on User registers also.. 
 				//SwitchMode(curmode);
@@ -1890,7 +1935,7 @@ static void HandleMemBlock( data32_t insn)
 		}
 		else
 		{
-			/* Decrementing */
+			/* Decrementing - but real CPU writes in incrementing order */
 			if (!(insn & INSN_BDT_P))
 			{
 				rbp = rbp - (- 4);
@@ -1902,7 +1947,9 @@ static void HandleMemBlock( data32_t insn)
 				//set to user mode - then do the transfer, and set back
 				//int curmode = GET_MODE;
 				//SwitchMode(eARM7_MODE_USER);
+			#if ARM7_DEBUG_CORE
 				LOG(("%08x: User Bank Transfer not fully tested - please check if working properly!\n",R15));
+			#endif
 				result = storeDecMode(insn & 0xffff, rbp, eARM7_MODE_USER);
 				//todo - not sure if Writeback occurs on User registers also.. 
 				//SwitchMode(curmode);
