@@ -1982,13 +1982,13 @@ static const UINT16 reverse_table[0x2008] = {
  *   
  *   Note that the core triple loop in this version is almost identical to
  *   the 1994+ version, but it makes an extra pass through its outermost loop
- *   with different starting parameters.  Note also that the volume scaling
- *   portion is substantially different - it uses the ADSP-2100's rather odd
- *   "bit reverse" addressing mode to shuffle the word order of the results.
- *   The 1994+ algorithm doesn't do that in the volume loop, but appears to
- *   do the same shuffle in the setup code that leads in to the decoding
- *   loop; that's not visible in the 1994+ speedup routine because it's left
- *   in emulation.
+ *   with different starting parameters.  There's also what appears to be a
+ *   radix-2 FFT pass after the main decoding loop; the same algorithm
+ *   appears in the 1994+ ROMs, but it occurs just before the main decoding
+ *   loop instead of after, and it isn't part of the 1994+ speedup routine.
+ *   The 1994+ speedup has a volume scaling pass after the main loop; that
+ *   occurs later as a separate subroutine in the 1993 ROMs, and we've left
+ *   that in emulation.
  */
 UINT32 dcs_speedup_1993(UINT32 pc)
 {
@@ -2080,7 +2080,15 @@ UINT32 dcs_speedup_1993(UINT32 pc)
             *i1 = ar;
             i1 -= 3;
         }
-    }
+	}
+
+	/* 0100     MSTAT = $0000 - MAC result placement = fractional */
+	// This sets the multiplication mode to "fractional":  MAC results are
+	// shifted left by one.  We take this into account in our C translation
+	// for our own calculations below, but also set the emulator register,
+	// since it affects calculations in the emulated code after we return.
+	activecpu_set_reg(ADSP2100_MSTAT, 0x0000);
+
     {
         int mem621, mem622, mem623;
         int jj,kk;
@@ -2241,8 +2249,19 @@ UINT32 dcs_speedup_1993(UINT32 pc)
             /* 012D   WORD PTR [$623] = SR0 */
             mem623 >>= 1;
         }
-    }
-    {                                                     /* Volume scaling */
+	}
+
+	/* 
+	 *   This appears to be a Fast Fourier Transform pass over the decoded
+	 *   buffer (we infer this from the use of bit-reverse address mode,
+	 *   which seems to be useful primarily [or maybe exclusively] to
+	 *   implement radix-2 FFT algorithms).  Roughly the same code appears in
+	 *   the 1994+ ROMs, but in those ROMs it happens before the main
+	 *   decoding loop and isn't part of the C speedup routine.  This is a
+	 *   fairly lengthy loop, so we've incorporated it into this version of
+	 *   the speedup.
+	 */
+    {
         UINT16 *i4;
         UINT16 i1;
         INT16 mx0;
@@ -2280,7 +2299,7 @@ UINT32 dcs_speedup_1993(UINT32 pc)
             *i4 = mr >> 16;
             i4 += 2;
         }
-    }
+	}
     activecpu_set_reg(ADSP2100_PC, pc + (0x13a - 0x00e8));
     return 0;                                              /* execute a NOP */
 }
