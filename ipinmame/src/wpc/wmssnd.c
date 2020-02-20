@@ -40,10 +40,11 @@
 /* sound board interface */
 static void s67s_init(struct sndbrdData *brdData);
 static WRITE_HANDLER(s67s_cmd_w);
+static WRITE_HANDLER(s67s_ctrl_w);
 static void s67s_diag(int button);
 
 const struct sndbrdIntf s67sIntf = {
-  "WMSS67", s67s_init, NULL, s67s_diag, s67s_cmd_w, s67s_cmd_w, NULL, NULL, NULL, SNDBRD_NOCTRLSYNC
+  "WMSS67", s67s_init, NULL, s67s_diag, s67s_cmd_w, s67s_cmd_w, NULL, s67s_ctrl_w, NULL, SNDBRD_NOCTRLSYNC
 };
 
 /* machine interface */
@@ -64,7 +65,7 @@ static struct DACinterface      s67s_dacInt     = { 1, { 50 }};
 static struct hc55516_interface s67s_hc55516Int = { 1, { 100 }};
 
 MACHINE_DRIVER_START(wmssnd_s67s)
-  MDRV_CPU_ADD(M6808, 3579000/4)
+  MDRV_CPU_ADD(M6808, 3579545/4)
   MDRV_CPU_FLAGS(CPU_AUDIO_CPU)
   MDRV_CPU_MEMORY(s67s_readmem, s67s_writemem)
   MDRV_INTERLEAVE(50)
@@ -72,6 +73,16 @@ MACHINE_DRIVER_START(wmssnd_s67s)
   MDRV_SOUND_ADD(HC55516, s67s_hc55516Int)
   MDRV_SOUND_ADD(SAMPLES, samples_interface)
 MACHINE_DRIVER_END
+
+static struct {
+  struct sndbrdData brdData;
+  UINT8 sndCmd;
+  UINT8 sndBitsA;
+} s67slocals;
+
+static READ_HANDLER(snd_r) {
+  return s67slocals.sndCmd;
+}
 
 static void s67s_piaIrq(int state);
 static const struct pia6821_interface s67s_pia = {
@@ -82,31 +93,55 @@ static const struct pia6821_interface s67s_pia = {
     CB2    Speech clock
     CA2    Speech data
     CA1    NC */
- /* in  : A/B,CA/B1,CA/B2 */ 0, 0, 0, 0, 0, 0,
+ /* in  : A/B,CA/B1,CA/B2 */ 0, snd_r, 0, 0, 0, 0,
  /* out : A/B,CA/B2       */ DAC_0_data_w, 0, hc55516_0_digit_w, hc55516_0_clock_w,
  /* irq : A/B             */ s67s_piaIrq, s67s_piaIrq
 };
-
-static struct {
-  struct sndbrdData brdData;
-} s67slocals;
 
 static void s67s_init(struct sndbrdData *brdData) {
   s67slocals.brdData = *brdData;
   pia_config(S67S_PIA0, PIA_STANDARD_ORDERING, &s67s_pia);
 }
 
-static WRITE_HANDLER(s67s_cmd_w) {
-  if (s67slocals.brdData.subType) { // don't use sound dips
-	data &= 0x7f;
+static WRITE_HANDLER(s67s_ctrl_w) {
+  if (s67slocals.brdData.subType & (16 | 8)) {
+    if (s67slocals.brdData.subType & 8) {      // + World Cup
+      s67slocals.sndBitsA = ((data & 0x40) >> 1);
+      s67slocals.sndCmd = (s67slocals.sndCmd & 0x9f) | s67slocals.sndBitsA | ((core_getDip(0) & 0x02) ? 0x00 : 0x40);
+    }
+    if (s67slocals.brdData.subType & 16) {     // + Disco Fever
+      s67slocals.sndBitsA = ((data & 0x10) << 3);
+      s67slocals.sndCmd = (s67slocals.sndCmd & 0x3f) | s67slocals.sndBitsA | ((core_getDip(0) & 0x02) ? 0x00 : 0x40);
+    }
+    pia_set_input_b(S67S_PIA0, s67slocals.sndCmd);
+    pia_set_input_cb1(S67S_PIA0, !((s67slocals.sndCmd & 0xbf) == 0xbf));
   } else {
-    data = (data & 0x1f) | (core_getDip(0)<<5);
+    s67slocals.sndBitsA = data;
   }
-  pia_set_input_b(S67S_PIA0, data);
-  if (s67slocals.brdData.subType) {
-    pia_set_input_cb1(S67S_PIA0, !((data & 0x7f) == 0x7f));
+}
+
+static WRITE_HANDLER(s67s_cmd_w) {
+  if (s67slocals.brdData.subType & 1) { // don't use sound dips
+    s67slocals.sndCmd = data & 0x7f;
+  } else if (s67slocals.brdData.subType & 2) { // Contact, Phoenix, World Cup, Disco Fever and Disco Fever prototype
+    s67slocals.sndCmd = 0x30 | (data & 0x0f) | ((data & 0x10) << 3) | ((core_getDip(0) & 0x02) ? 0x00 : 0x40);
+    if (s67slocals.brdData.subType & 4)      // + World Cup, Disco Fever and Disco Fever prototype
+      s67slocals.sndCmd = (s67slocals.sndCmd & 0xef) | ((data & 0x40) >> 2);
+    if (s67slocals.brdData.subType & 8)      // + World Cup
+      s67slocals.sndCmd = (s67slocals.sndCmd & 0xdf) | s67slocals.sndBitsA;
+    if (s67slocals.brdData.subType & 16)     // + Disco Fever
+      s67slocals.sndCmd = (s67slocals.sndCmd & 0x7f) | s67slocals.sndBitsA;
   } else {
-    pia_set_input_cb1(S67S_PIA0, !((data & 0x1f) == 0x1f));
+    s67slocals.sndCmd = (data & 0x1f) | (core_getDip(0)<<5);
+  }
+//  logerror("s67s_cmd_w  data=%02x  sndCmd=%02x  sndBitsA=%02x  SndBrdSW2=%02x  CB1_old=%02x\n", data, s67slocals.sndCmd, s67slocals.sndBitsA, (core_getDip(0) << 5), pia_6_cb1_r(0) );
+  pia_set_input_b(S67S_PIA0, s67slocals.sndCmd);
+  if (s67slocals.brdData.subType & 1) {
+    pia_set_input_cb1(S67S_PIA0, !((s67slocals.sndCmd & 0x7f) == 0x7f));
+  } else if (s67slocals.brdData.subType & 2) {
+    pia_set_input_cb1(S67S_PIA0, !((s67slocals.sndCmd & 0xbf) == 0xbf));
+  } else {
+    pia_set_input_cb1(S67S_PIA0, !((s67slocals.sndCmd & 0x1f) == 0x1f));
   }
 }
 static void s67s_diag(int button) {

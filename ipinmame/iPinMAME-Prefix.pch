@@ -12,7 +12,6 @@
 #define PINMAME 1
 #define PINMAME_NO_UNUSED 1
 #define UNIX 1
-#define FILTER_USE_INT 1
 
 #define BIGCASE 1
 #define ALIGN_INTS 1
@@ -83,4 +82,3 @@
 
 #define INLINE static __inline
 #define asm __asm__ __volatile__
-

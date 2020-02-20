@@ -742,13 +742,17 @@ void video_update_core_dmd(struct mame_bitmap *bitmap, const struct rectangle *c
   int noaa = !pmoptions.dmd_antialias || (layout->type & CORE_DMDNOAA);
   int ii, jj;
 
+  // prepare all brightness & color/palette tables for mappings from internal DMD representation:
+  const int shade_16_enabled = ((core_gameData->gen == GEN_SAM) ||
+	  // extended handling also for some GTS3 games (SMB, SMBMW and CBW):
+	  (_strnicmp(Machine->gamedrv->name, "smb", 3) == 0) || (_strnicmp(Machine->gamedrv->name, "cueball", 7) == 0) ||
+	  (core_gameData->gen == GEN_ALVG_DMD2));
+
 #ifdef VPINMAME
   static UINT8 buffer1[DMD_MAXY*DMD_MAXX];
   static UINT8 buffer2[DMD_MAXY*DMD_MAXX];
   static UINT8 *currbuffer = buffer1;
   static UINT8 *oldbuffer = NULL;
-
-  // prepare all brightness & color/palette tables for mappings from internal DMD representation:
 
   const UINT8 perc0 = (pmoptions.dmd_perc0  > 0) ? pmoptions.dmd_perc0  : 20;
   const UINT8 perc1 = (pmoptions.dmd_perc33 > 0) ? pmoptions.dmd_perc33 : 33;
@@ -757,7 +761,7 @@ void video_update_core_dmd(struct mame_bitmap *bitmap, const struct rectangle *c
 
   static const int levelgts3[16] = {0/*5*/, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100}; // GTS3 and AlvinG brightness seems okay
   static const int levelsam[16]  = {0/*5*/, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 90, 100}; // SAM brightness seems okay
-  
+
   const int * const level = (core_gameData->gen == GEN_SAM) ? levelsam : levelgts3;
 
   const UINT8 raw_4[4]   = {perc0,perc1,perc2,perc3};
@@ -832,11 +836,11 @@ void video_update_core_dmd(struct mame_bitmap *bitmap, const struct rectangle *c
 		const int offs = (ii-1)*layout->length + jj;
 		currbuffer[offs] = col;
 		if(layout->length >= 128) { // Capcom hack
-			g_raw_dmdbuffer[offs] = ((core_gameData->gen == GEN_SAM) || (core_gameData->gen == GEN_GTS3) || (core_gameData->gen == GEN_ALVG_DMD2)) ? raw_16[col] : raw_4[col];
-			g_raw_colordmdbuffer[offs] = ((core_gameData->gen == GEN_SAM) || (core_gameData->gen == GEN_GTS3) || (core_gameData->gen == GEN_ALVG_DMD2)) ? palette32_16[col] : palette32_4[col];
+			g_raw_dmdbuffer[offs] = shade_16_enabled ? raw_16[col] : raw_4[col];
+			g_raw_colordmdbuffer[offs] = shade_16_enabled ? palette32_16[col] : palette32_4[col];
 		}
 #endif
-		if((core_gameData->gen == GEN_SAM) || (core_gameData->gen == GEN_GTS3) || (core_gameData->gen == GEN_ALVG_DMD2))
+		if (shade_16_enabled)
 			*line++ = dmdColor[col+63];
 		else
 			*line++ = dmdColor[col];
@@ -866,7 +870,7 @@ void video_update_core_dmd(struct mame_bitmap *bitmap, const struct rectangle *c
 
 	  //external dmd
 	  if (g_fShowPinDMD)
-		  renderDMDFrame(core_gameData->gen, layout->length, layout->start, currbuffer, g_fDumpFrames);
+		  renderDMDFrame(core_gameData->gen, layout->length, layout->start, currbuffer, g_fDumpFrames, Machine->gamedrv->name);
 
 	  if (oldbuffer != NULL) {	  // detect if same frame again
 		  if (memcmp(oldbuffer, currbuffer, (layout->length * layout->start)))
@@ -919,7 +923,6 @@ void video_update_core_dmd(struct mame_bitmap *bitmap, const struct rectangle *c
 		  currbuffer = buffer1;
 		  oldbuffer = buffer2;
 	  }
-
   }
 #endif
 }
@@ -936,8 +939,8 @@ INLINE int inRect(const struct rectangle *r, int left, int top, int width, int h
 /  Generic segment display handler
 /------------------------------------*/
 static void updateDisplay(struct mame_bitmap *bitmap, const struct rectangle *cliprect,
-                          const struct core_dispLayout *layout, int *pos) {
-
+                          const struct core_dispLayout *layout, int *pos)
+{
 #ifdef VPINMAME
   static UINT16 seg_data[50];
   static UINT8 disp_lens[50];
@@ -1690,7 +1693,11 @@ static MACHINE_INIT(core) {
       for (ii = 0; ii < 5; ii++) {
         if (coreData->timers[ii].callback) {
           locals.timers[ii] = timer_alloc(coreData->timers[ii].callback);
-          timer_adjust(locals.timers[ii], TIME_IN_HZ(coreData->timers[ii].rate), 0, TIME_IN_HZ(coreData->timers[ii].rate));
+          if (coreData->timers[ii].rate > 0) {
+            timer_adjust(locals.timers[ii], TIME_IN_HZ(coreData->timers[ii].rate), 0, TIME_IN_HZ(coreData->timers[ii].rate));
+          } else {
+            timer_adjust(locals.timers[ii], TIME_IN_USEC(-coreData->timers[ii].rate), 0, TIME_IN_USEC(-coreData->timers[ii].rate));
+          }
         }
       }
     }
