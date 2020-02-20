@@ -65,6 +65,7 @@ public:
 private:
 	void GetProductVersion(int *nVersionNo0, int *nVersionNo1, int *nVersionNo2, int *nVersionNo3);
 	static DWORD FAR PASCAL RunController(CController* pController);
+	TIMECAPS caps;
 
 public:
 
@@ -142,6 +143,9 @@ public:
 	STDMETHOD(get_Game)(/*[out, retval]*/ IGame * *pVal);
 	STDMETHOD(GetWindowRect)(/*[in,defaultvalue(0)]*/ long hWnd, /*[out, retval]*/ VARIANT *pVal);
 	STDMETHOD(GetClientRect)(/*[in,defaultvalue(0)]*/ long hWnd, /*[out, retval]*/ VARIANT *pVal);
+
+	STDMETHOD(get_NVRAM)(/*[out, retval]*/ VARIANT *pVal);
+	STDMETHOD(get_ChangedNVRAM)(/*[out, retval]*/ VARIANT *pVal);
 
 	STDMETHOD(get_RawDmdWidth)(/*[out, retval]*/ int *pVal);
 	STDMETHOD(get_RawDmdHeight)(/*[out, retval]*/ int *pVal);

@@ -169,6 +169,20 @@ private:
 		SetDlgItemInt(IDC_DMDPERC0, vValue.lVal, FALSE);
 		VariantClear(&vValue);
 
+		pGameSettings->get_Value(CComBSTR("dmd_opacity"), &vValue);
+		SetDlgItemInt(IDC_DMDOPACITY, vValue.lVal, FALSE);
+		VariantClear(&vValue);
+
+		pGameSettings->get_Value(CComBSTR("resampling_quality"), &vValue);
+		SetDlgItemInt(IDC_RESAMPLEQ, vValue.lVal, FALSE);
+		VariantClear(&vValue);
+
+#if defined(VPINMAME_ALTSOUND) || defined(VPINMAME_PINSOUND)
+		pGameSettings->get_Value(CComBSTR("sound_mode"), &vValue);
+		SetDlgItemInt(IDC_SOUNDMODE, vValue.lVal, FALSE);
+		VariantClear(&vValue);
+#endif
+
 		pGameSettings->Release();
 	}
 
@@ -202,17 +216,25 @@ private:
 		pGameSettings->put_Value(CComBSTR("dmd_perc33"), CComVariant((int) GetDlgItemInt(IDC_DMDPERC33,NULL,TRUE)));
 		pGameSettings->put_Value(CComBSTR("dmd_perc0"), CComVariant((int) GetDlgItemInt(IDC_DMDPERC0,NULL,TRUE)));
 
-                pGameSettings->put_Value(CComBSTR("dmd_colorize"), CComVariant((BOOL) IsDlgButtonChecked(IDC_DMD_COLORIZE)));
-                pGameSettings->put_Value(CComBSTR("dmd_red66"), CComVariant(m_dmd66.r));
-                pGameSettings->put_Value(CComBSTR("dmd_green66"), CComVariant(m_dmd66.g));
-                pGameSettings->put_Value(CComBSTR("dmd_blue66"), CComVariant(m_dmd66.b));
-                pGameSettings->put_Value(CComBSTR("dmd_red33"), CComVariant(m_dmd33.r));
-                pGameSettings->put_Value(CComBSTR("dmd_green33"), CComVariant(m_dmd33.g));
-                pGameSettings->put_Value(CComBSTR("dmd_blue33"), CComVariant(m_dmd33.b));
-                pGameSettings->put_Value(CComBSTR("dmd_red0"), CComVariant(m_dmd0.r));
-                pGameSettings->put_Value(CComBSTR("dmd_green0"), CComVariant(m_dmd0.g));
-                pGameSettings->put_Value(CComBSTR("dmd_blue0"), CComVariant(m_dmd0.b));
-                
+		pGameSettings->put_Value(CComBSTR("dmd_colorize"), CComVariant((BOOL) IsDlgButtonChecked(IDC_DMD_COLORIZE)));
+		pGameSettings->put_Value(CComBSTR("dmd_red66"), CComVariant(m_dmd66.r));
+		pGameSettings->put_Value(CComBSTR("dmd_green66"), CComVariant(m_dmd66.g));
+		pGameSettings->put_Value(CComBSTR("dmd_blue66"), CComVariant(m_dmd66.b));
+		pGameSettings->put_Value(CComBSTR("dmd_red33"), CComVariant(m_dmd33.r));
+		pGameSettings->put_Value(CComBSTR("dmd_green33"), CComVariant(m_dmd33.g));
+		pGameSettings->put_Value(CComBSTR("dmd_blue33"), CComVariant(m_dmd33.b));
+		pGameSettings->put_Value(CComBSTR("dmd_red0"), CComVariant(m_dmd0.r));
+		pGameSettings->put_Value(CComBSTR("dmd_green0"), CComVariant(m_dmd0.g));
+		pGameSettings->put_Value(CComBSTR("dmd_blue0"), CComVariant(m_dmd0.b));
+
+		pGameSettings->put_Value(CComBSTR("dmd_opacity"), CComVariant((int) GetDlgItemInt(IDC_DMDOPACITY,NULL,TRUE)));
+
+		pGameSettings->put_Value(CComBSTR("resampling_quality"), CComVariant((int)GetDlgItemInt(IDC_RESAMPLEQ, NULL, TRUE)));
+
+#if defined(VPINMAME_ALTSOUND) || defined(VPINMAME_PINSOUND)
+		pGameSettings->put_Value(CComBSTR("sound_mode"), CComVariant((int) GetDlgItemInt(IDC_SOUNDMODE,NULL,TRUE)));
+#endif
+
 		pGameSettings->Release();
 	}
 
@@ -361,7 +383,7 @@ private:
 
 			/*Change background color of item*/
 			SetBkColor((HDC) wParam, thecolor);
-			return (int) m_hBrushDMDColor;
+			return (LRESULT) m_hBrushDMDColor;
 		}
 		return 0;
 	}

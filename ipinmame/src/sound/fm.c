@@ -936,17 +936,20 @@ INLINE void set_ar_ksr(FM_CH *CH,FM_SLOT *SLOT,int v)
 		CH->SLOT[SLOT1].Incr=-1;
 	}
 
-		/* refresh Attack rate */
-		if ((SLOT->ar + SLOT->ksr) < 32+62)
-		{
-			SLOT->eg_sh_ar  = eg_rate_shift [SLOT->ar  + SLOT->ksr ];
-			SLOT->eg_sel_ar = eg_rate_select[SLOT->ar  + SLOT->ksr ];
-		}
-		else
-		{
-			SLOT->eg_sh_ar  = 0;
-			SLOT->eg_sel_ar = 17*RATE_STEPS;
-		}
+	/* Even if it seems unnecessary, in some odd case, KSR and KC are modified   */
+	/* and could result in SLOT->kc remaining unchanged.                              */
+	/* In such case, AR values would not be recalculated despite SLOT->ar has changed */
+	/* This actually fixes the intro of "The Adventures of Batman & Robin" (Eke-Eke) */
+	if ((SLOT->ar + SLOT->ksr) < 94 /*32+62*/)
+	{
+		SLOT->eg_sh_ar  = eg_rate_shift [SLOT->ar  + SLOT->ksr ];
+		SLOT->eg_sel_ar = eg_rate_select[SLOT->ar  + SLOT->ksr ];
+	}
+	else
+	{
+		SLOT->eg_sh_ar  = 0;
+		SLOT->eg_sel_ar = 18*RATE_STEPS;    /* verified by Nemesis on real hardware */
+	}
 }
 
 /* set decay rate */
@@ -982,9 +985,7 @@ INLINE void set_sl_rr(FM_SLOT *SLOT,int v)
 
 INLINE signed int op_calc(UINT32 phase, unsigned int env, signed int pm)
 {
-	UINT32 p;
-
-	p = (env<<3) + sin_tab[ ( ((signed int)((phase & ~FREQ_MASK) + (pm<<15))) >> FREQ_SH ) & SIN_MASK ];
+	UINT32 p = (env<<3) + sin_tab[ ( ((signed int)((phase & ~FREQ_MASK) + (pm<<15))) >> FREQ_SH ) & SIN_MASK ];
 
 	if (p >= TL_TAB_LEN)
 		return 0;
@@ -993,9 +994,7 @@ INLINE signed int op_calc(UINT32 phase, unsigned int env, signed int pm)
 
 INLINE signed int op_calc1(UINT32 phase, unsigned int env, signed int pm)
 {
-	UINT32 p;
-
-	p = (env<<3) + sin_tab[ ( ((signed int)((phase & ~FREQ_MASK) + pm      )) >> FREQ_SH ) & SIN_MASK ];
+	UINT32 p = (env<<3) + sin_tab[ ( ((signed int)((phase & ~FREQ_MASK) + pm      )) >> FREQ_SH ) & SIN_MASK ];
 
 	if (p >= TL_TAB_LEN)
 		return 0;
@@ -1012,7 +1011,6 @@ INLINE void advance_lfo(FM_OPN *OPN)
 		OPN->lfo_cnt += OPN->lfo_inc;
 
 		pos = (OPN->lfo_cnt >> LFO_SH) & 127;
-
 
 		/* update AM when LFO output changes */
 
@@ -1049,7 +1047,6 @@ static void advance_eg_channel(FM_OPN *OPN, FM_SLOT *SLOT)
 	unsigned int out;
 	unsigned int swap_flag = 0;
 	unsigned int i;
-
 
 	i = 4; /* four operators per channel */
 	do
@@ -1187,9 +1184,7 @@ static void advance_eg_channel(FM_OPN *OPN, FM_SLOT *SLOT)
 		SLOT++;
 		i--;
 	}while (i);
-
 }
-
 
 
 #define volume_calc(OP) ((OP)->vol_out + (AM & (OP)->AMmask))
@@ -1199,7 +1194,6 @@ INLINE void chan_calc(FM_OPN *OPN, FM_CH *CH)
 	unsigned int eg_out;
 
 	UINT32 AM = LFO_AM >> CH->ams;
-
 
 	m2 = c1 = c2 = mem = 0;
 
@@ -1247,10 +1241,7 @@ INLINE void chan_calc(FM_OPN *OPN, FM_CH *CH)
 	/* update phase counters AFTER output calculations */
 	if(CH->pms)
 	{
-
-
-	/* add support for 3 slot mode */
-
+		/* add support for 3 slot mode */
 
 		UINT32 block_fnum = CH->block_fnum;
 
@@ -1321,7 +1312,7 @@ INLINE void refresh_fc_eg_slot(FM_OPN *OPN, FM_SLOT *SLOT , int fc , int kc )
 		else
 		{
 			SLOT->eg_sh_ar  = 0;
-			SLOT->eg_sel_ar = 17*RATE_STEPS;
+			SLOT->eg_sel_ar = 18*RATE_STEPS; /* verified by Nemesis on real hardware (Attack phase is blocked) */
 		}
 
 		SLOT->eg_sh_d1r = eg_rate_shift [SLOT->d1r + SLOT->ksr];
@@ -1353,7 +1344,7 @@ static void refresh_fc_eg_chan(FM_OPN *OPN, FM_CH *CH )
 static void init_timetables( FM_ST *ST , const UINT8 *dttable )
 {
 	int i,d;
-	double rate;
+	INT32 rate;
 
 #if 0
 	logerror("FM.C: samplerate=%8i chip clock=%8i  freqbase=%f  \n",
@@ -1365,15 +1356,14 @@ static void init_timetables( FM_ST *ST , const UINT8 *dttable )
 	{
 		for (i = 0;i <= 31;i++)
 		{
-			rate = ((double)dttable[d*32 + i]) * SIN_LEN  * ST->freqbase  * (1<<FREQ_SH) / ((double)(1<<20));
-			ST->dt_tab[d][i]   = (INT32) rate;
+			rate = (INT32)( ((int)dttable[d*32 + i]) * (1<<(FREQ_SH+SIN_BITS-20)) * ST->freqbase );
+			ST->dt_tab[d][i]   = rate;
 			ST->dt_tab[d+4][i] = -ST->dt_tab[d][i];
 #if 0
 			logerror("FM.C: DT [%2i %2i] = %8x  \n", d, i, ST->dt_tab[d][i] );
 #endif
 		}
 	}
-
 }
 
 
@@ -1410,8 +1400,7 @@ static int init_tables(void)
 
 	for (x=0; x<TL_RES_LEN; x++)
 	{
-		m = (1<<16) / pow(2, (x+1) * (ENV_STEP/4.0) / 8.0);
-		m = floor(m);
+		m = floor((1<<16) / pow(2, (x+1) * (ENV_STEP/4.0) / 8.0));
 
 		/* we never reach (1<<16) here due to the (x+1) */
 		/* result fits within 16 bits at maximum */
@@ -1449,12 +1438,9 @@ static int init_tables(void)
 
 		/* we never reach zero here due to ((i*2)+1) */
 
-		if (m>0.0)
-			o = 8*log(1.0/m)/log(2.0);  /* convert to 'decibels' */
-		else
-			o = 8*log(-1.0/m)/log(2.0); /* convert to 'decibels' */
+		o = 8.0*log(1.0/fabs(m))/log(2.0);  /* convert to 'decibels' */
 
-		o = o / (ENV_STEP/4);
+		o = o / (ENV_STEP/4.);
 
 		n = (int)(2.0*o);
 		if (n&1)						/* round to nearest */
@@ -1508,13 +1494,11 @@ static int init_tables(void)
 	}
 
 
-
 #ifdef SAVE_SAMPLE
 	sample[0]=fopen("sampsum.pcm","wb");
 #endif
 
 	return 1;
-
 }
 
 
@@ -1593,6 +1577,7 @@ INLINE void TimerAOver(FM_ST *ST)
 	ST->TAC = (1024-ST->TA);
 	if (ST->Timer_Handler) (ST->Timer_Handler)(ST->index,0,ST->TAC,ST->TimerBase);
 }
+
 /* Timer B Overflow */
 INLINE void TimerBOver(FM_ST *ST)
 {
@@ -1602,6 +1587,7 @@ INLINE void TimerBOver(FM_ST *ST)
 	ST->TBC = ( 256-ST->TB)<<4;
 	if (ST->Timer_Handler) (ST->Timer_Handler)(ST->index,1,ST->TBC,ST->TimerBase);
 }
+
 /* CSM Key Controll */
 INLINE void CSMKeyControll(FM_CH *CH)
 {
@@ -1677,7 +1663,7 @@ static void OPNSetPres(FM_OPN *OPN , int pres , int TimerPres, int SSGpres)
 	OPN->ST.freqbase = 1.0;
 #endif
 
-	OPN->eg_timer_add  = (1<<EG_SH)  *  OPN->ST.freqbase;
+	OPN->eg_timer_add = (UINT32)( (1<<EG_SH) *  OPN->ST.freqbase );
 	OPN->eg_timer_overflow = ( 3 ) * (1<<EG_SH);
 
 
@@ -1697,7 +1683,7 @@ static void OPNSetPres(FM_OPN *OPN , int pres , int TimerPres, int SSGpres)
 	{
 		/* freq table for octave 7 */
 		/* OPN phase increment counter = 20bit */
-		OPN->fn_table[i] = (UINT32)( (double)i * 32 * OPN->ST.freqbase * (1<<(FREQ_SH-10)) ); /* -10 because chip works with 10.10 fixed point, while we use 16.16 */
+		OPN->fn_table[i] = (UINT32)( (double)(i * 32 * (1<<(FREQ_SH-10))) * OPN->ST.freqbase ); /* -10 because chip works with 10.10 fixed point, while we use 16.16 */
 #if 0
 		logerror("FM.C: fn_table[%4i] = %08x (dec=%8i)\n",
 				 i, OPN->fn_table[i]>>6,OPN->fn_table[i]>>6 );
@@ -1705,14 +1691,14 @@ static void OPNSetPres(FM_OPN *OPN , int pres , int TimerPres, int SSGpres)
 	}
 
 	/* maximal frequency is required for Phase overflow calculation, register size is 17 bits (Nemesis) */
-	OPN->fn_max = (UINT32)( (double)0x20000 * OPN->ST.freqbase * (1<<(FREQ_SH-10)) );
+	OPN->fn_max = (UINT32)( (double)(0x20000* (1<<(FREQ_SH-10))) * OPN->ST.freqbase );
 
 	/* LFO freq. table */
 	for(i = 0; i < 8; i++)
 	{
 		/* Amplitude modulation: 64 output levels (triangle waveform); 1 level lasts for one of "lfo_samples_per_step" samples */
 		/* Phase modulation: one entry from lfo_pm_output lasts for one of 4 * "lfo_samples_per_step" samples  */
-		OPN->lfo_freq[i] = (1.0 / lfo_samples_per_step[i]) * (1<<LFO_SH) * OPN->ST.freqbase;
+		OPN->lfo_freq[i] = (UINT32)( (1.0 / lfo_samples_per_step[i]) * (1<<LFO_SH) * OPN->ST.freqbase );
 #if 0
 		logerror("FM.C: lfo_freq[%i] = %08x (dec=%8i)\n",
 				 i, OPN->lfo_freq[i],OPN->lfo_freq[i] );
@@ -1927,7 +1913,7 @@ static void OPNWriteReg(FM_OPN *OPN, int r, int v)
 				UINT32 fn = (((UINT32)(OPN->SL3.fn_h&7))<<8) + v;
 				UINT8 blk = OPN->SL3.fn_h>>3;
 				/* keyscale code */
-				OPN->SL3.kcode[c]= (blk<<2) | opn_fktable[fn >> 7];
+				OPN->SL3.kcode[c]= (blk<<2) | opn_fktable[(fn >> 7) & 0xf];
 				/* phase increment counter */
 				OPN->SL3.fc[c] = OPN->fn_table[fn*2]>>(7-blk);
 				OPN->SL3.block_fnum[c] = (blk<<11) | fn;
@@ -4660,8 +4646,8 @@ static void YM2612_postload(void)
 	for(num=0;num<YM2612NumChips;num++)
 	{
 		/* DAC data & port */
-		FM2612[num].dacout = ((int)FM2612[num].REGS[0x2a] - 0x80) << 0;	/* level unknown */
-		FM2612[num].dacen  = FM2612[num].REGS[0x2d] & 0x80;
+		FM2612[num].dacout = ((int)FM2612[num].REGS[0x2a] - 0x80) << 6;	/* level unknown */
+		FM2612[num].dacen  = FM2612[num].REGS[0x2b] & 0x80;
 		/* OPN registers */
 		/* DT / MULTI , TL , KS / AR , AMON / DR , SR , SL / RR , SSG-EG */
 		for(r=0x30;r<0x9e;r++)
@@ -4821,7 +4807,7 @@ int YM2612Write(int n, int a,UINT8 v)
 			{
 			case 0x2a:	/* DAC data (YM2612) */
 				YM2612UpdateReq(n);
-				F2612->dacout = ((int)v - 0x80) << 8;	/* level unknown */
+				F2612->dacout = ((int)v - 0x80) << 6;	/* level unknown */
 				break;
 			case 0x2b:	/* DAC Sel  (YM2612) */
 				/* b7 = dac enable */
@@ -4890,7 +4876,7 @@ int YM2612TimerOver(int n,int c)
 		/* timer update */
 		TimerAOver( &(F2612->OPN.ST) );
 		/* CSM mode key,TL controll */
-		if( F2612->OPN.ST.mode & 0x80 )
+		if( (F2612->OPN.ST.mode & 0xc0) == 0x80 )
 		{	/* CSM mode total level latch and auto key on */
 			CSMKeyControll( &(F2612->CH[2]) );
 		}

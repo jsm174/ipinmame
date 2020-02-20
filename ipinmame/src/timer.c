@@ -413,6 +413,10 @@ void timer_adjust(mame_timer *which, double duration, int param, double period)
 	which->callback_param = param;
 	which->enabled = 1;
 
+	/* clamp negative times to 0 */
+	if (duration < 0.)
+		duration = 0.;
+
 	/* set the start and expire times */
 	which->start = time;
 	which->expire = time + duration;
@@ -593,3 +597,14 @@ double timer_firetime(mame_timer *which)
 {
 	return global_offset + which->expire;
 }
+
+#ifdef PINMAME
+double timer_expire(mame_timer *which)
+{
+	return which->expire;
+}
+int timer_param(mame_timer *which)
+{
+	return which->callback_param;
+}
+#endif

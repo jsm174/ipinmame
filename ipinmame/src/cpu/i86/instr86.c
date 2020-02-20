@@ -521,7 +521,7 @@ static void PREFIX(rep)(int flagval)
 			if (ICOUNT <= 0) { I.pc = I.prevpc; break; }
 			dst = GetMemW(ES, I.regs.w[DI]);
 			src = GetMemW(DS, I.regs.w[SI]);
-		    SUBB(src,dst); /* opposite of the usual convention */
+		    SUBW(src,dst); /* opposite of the usual convention */
 			I.regs.w[DI] += 2 * I.DirVal;
 			I.regs.w[SI] += 2 * I.DirVal;
 			ICOUNT -= cycles.rep_cmps16_count;
@@ -2001,7 +2001,7 @@ static void PREFIX86(_pushf)(void)    /* Opcode 0x9c */
 {
 	ICOUNT -= cycles.pushf;
 #ifdef I286
-    PUSH( CompressFlags() | 0xc000 );
+    PUSH( CompressFlags() & ~0xf000 );
 #elif defined V20
     PUSH( CompressFlags() | 0xe000 );
 #else
@@ -2881,7 +2881,7 @@ static void PREFIX86(_f6pre)(void)
 				}
 				else
 				{
-					I.regs.b[AL] = result;
+					I.regs.b[AL] = (UINT8)result;
 					I.regs.b[AH] = tmp2;
 				}
 			}

@@ -100,14 +100,14 @@ CORE_CLONEDEF(frpwr,d7,l6,"Firepower (Sys.7/7-digit Custom rev. 31)",2005,"Willi
 /*-------------------------------
 / Firepower - Sys.7 7-Digit conversion, rev. 38
 /------------------------------*/
-S7_ROMSTART8088(frpwr,c7,"f7ic14pr.716",CRC(4cd22956) SHA1(86380754b9cbb0a81b4fa4d26cff71b9a70d2a96),
-                         "f7ic17gr.532",CRC(3a1b7cc7) SHA1(1f32ef6d66040a53b04a0cddb1ffbf197a29c940),
-                         "f7ic20ga.716",CRC(5ed61e41) SHA1(b73a05b336f7bb8ee528205612bd0744e86498f5),
+S7_ROMSTART8088(frpwr,c7,"f7ic14pr_38.716",CRC(4cd22956) SHA1(86380754b9cbb0a81b4fa4d26cff71b9a70d2a96),
+                         "f7ic17gr_38.532",CRC(3a1b7cc7) SHA1(1f32ef6d66040a53b04a0cddb1ffbf197a29c940),
+                         "f7ic20ga_38.716",CRC(5ed61e41) SHA1(b73a05b336f7bb8ee528205612bd0744e86498f5),
                          "f7ic26.716"  ,CRC(aaf82d89) SHA1(c481a49c7e7d4734c0eeab31b9970ca62a3995f0))
 S67S_SOUNDROMS8(         "sound3.716",  CRC(55a10d13) SHA1(521d4cdfb0ed8178b3594cedceae93b772a951a4))
 S67S_SPEECHROMS0000(     "v_ic7.532",   CRC(94c5c0a7) SHA1(ff7c618d1666c1d5c3319fdd72c1af2846659290),
                          "v_ic5.532",   CRC(1737fdd2) SHA1(6307e0ae715e97294ee8aaaeb2e2bebb0cb590c2),
-                         "v_ic6.532",   CRC(35db11d2) SHA1(001df0d5245230b960ff69c30ee2b305b3a5e4b4),
+                         "v_ic6_38.532",CRC(35db11d2) SHA1(001df0d5245230b960ff69c30ee2b305b3a5e4b4),
                          "v_ic4.532",   CRC(8d4ff909) SHA1(b82666fe96bdf174bc4f347d7139da9ab7dadee1))
 S7_ROMEND
 #define input_ports_frpwr input_ports_s7
@@ -363,7 +363,6 @@ S7_ROMSTART8088(jst,l1, "ic14-l1.716", CRC(9871ebb2) SHA1(75c639a26d3bf7e05de7b5
                         "ic26-l1.716", CRC(123d8ffc) SHA1(c227a53653525269ea77203d4d1b14132058c073))
 S67S_SOUNDROMS0(        "sound12.532",CRC(3bbc90bf) SHA1(82154e719ceca5c72d1ab034bc4ff5e3ebb36832))
 S7_ROMEND
-#define input_ports_jst input_ports_s7
 CORE_CLONEDEF(jst,l1,l2,"Joust (L-1)",1983,"Williams",s7_mS7S,0)
 
 /*---------------------------
@@ -379,8 +378,16 @@ S7_ROMEND
 #define input_ports_lsrcu input_ports_s7
 CORE_GAMEDEF(lsrcu,l2,"Laser Cue (L-2)",1983,"Williams",s7_mS7S,0)
 
+S7_ROMSTART8088(lsrcu,l3, "ic14-l3.716",CRC(6b0c8368) SHA1(ee98108696996d24e0d059b6fd5343aeee77e583),
+                          "ic17.532",   CRC(bb571a17) SHA1(fb0b7f247673dae0744d4188e1a03749a2237165),
+                          "ic20.716",   CRC(dfb4b75a) SHA1(bcf017b01236f755cee419e398bbd8955ae3576a),
+                          "ic26.716",   CRC(db4a09e7) SHA1(5ea454c852303e12cc606c2c1e403b72e0a99f25))
+S67S_SOUNDROMS8(          "sound12.716",CRC(1888c635) SHA1(5dcdaee437a69c6027c24310f0cd2cae4e89fa05))
+S7_ROMEND
+CORE_CLONEDEF(lsrcu,l3,l2,"Laser Cue (L-3)",2016,"Timmo (Neverending bell fix)",s7_mS7S,0)
+
 /*--------------------------------
-/ Firepower II- Sys.7 (Game #521)
+/ Firepower II - Sys.7 (Game #521)
 /-------------------------------*/
 INITGAMEFULL(fpwr2,s7_dispS7,0,13,47,48,41,42,43,44)
 S7_ROMSTART8088(fpwr2,l2, "ic14.716",   CRC(a29688dd) SHA1(83815154bbaf51dd789112664d772a876efee3da),
@@ -416,3 +423,20 @@ S67S_SOUNDROMS8(         "sound3.716", CRC(55a10d13) SHA1(521d4cdfb0ed8178b3594c
 S7_ROMEND
 #define input_ports_strlt input_ports_s7
 CORE_GAMEDEF(strlt,l1,"Star Light (L-1)",1984,"Williams",s7_mS7S,0)
+
+
+// Games below are from different manufacturers
+
+/*--------------------------------
+/ Wild Texas - Sys.7 (identifies as #521 L-1 which makes it a Firepower II clone)
+/-------------------------------*/
+INITGAMEFULL(wldtexas,s7_dispS7,0,13,47,48,41,42,43,44)
+ROM_START(wldtexas)
+  NORMALREGION(0x10000, S7_CPUREGION)
+    ROM_LOAD("wldtexas.prg", 0x4000, 0x4000, CRC(243e7116) SHA1(c13c261632b3e8693a500d922f151296102e0169))
+    ROM_RELOAD(0x8000, 0x4000)
+    ROM_RELOAD(0xc000, 0x4000)
+S67S_SOUNDROMS8("sound3.716", CRC(55a10d13) SHA1(521d4cdfb0ed8178b3594cedceae93b772a951a4))
+S7_ROMEND
+#define input_ports_wldtexas input_ports_fpwr2
+CORE_CLONEDEFNV(wldtexas,fpwr2_l2,"Wild Texas",????,"Unknown Manufacturer",s7_mS7S,0)

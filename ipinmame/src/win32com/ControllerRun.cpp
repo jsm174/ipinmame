@@ -27,7 +27,7 @@ HANDLE g_hGameRunning	= INVALID_HANDLE_VALUE;
 int volatile g_fPause   = 0;		// referenced in usrintf.c to pause the game
 
 char g_fShowPinDMD		= FALSE;	// pinDMD not active by default
-int g_fDumpFrames		= FALSE;	// pinDMD dump frames
+int g_fDumpFrames		= FALSE;	// dump frames
 
 char g_fShowWinDMD		= TRUE;	// DMD active by default
 
@@ -150,7 +150,7 @@ DWORD FAR PASCAL CController::RunController(CController* pController)
 		if ( iSyncLevel<=20 )
 			g_iSyncFactor = 1024;
 		else
-			g_iSyncFactor = (int) (1024.0*(iSyncLevel/60.0));
+			g_iSyncFactor = (int) (1024.0*(iSyncLevel/60.0)); //!!!!
 
 		g_hEnterThrottle = CreateEvent(NULL, false, true, NULL);
 	}
@@ -393,7 +393,7 @@ void SaveWindowPosition(HWND hWnd, CController *pController)
 // set the window style: 0: title (includes border), 1: only border, 2: without border
 void SetWindowStyle(HWND hWnd, int iWindowStyle)
 {
-	long lNewStyle = GetWindowLong(hWnd, GWL_STYLE) & WS_VISIBLE;
+	LONG_PTR lNewStyle = GetWindowLongPtr(hWnd, GWL_STYLE) & WS_VISIBLE;
 
 	if ( IsWindow(GetParent(hWnd)) ) {
 		switch (iWindowStyle) {
@@ -433,7 +433,7 @@ void SetWindowStyle(HWND hWnd, int iWindowStyle)
 	}
 
 	RECT Rect;
-	SetWindowLong(hWnd, GWL_STYLE, lNewStyle);
+	SetWindowLongPtr(hWnd, GWL_STYLE, lNewStyle);
 	GetClientRect(hWnd,  &Rect);
 
 	int iWidth = Machine->uiwidth;
@@ -638,6 +638,17 @@ extern "C" LRESULT CALLBACK osd_hook(HWND wnd, UINT message, WPARAM wparam, LPAR
 			}
 			break;
 
+		case ID_CTRLCTXMENU_DISPLAY_RESTOREPOS:
+			{
+				CComVariant vValue((int) 0);
+
+				pController->m_pGameSettings->put_Value(CComBSTR("dmd_pos_x"), vValue);
+				pController->m_pGameSettings->put_Value(CComBSTR("dmd_pos_y"), vValue);
+
+				*pfhandled = TRUE;
+			}
+			break;
+
 		case ID_CTRLCTXMENU_INFO:
 			ShowAboutDlg(wnd);
 
@@ -687,4 +698,13 @@ extern "C" void VPM_ShowVideoWindow()
 		ShowWindow(win_video_window, SW_SHOWNOACTIVATE);
 	else
 		ShowWindow(win_video_window, SW_HIDE);
+}
+
+// special hook for VPM
+extern "C" int get_ShowVideoWindow()
+{
+	if (m_pController == NULL)
+		return 0;
+
+	return !m_pController->m_fWindowHidden && g_fShowWinDMD;
 }

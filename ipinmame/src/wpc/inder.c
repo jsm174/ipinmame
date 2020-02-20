@@ -16,7 +16,7 @@
 		IO:      DMA for earlier games,
 		         PIAs for later ones.
 		DISPLAY: 6-digit or 7-digit 7-segment panels with direct segment access
-		SOUND:	 TI76489 @ 2 or 4 MHz for Brave Team
+		SOUND:	 TI76489 @ 2 MHz for Brave Team
 				 AY8910 @ 2 MHz for Canasta86, 2x AY8910 on separate Z80 CPU for Lap By Lap,
 		         MSM5205 @ 384 kHz on Z80 CPU for later games.
  ************************************************************************************************/
@@ -127,14 +127,14 @@ static READ_HANDLER(sndcmd_r) {
 }
 
 /*-------------------------------------------------------
-/ Brave Team: Using a TI76489 chip, equivalent to 76496.
+/ Brave Team: Using a TI76489 chip, similar to 76496.
 /--------------------------------------------------------*/
-struct SN76496interface INDER_ti76489Int = {
+struct SN76489interface INDER_ti76489Int = {
 	1,	/* total number of chips in the machine */
-	{ 2000000 },	/* base clock 2 MHz (or 4 MHz?) */
+	{ 2000000 },	/* base clock 2 MHz */
 	{ 75 }	/* volume */
 };
-static WRITE_HANDLER(ti76489_0_w)	{ SN76496_0_w(0, core_revbyte(data)); }
+static WRITE_HANDLER(ti76489_0_w)	{ SN76489_0_w(0, core_revbyte(data)); }
 
 /*--------------------------------------------------
 / Canasta 86: Using a AY8910 chip, no extra ROMs.
@@ -347,7 +347,7 @@ MACHINE_DRIVER_START(INDER0)
   MDRV_IMPORT_FROM(INDER)
   MDRV_CPU_MODIFY("mcpu")
   MDRV_CPU_MEMORY(INDER0_readmem, INDER0_writemem)
-  MDRV_SOUND_ADD(SN76496, INDER_ti76489Int)
+  MDRV_SOUND_ADD(SN76489, INDER_ti76489Int)
 MACHINE_DRIVER_END
 
 static MEMORY_READ_START(INDER1_readmem)

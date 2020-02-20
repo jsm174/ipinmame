@@ -19,7 +19,7 @@ static const char *shift_xop[] = { "SI", "??", "AR", "MR0", "MR1", "MR2", "SR0",
 static const char *reg_grp[][16] =
 {
 	{ "AX0", "AX1", "MX0", "MX1", "AY0", "AY1", "MY0", "MY1", "SI", "SE", "AR", "MR0", "MR1", "MR2", "SR0", "SR1" },
-	{ "I0", "I1", "I2", "I3", "M0", "M1", "M2", "M3", "L0", "L1", "L2", "L3", "??", "??", "??", "??" },
+	{ "I0", "I1", "I2", "I3", "M0", "M1", "M2", "M3", "L0", "L1", "L2", "L3", "??", "??", "PMOVLAY", "DMOVLAY" },
 	{ "I4", "I5", "I6", "I7", "M4", "M5", "M6", "M7", "L4", "L5", "L6", "L7", "??", "??", "??", "??" },
 	{ "ASTAT", "MSTAT", "SSTAT", "IMASK", "ICNTL", "CNTR", "SB", "PX", "RX0", "TX0", "RX1", "TX1", "IFC", "OWRCNTR", "??", "??" }
 };
@@ -173,7 +173,7 @@ int alumac(char *buffer, int dest, int op)
 /* execute instructions on this CPU until icount expires */
 unsigned dasm2100(char *buffer, unsigned pc)
 {
-	unsigned int op = *(UINT32 *)&OP_ROM[ADSP2100_PGM_OFFSET + (pc << 2)];
+	unsigned int op = cpu_readop32(pc << 2);
 	int temp;
 
 	switch ( ( op >> 16 ) & 0xff )

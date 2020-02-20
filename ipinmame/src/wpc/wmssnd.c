@@ -11,6 +11,15 @@
 #include "s11.h"
 #include "wpc.h"
 #include "wmssnd.h"
+#ifdef __MINGW32__
+ #include <windef.h>
+#endif
+
+#define DCS_LOWPASS // enables some subtle low pass on the DCS output to avoid a bit of noise. As the real HW also has a bunch of lowpass filters, it would be interesting to check the direct output of the DCS chip on real hardware if it also features a bit of noise or not at that stage (e.g. before all the filters).
+
+#ifdef DCS_LOWPASS
+ #include "sound/filter.h"
+#endif
 
 //This awful hack is here to prevent the bug where the speech pitch is too low on pre-dcs games when
 //the YM2151 is not outputing music. In the hardware the YM2151's Timer A is set to control the FIRQ of the sound cpu 6809.
@@ -18,6 +27,10 @@
 //pitch. For some reason, when the YM2151 is not outputting sound, the FIRQ rate goes down.. Def. some kind of
 //MAME core bug with timing, but I can't find it. I really hope someone can fix this hack someday..SJE 09/17/03
 #define PREDCS_FIRQ_HACK
+
+#ifndef MIN
+#define MIN(x,y) ((x)<(y)?(x):(y))
+#endif
 
 /*----------------------
 /    System 3 - 7
@@ -505,7 +518,7 @@ MACHINE_DRIVER_START(wmssnd_s11js)
   MDRV_CPU_FLAGS(CPU_AUDIO_CPU)
   MDRV_CPU_MEMORY(s11js_readmem, s11js_writemem)
   MDRV_SOUND_ATTRIBUTES(SOUND_SUPPORTS_STEREO)
-  MDRV_SOUND_ADD(           YM2151, s11js_ym2151Int)
+  MDRV_SOUND_ADD(YM2151, s11js_ym2151Int)
   MDRV_SOUND_ADD(SAMPLES, samples_interface)
 MACHINE_DRIVER_END
 
@@ -758,14 +771,19 @@ static WRITE_HANDLER(dcs_ctrl_w);
 static void dcs_init(struct sndbrdData *brdData);
 
 /*-- local data --*/
-#define DCS_BUFFER_SIZE	  4096
+#define DCS_BUFFER_SIZE	  8192  // Must be power of 2 because of how circular buffer works
 #define DCS_BUFFER_MASK	  (DCS_BUFFER_SIZE - 1)
+#define DCS_DEFAULT_SAMPLE_RATE 31250
 
 static struct {
- int     enabled;
- UINT32  sOut, sIn, sStep;
+ int     status;   // 0 = disabled, 1 playing, > 1 startup silence samples remaining
+ UINT32  sOut, sIn;
  INT16  *buffer;
  int     stream;
+#ifdef DCS_LOWPASS
+ filter *filter_f;
+ filter_state *filter_state;
+#endif
 } dcs_dac;
 
 static struct {
@@ -915,36 +933,61 @@ static int dcs_custStart(const struct MachineSound *msound) {
   memset(&dcs_dac,0,sizeof(dcs_dac));
 
   /*-- allocate a DAC stream --*/
-  dcs_dac.stream = stream_init("DCS DAC", 100, 31250, 0, dcs_dacUpdate);
+  dcs_dac.stream = stream_init("DCS DAC", 100, DCS_DEFAULT_SAMPLE_RATE, 0, dcs_dacUpdate);
 
   /*-- allocate memory for our buffer --*/
   dcs_dac.buffer = malloc(DCS_BUFFER_SIZE * sizeof(INT16));
+  memset(dcs_dac.buffer, 0, DCS_BUFFER_SIZE * sizeof(INT16));
 
-  dcs_dac.sStep = 0x10000;
+#ifdef DCS_LOWPASS
+  dcs_dac.filter_f = filter_lp_fir_alloc(0.275, FILTER_ORDER_MAX); // magic, resolves noise on scared stiff for example, while not cutting off too much else -> is this due to DCS compression itself?
+  dcs_dac.filter_state = filter_state_alloc();
+  filter_state_reset(dcs_dac.filter_f, dcs_dac.filter_state);
+#endif
 
   return (dcs_dac.buffer == 0);
 }
 
 static void dcs_custStop(void) {
   if (dcs_dac.buffer)
-    { free(dcs_dac.buffer); dcs_dac.buffer = NULL; }
+    { free(dcs_dac.buffer); dcs_dac.buffer = NULL;
+#ifdef DCS_LOWPASS
+      filter_state_free(dcs_dac.filter_state);
+      filter_free(dcs_dac.filter_f);
+#endif
+    }
 }
 
-static void dcs_dacUpdate(int num, INT16 *buffer, int length) {
-  if (!dcs_dac.enabled)
-    memset(buffer, 0, length * sizeof(INT16));
-  else {
+
+static void dcs_dacUpdate(int num, INT16 *buffer, int length)
+{
     int ii;
+
     /* fill in with samples until we hit the end or run out */
-    for (ii = 0; ii < length; ii++) {
+    for (ii = 0; ii < length; ii++)
+    {
       if (dcs_dac.sOut == dcs_dac.sIn) break;
+#ifdef DCS_LOWPASS
+      filter_insert(dcs_dac.filter_f, dcs_dac.filter_state, dcs_dac.buffer[dcs_dac.sOut]);
+      buffer[ii] = filter_compute_clamp16(dcs_dac.filter_f, dcs_dac.filter_state);
+#else
       buffer[ii] = dcs_dac.buffer[dcs_dac.sOut];
+#endif
       dcs_dac.sOut = (dcs_dac.sOut + 1) & DCS_BUFFER_MASK;
     }
-    /* fill the rest with the last sample */
+    /* Give core feedback on sound buffer progress, so speed can be throttled to keep sound perfect */
+    core_sound_throttle_adj(dcs_dac.sIn, &dcs_dac.sOut, DCS_BUFFER_SIZE, stream_get_sample_rate(dcs_dac.stream));
+
+    /* fill the rest with the last sample (ideally never necessary) */
     for ( ; ii < length; ii++)
+    {
+#ifdef DCS_LOWPASS
+      filter_insert(dcs_dac.filter_f, dcs_dac.filter_state, dcs_dac.buffer[(dcs_dac.sOut - 1) & DCS_BUFFER_MASK]);
+      buffer[ii] = filter_compute_clamp16(dcs_dac.filter_f, dcs_dac.filter_state);
+#else
       buffer[ii] = dcs_dac.buffer[(dcs_dac.sOut - 1) & DCS_BUFFER_MASK];
-  }
+#endif
+    }
 }
 
 /*-------------------
@@ -1033,12 +1076,23 @@ static void dcs_txData(UINT16 start, UINT16 size, UINT16 memStep, int sRate) {
   UINT16 *mem = ((UINT16 *)(dcslocals.cpuRegion + ADSP2100_DATA_OFFSET)) + start;
   int idx;
 
-  stream_update(dcs_dac.stream, 0);
+  // Let the buffer fill naturally, so the throttling mechanism can work.
+//  stream_update(dcs_dac.stream, 0);
   if (size == 0) /* No data, stop playing */
-    { dcs_dac.enabled = FALSE; return; }
-  /*-- For some reason can't the sample rate of streams be changed --*/
-  /*-- The DCS samplerate is now hardcoded to 32K. Seems to work with all games */
-  // if (!dcs_dac.enabled) stream_set_sample_frequency(dcs_dac.stream,sRate);
+    { dcs_dac.status = 0; return; }
+  if (dcs_dac.status==0) stream_set_sample_rate(dcs_dac.stream,sRate); // unnecessary as sample rate seems to be always 31250
+
+  // If we were not playing before, pre-load buffer with some silence to prevent jumpy starts.
+  if (dcs_dac.status == 0)
+  {
+      int idx_end = stream_get_sample_rate(dcs_dac.stream) * 20 / 1000 + 1;
+      for (idx = 0; idx < idx_end; idx++) {
+          dcs_dac.buffer[dcs_dac.sIn] = 0;
+          dcs_dac.sIn = (dcs_dac.sIn + 1) & DCS_BUFFER_MASK;
+      }
+
+      dcs_dac.status = 1;
+  }
   /*-- size is the size of the buffer not the number of samples --*/
 #if MAMEVER >= 3716
   for (idx = 0; idx < size; idx += memStep) {
@@ -1056,8 +1110,7 @@ static void dcs_txData(UINT16 start, UINT16 size, UINT16 memStep, int sRate) {
     idx += sStep;
   }
 #endif /* MAMEVER */
-  /*-- enable the dac playing --*/
-  dcs_dac.enabled = TRUE;
+
 }
 #define DCS_IRQSTEPS 4
 /*--------------------------------------------------*/
@@ -1357,11 +1410,11 @@ UINT32 dcs_speedup(UINT32 pc) {
           INT32 tmp, mr;
 			/* 2B6E           MR = MX0 * MY0 (SS), MX1 = DM(I1,M1) */
           mx1 = *i1++;
-          tmp = ((mx0 * my0)<<1);
+          tmp = (((INT32)mx0 * my0)<<1);
           mr = tmp;
 			/* 2B6F           MR = MR - MX1 * MY1 (RND), AY0 = DM(I0,M1) */
           ay0 = *i0++;
-          tmp = ((mx1 * my1)<<1);
+          tmp = (((INT32)mx1 * my1)<<1);
           mr = (mr - tmp + 0x8000) & (((tmp & 0xffff) == 0x8000) ? 0xfffeffff : 0xffffffff);
 			/* 2B70           MR = MX1 * MY0 (SS), AX0 = MR1 */
           ax0 = mr>>16;
@@ -1369,7 +1422,7 @@ UINT32 dcs_speedup(UINT32 pc) {
           mr = tmp;
 			/* 2B71           MR = MR + MX0 * MY1 (RND), AY1 = DM(I0,M0) */
           ay1 = *i0--; /* M0 = -1 */
-          tmp = ((mx0 * my1)<<1);
+          tmp = (((INT32)mx0 * my1)<<1);
           mr = (mr + tmp + 0x8000) & (((tmp & 0xffff) == 0x8000) ? 0xfffeffff : 0xffffffff);
 			/* 2B72           AR = AY0 - AX0, MX0 = DM(I1,M1) */
           mx0 = *i1++;
@@ -1412,7 +1465,7 @@ UINT32 dcs_speedup(UINT32 pc) {
 			/* 2B82     I0 = $2000 >>> (3800) <<< */
     i0 = &ram2source[0x0000];
 			/* 2B84     MY0 = DM($15FD) (390e) */
-    my0 = volume;
+    my0 = MIN(volume,0x8000); // be paranoid about the volume, see code below
 			/* 2B83     CNTR = $0100 */
 			/* 2B85     DO $2B89 UNTIL CE */
     /* M0 = 0, M1 = 1 */
@@ -1422,13 +1475,13 @@ UINT32 dcs_speedup(UINT32 pc) {
 			/* 2B86       MX0 = DM(I0,M0) */
       mx0 = *i0;
 			/* 2B87       MR = MX0 * MY0 (SU) */
-      mr = (mx0 * my0)<<1;
+      mr = ((INT32)mx0 * my0); // <<1; // see shift below
 			/* 2B88       IF MV SAT MR */
       /* This instruction limits MR to 32 bits */
       /* In reality the volume will never be higher than 0x8000 so */
       /* this is not needed */
 			/* 2B89       DM(I0,M1) = MR1 */
-      *i0++ = mr>>16;
+      *i0++ = mr>>15; // >>16; // see above
     }
   }
   activecpu_set_reg(ADSP2100_PC, pc + 0x2b89 - 0x2b44);
@@ -2279,7 +2332,7 @@ UINT32 dcs_speedup_1993(UINT32 pc)
         i4 = &ram[0x3801];
 
         /* 0135   MY0 = WORD PTR [$3aa] - current volume level */
-        my0 = volume;
+        my0 = MIN(volume, 0x8000); // be paranoid about the volume, see code below
 
         /* 0136   MX0 = DM(reverse i1, m2) */
         mx0 = ram[reverse_bits(i1)];
@@ -2290,13 +2343,13 @@ UINT32 dcs_speedup_1993(UINT32 pc)
         for (ii = 0 ; ii < 0x100 ; ii++)
         {
             /* 0138   MR = (MX0 * MY0) << 1, MX0 = DM(reverse i1,m2) */
-            mr = ((INT32)mx0 * my0) << 1;
+            mr = ((INT32)mx0 * my0); // << 1; // see shift below
             mx0 = ram[reverse_bits(i1)];
             i1 += 0x20;
 
-            /* 0139  SATURATE MR (effectively NOP) */
+            /* 0139  SATURATE MR (effectively NOP, as volume always <= 0x8000) */
             /* 013A  DM(I4,M6) = MR1 */
-            *i4 = mr >> 16;
+            *i4 = mr >> 15; // >> 16; // see above
             i4 += 2;
         }
 	}

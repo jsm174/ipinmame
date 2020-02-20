@@ -626,7 +626,7 @@ WPC_ROMSTART(sttng,h7,"trek_dg7.rom",0x80000,CRC(8df53345) SHA1(341951d7d1d775d8
 WPC_ROMSTART(sttng,l1,"trek_lx1.rom",0x80000,CRC(390befc0) SHA1(2059891e3fc3034d600274c3915371123c964d28)) ST_SND WPC_ROMEND
 WPC_ROMSTART(sttng,d1,"trek_dx1.rom",0x80000,CRC(925005af) SHA1(cfdf289c5a12f890c9677213d9a82a60903d57d5)) ST_SND WPC_ROMEND
 WPC_ROMSTART(sttng,l2,"trek_lx2.rom",0x80000,CRC(e2557554) SHA1(7d8502ab9df340d60fd72e6964740bc7a2da2065)) ST_SND WPC_ROMEND
-WPC_ROMSTART(sttng,d2,"trek_lx2.rom",0x80000,CRC(d0002381) SHA1(9dfe5aca4ce06a6adf6a4edec54e22aba93c0a12)) ST_SND WPC_ROMEND
+WPC_ROMSTART(sttng,d2,"trek_dx2.rom",0x80000,CRC(d0002381) SHA1(9dfe5aca4ce06a6adf6a4edec54e22aba93c0a12)) ST_SND WPC_ROMEND
 WPC_ROMSTART(sttng,l3,"trek_lx3.rom",0x80000,CRC(400e7887) SHA1(23d5e9796f0c3c66121da53088df6f5275348f4a)) ST_SND WPC_ROMEND
 
 /*--------------
@@ -689,8 +689,7 @@ static core_tGameData sttngGameData = {
 /----------------*/
 /*-- patched memory read function to handle the 9th switch column --*/
 READ_HANDLER(sttng_swRowRead) {
-//  if ((wpc_data[WPC_EXTBOARD1] && 0x80) > 0) /* 9th column enabled */
-  if (wpc_data[WPC_EXTBOARD1] == 0x80) /* 9th column enabled */
+  if ((wpc_data[WPC_EXTBOARD1] & 0x80) > 0) /* 9th column enabled */
     return coreGlobals.swMatrix[CORE_CUSTSWCOL];
   else
     return wpc_r(WPC_SWROWREAD);
@@ -698,6 +697,7 @@ READ_HANDLER(sttng_swRowRead) {
 
 static void init_sttng(void) {
   core_gameData = &sttngGameData;
+  wpc_set_modsol_aux_board(1);
   install_mem_read_handler(WPC_CPUNO, WPC_SWROWREAD+WPC_BASE, WPC_SWROWREAD+WPC_BASE,
                          sttng_swRowRead);
 }

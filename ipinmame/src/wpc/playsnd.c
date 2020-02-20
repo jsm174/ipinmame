@@ -90,7 +90,7 @@ static void play2s_init(struct sndbrdData *brdData) {
 static WRITE_HANDLER(play2s_data_w) {
   sndlocals.freq = data;
   if (mixer_is_sample_playing(sndlocals.channel)) {
-    mixer_set_sample_frequency(sndlocals.channel, 2950000.0 / 4 / (sndlocals.freq + 1));
+    mixer_set_sample_frequency(sndlocals.channel, 2950000 / 4 / (sndlocals.freq + 1));
   }
 }
 
@@ -98,7 +98,7 @@ static WRITE_HANDLER(play2s_ctrl_w) {
   if (!sndlocals.enSn && (data & 1)) { // sound on to full volume
     timer_adjust(sndlocals.timer, TIME_NEVER, 0, 0);
     if (!mixer_is_sample_playing(sndlocals.channel)) {
-      mixer_play_sample(sndlocals.channel, (signed char *)squareWave, sizeof(squareWave), 2950000.0 / 4 / (sndlocals.freq + 1), 1);
+      mixer_play_sample(sndlocals.channel, (signed char *)squareWave, sizeof(squareWave), 2950000 / 4 / (sndlocals.freq + 1), 1);
     }
     sndlocals.volume = 100;
     mixer_set_volume(sndlocals.channel, sndlocals.volume);
@@ -310,7 +310,7 @@ static void snd_q(int data) {
 static CDP1802_CONFIG playsound_config3 =
 {
 	snd_mode,	// MODE
-	snd_ef3,		// EF
+	snd_ef3,	// EF
 	NULL,		// SC
 	snd_q,		// Q
 	NULL,		// DMA read
@@ -346,21 +346,17 @@ MACHINE_DRIVER_END
 
 static WRITE_HANDLER(ay8910_0_porta_w)	{
   int volume = 100 - 25 * (data >> 6);
-  AY8910_set_volume(0, 0, volume);
-  AY8910_set_volume(0, 1, volume);
-  AY8910_set_volume(0, 2, volume);
+  AY8910_set_volume(0, ALL_8910_CHANNELS, volume);
   // TODO bits 1 to 6 control a slight reverb effect!?
 }
 static WRITE_HANDLER(ay8910_1_porta_w)	{
   int volume = 100 - 25 * (data >> 6);
-  AY8910_set_volume(1, 0, volume);
-  AY8910_set_volume(1, 1, volume);
-  AY8910_set_volume(1, 2, volume);
+  AY8910_set_volume(1, ALL_8910_CHANNELS, volume);
   // TODO bits 1 to 6 control a slight reverb effect!?
 }
 struct AY8910interface play4s_8910Int = {
 	2,			/* 2 chips */
-	3579545.0/2,	/* 1.79 MHz */
+	(int)(3579545.0/2.),	/* 1.79 MHz */
 	{ MIXER(50,MIXER_PAN_LEFT), MIXER(50,MIXER_PAN_RIGHT) },	/* Volume */
 	{ 0, 0 },
 	{ 0, 0 },
@@ -401,7 +397,7 @@ static void snd_sc(int data) {
 static CDP1802_CONFIG playsound_config4 =
 {
 	snd_mode,	// MODE
-	snd_ef4,		// EF
+	snd_ef4,	// EF
 	snd_sc,		// SC
 	NULL,		// Q
 	NULL,		// DMA read
@@ -473,7 +469,7 @@ static void play5s_msmIrq(int data) {
 static struct MSM5205interface play5s_msm5205Int = {
 	1,					//# of chips
 	384000,				//384Khz Clock Frequency?
-	{play5s_msmIrq},		//VCLK Int. Callback
+	{play5s_msmIrq},	//VCLK Int. Callback
 	{MSM5205_S48_4B},	//Sample Mode
 	{100}				//Volume
 };
@@ -553,7 +549,7 @@ static WRITE_HANDLER(ay8910_z_portb_w)	{
 struct AY8910interface playzs_8910Int = {
 	1,			/* 1 chip */
 	2000000,	/* 2.01216 MHz quartz on pic! */
-	{ 25 },	/* Volume */
+	{ 25 },		/* Volume */
 	{ 0 },
 	{ 0 },
 	{ ay8910_z_porta_w },

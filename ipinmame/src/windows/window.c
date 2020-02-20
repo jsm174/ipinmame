@@ -30,7 +30,15 @@
 #include "mamedbg.h"
 #include "../window.h"
 
+#ifndef VPINMAME
+ #define FAST_NN_BLIT // define for much faster nearest neighbor blitting, otherwise uses bilinear resample in dib_draw_window()
+#endif
 
+#ifndef FAST_NN_BLIT
+ #include "..\..\ext\basicbitmap\BasicBitmap_C.h"
+ static UINT16 *upscale_bitmap = NULL;
+ static UINT32 upscale_bitmap_size = 0;
+#endif
 
 //============================================================
 //	IMPORTS
@@ -59,7 +67,11 @@ int win_d3d_effects_in_use(void);
 #else
 #define WINDOW_STYLE			WS_OVERLAPPEDWINDOW
 #endif
-#define WINDOW_STYLE_EX			0
+#if(_WIN32_WINNT >= 0x0500)
+ #define WINDOW_STYLE_EX		((pmoptions.dmd_opacity < 100) ? WS_EX_LAYERED : 0)
+#else
+ #define WINDOW_STYLE_EX		0
+#endif
 
 // debugger window styles
 #define DEBUG_WINDOW_STYLE		WS_OVERLAPPED
@@ -222,7 +234,7 @@ INLINE int wnd_extra_width(void)
 	if (!win_window_mode)
 		return 0;
 #ifdef VPINMAME
-	AdjustWindowRectEx(&window, GetWindowLong(win_video_window, GWL_STYLE), win_has_menu(), GetWindowLong(win_video_window, GWL_EXSTYLE));
+	AdjustWindowRectEx(&window, GetWindowLongPtr(win_video_window, GWL_STYLE), win_has_menu(), GetWindowLongPtr(win_video_window, GWL_EXSTYLE));
 #else
 	AdjustWindowRectEx(&window, WINDOW_STYLE, win_has_menu(), WINDOW_STYLE_EX);
 #endif
@@ -241,7 +253,7 @@ INLINE int wnd_extra_height(void)
 	if (!win_window_mode)
 		return 0;
 #ifdef VPINMAME
-	AdjustWindowRectEx(&window, GetWindowLong(win_video_window, GWL_STYLE), win_has_menu(), GetWindowLong(win_video_window, GWL_EXSTYLE));
+	AdjustWindowRectEx(&window, GetWindowLongPtr(win_video_window, GWL_STYLE), win_has_menu(), GetWindowLongPtr(win_video_window, GWL_EXSTYLE));
 #else
 	AdjustWindowRectEx(&window, WINDOW_STYLE, win_has_menu(), WINDOW_STYLE_EX);
 #endif
@@ -508,6 +520,11 @@ int win_init_window(void)
 	if (!win_video_window)
 		return 1;
 
+#if(_WIN32_WINNT >= 0x0500)
+	if (pmoptions.dmd_opacity < 100)
+		SetLayeredWindowAttributes(win_video_window,0,pmoptions.dmd_opacity*255/100,LWA_ALPHA);
+#endif
+
 	// possibly create the debug window, but don't show it yet
 	if (options.mame_debug)
 		if (create_debug_window())
@@ -670,6 +687,13 @@ void win_destroy_window(void)
 	// kill the window if it still exists
 	if (win_video_window)
 		DestroyWindow(win_video_window);
+
+#ifndef FAST_NN_BLIT
+	if (upscale_bitmap)
+		free(upscale_bitmap);
+	upscale_bitmap = NULL;
+	upscale_bitmap_size = 0;
+#endif
 
 	if (converted_bitmap)
 		free(converted_bitmap);
@@ -1373,8 +1397,8 @@ void win_toggle_full_screen(void)
 		GetWindowRect(win_video_window, &non_fullscreen_bounds);
 
 		// adjust the style
-		SetWindowLong(win_video_window, GWL_STYLE, FULLSCREEN_STYLE);
-		SetWindowLong(win_video_window, GWL_EXSTYLE, FULLSCREEN_STYLE_EX);
+		SetWindowLongPtr(win_video_window, GWL_STYLE, FULLSCREEN_STYLE);
+		SetWindowLongPtr(win_video_window, GWL_EXSTYLE, FULLSCREEN_STYLE_EX);
 		set_aligned_window_pos(win_video_window, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
 		// set topmost
@@ -1561,14 +1585,16 @@ static void dib_draw_window(HDC dc, struct mame_bitmap *bitmap, const struct rec
 	struct win_blit_params params;
 	int xmult, ymult;
 	RECT client;
+#ifndef VPINMAME
 	int cx, cy;
+#endif
 
 	// compute the multipliers
 	GetClientRect(win_video_window, &client);
 	win_compute_multipliers(&client, &xmult, &ymult);
 
 	// blit to our temporary bitmap
-	params.dstdata		= (void *)(((UINT32)converted_bitmap + 15) & ~15);
+	params.dstdata		= (void *)(((size_t)converted_bitmap + 15) & ~15);
 	params.dstpitch		= (((win_visible_width * xmult) + 3) & ~3) * depth / 8;
 	params.dstdepth		= depth;
 	params.dstxoffs		= 0;
@@ -1607,19 +1633,79 @@ static void dib_draw_window(HDC dc, struct mame_bitmap *bitmap, const struct rec
 	win_perform_blit(&params, update);
 
 	// fill in bitmap-specific info
+#ifdef FAST_NN_BLIT
 	video_dib_info->bmiHeader.biWidth = params.dstpitch / (depth / 8);
 	video_dib_info->bmiHeader.biHeight = -win_visible_height * ymult;
+#else
+	video_dib_info->bmiHeader.biWidth = ((client.right - client.left) + 3) & ~3;
+	video_dib_info->bmiHeader.biHeight = -(client.bottom - client.top);
+#endif
 	video_dib_info->bmiHeader.biBitCount = depth;
 
+
 	// compute the center position
+#ifndef VPINMAME // The old code prevents the DMD window from scaling-to-fit, so remove that in the VPM case.
 	cx = client.left + ((client.right - client.left) - win_visible_width * xmult) / 2;
 	cy = client.top + ((client.bottom - client.top) - win_visible_height * ymult) / 2;
+#endif
 
 	// blit to the screen
+	if ((video_dib_info->bmiHeader.biWidth == params.dstpitch / (depth / 8)) &&
+		((client.bottom - client.top) == win_visible_height * ymult)) // perfect pixel match?
+		SetDIBitsToDevice(dc, 0, 0, (client.right - client.left), (client.bottom - client.top),
+		                  0, 0, 0, (client.bottom - client.top),
+		                  converted_bitmap, video_dib_info, DIB_RGB_COLORS);
+	else
+#ifdef FAST_NN_BLIT
+	//!! SetStretchBltMode(dc, HALFTONE); // Does not really work. Internet says this could be due to some heuristic which does not do filtering on small images, but maybe also because its (unsupported) 15/16bit input?
+#ifndef VPINMAME
 	StretchDIBits(dc, cx, cy, win_visible_width * xmult, win_visible_height * ymult,
-				0, 0, win_visible_width * xmult, win_visible_height * ymult,
-				converted_bitmap, video_dib_info, DIB_RGB_COLORS, SRCCOPY);
+#else
+	StretchDIBits(dc, 0, 0, (client.right - client.left), (client.bottom - client.top),
+#endif
+				  0, 0, win_visible_width * xmult, win_visible_height * ymult,
+				  converted_bitmap, video_dib_info, DIB_RGB_COLORS, SRCCOPY);
+#else
+	{
+		if (upscale_bitmap_size < video_dib_info->bmiHeader.biWidth * (client.bottom - client.top))
+		{
+			upscale_bitmap_size = video_dib_info->bmiHeader.biWidth * (client.bottom - client.top);
+			if (upscale_bitmap)
+				free(upscale_bitmap);
+			upscale_bitmap = (UINT16*)malloc(upscale_bitmap_size*((bitmap->depth+1)/8)); // +1 for 15bit
+		}
 
+		BasicBitmap_SSE2_AVX_Enable();
+		switch(bitmap->depth)
+		{
+		case 16:
+			/*ResampleR5G6B5(upscale_bitmap, video_dib_info->bmiHeader.biWidth, (client.bottom - client.top), //!! 16 also seems to mean 15??!
+							(UINT16*)converted_bitmap, params.dstpitch / (depth / 8), win_visible_height * ymult);
+			break;*/
+		case 15:
+			ResampleX1R5G5B5(upscale_bitmap, video_dib_info->bmiHeader.biWidth, (client.bottom - client.top),
+							(UINT16*)converted_bitmap, params.dstpitch / (depth / 8), win_visible_height * ymult);
+			break;
+		case 24:
+			ResampleR8G8B8((UINT8*)upscale_bitmap, video_dib_info->bmiHeader.biWidth, (client.bottom - client.top),
+							(UINT8*)converted_bitmap, params.dstpitch / (depth / 8), win_visible_height * ymult);
+			break;
+		case 32:
+			ResampleX8R8G8B8((UINT32*)upscale_bitmap, video_dib_info->bmiHeader.biWidth, (client.bottom - client.top),
+							(UINT32*)converted_bitmap, params.dstpitch / (depth / 8), win_visible_height * ymult);
+			break;
+		default:
+			logerror("Cannot Resample, unknown bit depth");
+			break;
+		}
+
+		SetDIBitsToDevice(dc, 0, 0, (client.right - client.left), (client.bottom - client.top),
+			              0, 0, 0, (client.bottom - client.top),
+			              upscale_bitmap, video_dib_info, DIB_RGB_COLORS);
+	}
+#endif
+
+#ifndef VPINMAME
 	// erase the edges if updating
 	if (update)
 	{
@@ -1631,6 +1717,7 @@ static void dib_draw_window(HDC dc, struct mame_bitmap *bitmap, const struct rec
 		inner.bottom = cy + win_visible_height * ymult;
 		erase_outer_rect(&client, &inner, dc);
 	}
+#endif
 }
 
 
@@ -1820,13 +1907,16 @@ static void draw_debug_contents(HDC dc, struct mame_bitmap *bitmap, const rgb_t 
 	// for 8bpp bitmaps, update the debug colors
 	for (i = 0; i < DEBUGGER_TOTAL_COLORS; i++)
 	{
+		// Note that GCC may throw an array-bounds error on these lines, since the
+		// BITMAPINFO structure defines bmiColors as a single-element array.  Its
+		// size actually varies depending on settings in the header.
 		debug_dib_info->bmiColors[i].rgbRed		= RGB_RED(palette[i]);
 		debug_dib_info->bmiColors[i].rgbGreen	= RGB_GREEN(palette[i]);
 		debug_dib_info->bmiColors[i].rgbBlue	= RGB_BLUE(palette[i]);
 	}
 
 	// fill in bitmap-specific info
-	debug_dib_info->bmiHeader.biWidth = (((UINT8 *)bitmap->line[1]) - ((UINT8 *)bitmap->line[0])) / (bitmap->depth / 8);
+	debug_dib_info->bmiHeader.biWidth = (LONG)(((UINT8 *)bitmap->line[1]) - ((UINT8 *)bitmap->line[0])) / (bitmap->depth / 8);
 	debug_dib_info->bmiHeader.biHeight = -bitmap->height;
 	debug_dib_info->bmiHeader.biBitCount = bitmap->depth;
 

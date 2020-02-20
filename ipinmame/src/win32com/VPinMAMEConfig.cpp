@@ -29,6 +29,8 @@ extern "C" {
   /* pinDMD */
   extern char g_fShowPinDMD;
   extern char g_fShowWinDMD;
+  extern int g_low_latency_throttle;
+  int g_cpu_affinity_mask = 0;
 }
 
 int fAllowWriteAccess = 1;
@@ -48,12 +50,17 @@ int dmd_colorize = FALSE;
 int dmd_red66 = 225, dmd_green66 = 15, dmd_blue66 = 193;
 int dmd_red33 = 6, dmd_green33 = 0, dmd_blue33 = 214;
 int dmd_red0 = 0, dmd_green0 = 0, dmd_blue0 = 0;
+int dmd_opacity = 100;
+int resampling_quality = 0;
+#if defined(VPINMAME_ALTSOUND) || defined(VPINMAME_PINSOUND)
+int sound_mode = 0;
+#endif
 
 int threadpriority = 1;
 //int synclevel = 60;
 int synclevel = 0;		//SJE: Default synclevel is 0 now.. 10/01/03
 
-static FILE *logfile;
+static FILE *logfile = NULL;
 
 static struct rc_option vpinmame_opts[] = {
 	// VPinMAME options
@@ -67,24 +74,31 @@ static struct rc_option vpinmame_opts[] = {
 	{ "dmd_doublesize",  NULL, rc_bool,  &dmd_doublesize,  "0", 0, 0, NULL, "DMD display doublesize" },
 	{ "threadpriority",  NULL, rc_int,  &threadpriority,  "1", 0, 2, NULL, "priority of the worker thread" },
 	{ "synclevel",  NULL, rc_int,  &synclevel,  "0", -50, 60, NULL, "Sync. of frame rate for external programs (fps)" },	//SJE: Default synclevel is 0 now.. 10/01/03
-        { "fastframes",  NULL, rc_int,  &fastfrms,  "-1", -1, 100000, NULL, "Unthrottled frames at game start" },
-        { "ignore_rom_crc", NULL, rc_bool, &ignoreRomCRC,  "0", -1, 1, NULL, "Ignore ROM CRC Errors" },
-        { "cabinet_mode", NULL, rc_bool, &cabinetMode,  "0", -1, 1, NULL, "Enables Cabinet Mode" },
+	{ "fastframes",  NULL, rc_int,  &fastfrms,  "-1", -1, 100000, NULL, "Unthrottled frames at game start" },
+	{ "ignore_rom_crc", NULL, rc_bool, &ignoreRomCRC,  "0", -1, 1, NULL, "Ignore ROM CRC Errors" },
+	{ "cabinet_mode", NULL, rc_bool, &cabinetMode,  "0", -1, 1, NULL, "Enables Cabinet Mode" },
 
-        { "dmd_colorize", NULL, rc_bool, &dmd_colorize, "0", 0, 0, NULL, "Set DMD intensity levels as independent colors" },
-        { "dmd_red66", NULL, rc_int, &dmd_red66, "225", 0, 255, NULL, "Colorized DMD: red level for 66% intensity" },
-        { "dmd_green66", NULL, rc_int, &dmd_green66, "15", 0, 255, NULL, "Colorized DMD: green level for 66% intensity" },
-        { "dmd_blue66", NULL, rc_int, &dmd_blue66, "193", 0, 255, NULL, "Colorized DMD: blue level for 66% intensity" },
-        { "dmd_red33", NULL, rc_int, &dmd_red33, "6", 0, 255, NULL, "Colorized DMD: red level for 33% intensity" },
-        { "dmd_green33", NULL, rc_int, &dmd_green33, "0", 0, 255, NULL, "Colorized DMD: green level for 33% intensity" },
-        { "dmd_blue33", NULL, rc_int, &dmd_blue33, "214", 0, 255, NULL, "Colorized DMD: blue level for 33% intensity" },
-        { "dmd_red0", NULL, rc_int, &dmd_red0, "0", 0, 255, NULL, "Colorized DMD: red level for 0% intensity" },
-        { "dmd_green0", NULL, rc_int, &dmd_green0, "0", 0, 255, NULL, "Colorized DMD: green level for 0% intensity" },
-        { "dmd_blue0", NULL, rc_int, &dmd_blue0, "0", 0, 255, NULL, "Colorized DMD: blue level for 0% intensity" },
-        
+	{ "dmd_colorize", NULL, rc_bool, &dmd_colorize, "0", 0, 0, NULL, "Set DMD intensity levels as independent colors" },
+	{ "dmd_red66", NULL, rc_int, &dmd_red66, "225", 0, 255, NULL, "Colorized DMD: red level for 66% intensity" },
+	{ "dmd_green66", NULL, rc_int, &dmd_green66, "15", 0, 255, NULL, "Colorized DMD: green level for 66% intensity" },
+	{ "dmd_blue66", NULL, rc_int, &dmd_blue66, "193", 0, 255, NULL, "Colorized DMD: blue level for 66% intensity" },
+	{ "dmd_red33", NULL, rc_int, &dmd_red33, "6", 0, 255, NULL, "Colorized DMD: red level for 33% intensity" },
+	{ "dmd_green33", NULL, rc_int, &dmd_green33, "0", 0, 255, NULL, "Colorized DMD: green level for 33% intensity" },
+	{ "dmd_blue33", NULL, rc_int, &dmd_blue33, "214", 0, 255, NULL, "Colorized DMD: blue level for 33% intensity" },
+	{ "dmd_red0", NULL, rc_int, &dmd_red0, "0", 0, 255, NULL, "Colorized DMD: red level for 0% intensity" },
+	{ "dmd_green0", NULL, rc_int, &dmd_green0, "0", 0, 255, NULL, "Colorized DMD: green level for 0% intensity" },
+	{ "dmd_blue0", NULL, rc_int, &dmd_blue0, "0", 0, 255, NULL, "Colorized DMD: blue level for 0% intensity" },
+	{ "dmd_opacity", NULL, rc_int, &dmd_opacity, "100", 0, 100, NULL, "Set DMD opacity" },
+	{ "resampling_quality", NULL, rc_int, &resampling_quality, "0", 0, 1, NULL, "Quality of the resampling implementation (0=Fast,1=Normal)" },
+#if defined(VPINMAME_ALTSOUND) || defined(VPINMAME_PINSOUND)
+	{ "sound_mode", NULL, rc_int, &sound_mode, "0", 0, 3, NULL, "Sound processing mode (PinMAME, Alternative, PinSound, PinSound + Recordings)" },
+#endif
+
 	/* pinDMD */
 	{ "showpindmd", NULL, rc_bool, &g_fShowPinDMD, "0", 0, 0, NULL, "Show PinDMD display" },
 	{ "showwindmd", NULL, rc_bool, &g_fShowWinDMD, "1", 0, 0, NULL, "Show DMD display" },
+	{ "cpu_affinity_mask", NULL, rc_int, &g_cpu_affinity_mask, "0", 0, 0, NULL, "CPU affinity mask" },
+	{ "low_latency_throttle", NULL, rc_bool, &g_low_latency_throttle, "1", 0, 0, NULL, "Distribute CPU execution across one emulated frame to minimize flipper latency" },
 	{ NULL,	NULL, rc_end, NULL, NULL, 0, 0,	NULL, NULL }
 };
 
@@ -131,6 +145,10 @@ static char* GlobalSettings[] = {
 	"screen",
 	"window",
 
+	// performance opts
+	"cpu_affinity_mask",
+	"low_latency_throttle",
+
 	NULL
 };
 
@@ -176,16 +194,21 @@ static char* RunningGameSettings[] = {
 	"dmd_width",
 	"dmd_height",
 
-        "dmd_colorize",
-        "dmd_red66",
-        "dmd_green66",
-        "dmd_blue66",
-        "dmd_red33",
-        "dmd_green33",
-        "dmd_blue33",
-        "dmd_red0",
-        "dmd_green0",
-        "dmd_blue0",
+	"dmd_colorize",
+	"dmd_red66",
+	"dmd_green66",
+	"dmd_blue66",
+	"dmd_red33",
+	"dmd_green33",
+	"dmd_blue33",
+	"dmd_red0",
+	"dmd_green0",
+	"dmd_blue0",
+	"dmd_opacity",
+	"resampling_quality",
+#if defined(VPINMAME_ALTSOUND) || defined(VPINMAME_PINSOUND)
+	"sound_mode",
+#endif
 
 	// video_opts
 	"screen",
@@ -247,12 +270,12 @@ void vpm_game_init(int game_index) {
 
 	/* override if no rotation requested */
 	// if (video_norotate)
-	if ( (int) get_option("norotate") )
+	if ( (int) get_option("norotate") ) //!! cast to int is ok
 		orientation = options.ui_orientation = ROT0;
 
 	/* rotate right */
 //	if (video_ror)
-	if ( (int) get_option("ror") )
+	if ( (int) get_option("ror") ) //!! cast to int is ok
 	{
 		/* if only one of the components is inverted, switch them */
 		if ((orientation & ROT180) == ORIENTATION_FLIP_X ||
@@ -264,7 +287,7 @@ void vpm_game_init(int game_index) {
 
 	/* rotate left */
 	// if (video_rol)
-	if ( (int) get_option("rol") )
+	if ( (int) get_option("rol") ) //!! cast to int is ok
 	{
 		/* if only one of the components is inverted, switch them */
 		if ((orientation & ROT180) == ORIENTATION_FLIP_X ||
@@ -276,7 +299,7 @@ void vpm_game_init(int game_index) {
 
 	/* auto-rotate right (e.g. for rotating lcds), based on original orientation */
 	// if (video_autoror && (drivers[game_index]->flags & ORIENTATION_SWAP_XY) )
-	if ( (int) get_option("autoror") && (drivers[game_index]->flags & ORIENTATION_SWAP_XY) )
+	if ( (int) get_option("autoror") && (drivers[game_index]->flags & ORIENTATION_SWAP_XY) ) //!! cast to int is ok
 	{
 		/* if only one of the components is inverted, switch them */
 		if ((orientation & ROT180) == ORIENTATION_FLIP_X ||
@@ -288,7 +311,7 @@ void vpm_game_init(int game_index) {
 
 	/* auto-rotate left (e.g. for rotating lcds), based on original orientation */
 	// if (video_autorol && (drivers[game_index]->flags & ORIENTATION_SWAP_XY) )
-	if ( (int) get_option("autorol") && (drivers[game_index]->flags & ORIENTATION_SWAP_XY) )
+	if ( (int) get_option("autorol") && (drivers[game_index]->flags & ORIENTATION_SWAP_XY) ) //!! cast to int is ok
 	{
 		/* if only one of the components is inverted, switch them */
 		if ((orientation & ROT180) == ORIENTATION_FLIP_X ||
@@ -300,10 +323,10 @@ void vpm_game_init(int game_index) {
 
 	/* flip X/Y */
 	// if (video_flipx)
-	if ( (int) get_option("flipx") )
+	if ( (int) get_option("flipx") ) //!! cast to int is ok
 		orientation ^= ORIENTATION_FLIP_X;
 	// if (video_flipy)
-	if ( (int) get_option("flipy") )
+	if ( (int) get_option("flipy") ) //!! cast to int is ok
 		orientation ^= ORIENTATION_FLIP_Y;
 
 	blit_flipx = ((orientation & ORIENTATION_FLIP_X) != 0);
@@ -484,10 +507,10 @@ bool RegSaveOpts(HKEY hKey, rc_option *pOpt, void* pValue)
 	case rc_string:
 		pszValue = *(char**) pValue;
 		if ( pszValue )
-			fFailed = (RegSetValueEx(hKey, pOpt->name, 0, REG_SZ, (LPBYTE) pszValue, lstrlen(pszValue)+1)!=ERROR_SUCCESS);
+			fFailed = (RegSetValueEx(hKey, pOpt->name, 0, REG_SZ, (LPBYTE) pszValue, strlen(pszValue)+1)!=ERROR_SUCCESS);
 		else {
 			lstrcpy(szTemp, "");
-			fFailed = (RegSetValueEx(hKey, pOpt->name, 0, REG_SZ, (LPBYTE) &szTemp, lstrlen(szTemp)+1)!=ERROR_SUCCESS);
+			fFailed = (RegSetValueEx(hKey, pOpt->name, 0, REG_SZ, (LPBYTE) &szTemp, strlen(szTemp)+1)!=ERROR_SUCCESS);
 		}
 		break;
 
@@ -502,7 +525,7 @@ bool RegSaveOpts(HKEY hKey, rc_option *pOpt, void* pValue)
 
 	case rc_float:
 		sprintf(szTemp, "%f", *(float*)pValue);
-		fFailed = (RegSetValueEx(hKey, pOpt->name, 0, REG_SZ, (LPBYTE) szTemp, lstrlen(szTemp)+1)!=ERROR_SUCCESS);
+		fFailed = (RegSetValueEx(hKey, pOpt->name, 0, REG_SZ, (LPBYTE) szTemp, strlen(szTemp)+1)!=ERROR_SUCCESS);
 		break;
 	}
 

@@ -27,6 +27,7 @@ extern "C" {
 #include "core.h"
 #include "vpintf.h"
 #include "mame.h"
+#include "video.h"
 
 extern HWND win_video_window;
 extern int g_fPause;
@@ -40,6 +41,7 @@ extern UINT32 g_raw_colordmdbuffer[DMD_MAXY*DMD_MAXX];
 extern UINT32 g_raw_dmdx;
 extern UINT32 g_raw_dmdy;
 extern UINT32 g_needs_DMD_update;
+extern int g_cpu_affinity_mask;
 
 extern char g_fShowWinDMD;
 
@@ -138,7 +140,11 @@ void CController::GetProductVersion(int *nVersionNo0, int *nVersionNo1, int *nVe
  * IController: Class construction and destruction
  *************************************************/
 CController::CController() {
+	MMRESULT result;
 
+	result = timeGetDevCaps(&caps, sizeof(caps));
+	if (result == TIMERR_NOERROR)
+		timeBeginPeriod(caps.wPeriodMin);
 	cli_frontend_init();
 
 	lstrcpy(m_szSplashInfoLine, "");
@@ -190,7 +196,7 @@ CController::CController() {
 CController::~CController() {
 	Stop();
 	CloseHandle(m_hEmuIsRunning);
-
+	timeEndPeriod(caps.wPeriodMin);
 	m_pGame->Release();
 	m_pGameSettings->Release();
 	m_pGames->Release();
@@ -207,7 +213,7 @@ STDMETHODIMP CController::Run(/*[in]*/ long hParentWnd, /*[in,defaultvalue(100)]
 {
 	/*Make sure GameName Specified!*/
 	if (!m_szROM)
-		return Error(TEXT("Game Name Not Specified!"));
+		return Error(TEXT("Game name not specified!"));
 
 	int nVersionNo0, nVersionNo1;
 	GetProductVersion(&nVersionNo0, &nVersionNo1, NULL, NULL);
@@ -224,8 +230,11 @@ STDMETHODIMP CController::Run(/*[in]*/ long hParentWnd, /*[in,defaultvalue(100)]
 		}
 	}
 
-	if ( m_nGameNo<0 ) {
-		return Error(TEXT("Machine not found!! Invalid game name, or game name not set!"));
+	char szTemp[256];
+
+	if (m_nGameNo<0) {
+		sprintf(szTemp, "Machine '%s' not found! Invalid game name, or game name not set!", m_szROM);
+		return Error(TEXT(szTemp));
 	}
 
 	// set the parent window
@@ -247,7 +256,8 @@ STDMETHODIMP CController::Run(/*[in]*/ long hParentWnd, /*[in,defaultvalue(100)]
 
 	m_pGame->ShowInfoDlg(0x8000|CHECKOPTIONS_SHOWRESULTSIFFAIL|((vValue.boolVal==VARIANT_TRUE)?0x0000:CHECKOPTIONS_IGNORESOUNDROMS), (long) m_hParentWnd, &iCheckVal);
 	if ( iCheckVal==IDCANCEL ) {
-		return Error(TEXT("Game ROMS invalid!"));
+		sprintf(szTemp, "Game ROMs for '%s' (%s) invalid!", m_szROM, drivers[m_nGameNo]->description);
+		return Error(TEXT(szTemp));
 	}
 
 	VariantInit(&vValue);
@@ -288,14 +298,14 @@ STDMETHODIMP CController::Run(/*[in]*/ long hParentWnd, /*[in,defaultvalue(100)]
 	}
 	// See if the game is flagged as GAME_NOCRC so that the CRC *must* be correct
 	if ((iCheckVal!=IDOK) && (drivers[m_nGameNo]->flags & GAME_NOCRC)) {
-		MessageBox(GetActiveWindow(),"The game you have chosen can only run with the *exact* romset required!","Notice!",MB_OK | MB_ICONINFORMATION);
-		return Error(TEXT("CRC Errors!! Game cannot be run!"));
+		MessageBox(GetActiveWindow(),"This game can only run with the EXACT romset required!","Notice!",MB_OK | MB_ICONINFORMATION);
+		sprintf(szTemp, "CRC Errors! Game '%s' (%s) cannot be run!", m_szROM, drivers[m_nGameNo]->description);
+		return Error(TEXT(szTemp));
 	}
 
 		//Any game messages to display (messages that allow game to continue)
 	if ( drivers[m_nGameNo]->flags )
 	{
-		char szTemp[256];
 		sprintf(szTemp,"");
 
 		// See if game is flagged as GAME_NO_SOUND and show user a message!
@@ -321,16 +331,19 @@ STDMETHODIMP CController::Run(/*[in]*/ long hParentWnd, /*[in,defaultvalue(100)]
 	CreateEventWindow(this);
 
 	DWORD dwThreadID;
-	m_hThreadRun = CreateThread(NULL,
+	m_hThreadRun = /*_beginthreadex*/CreateThread(NULL,
 								0,
 								(LPTHREAD_START_ROUTINE) RunController,
 								(LPVOID) this,
-  								0, &dwThreadID);
+								0, &dwThreadID);
 
 	if ( !dwThreadID ) {
 		DestroyEventWindow(this);
 		return Error(TEXT("Unable to start thread!"));
 	}
+
+	if (g_cpu_affinity_mask > 0)
+		SetThreadAffinityMask(m_hThreadRun, g_cpu_affinity_mask);
 
 	// ok, let's wait for either the machine is set up or the thread terminates for some reason
 	HANDLE StartHandles[2] = {m_hEmuIsRunning, m_hThreadRun};
@@ -345,7 +358,8 @@ STDMETHODIMP CController::Run(/*[in]*/ long hParentWnd, /*[in,defaultvalue(100)]
 
 	DestroyEventWindow(this);
 
-	return Error(TEXT("Machine terminated before intialized, check the rom path or rom file!"));
+	sprintf(szTemp, "Machine '%s' (%s) terminated before intialized, check the rom path or rom file!", m_szROM, drivers[m_nGameNo]->description);
+	return Error(TEXT(szTemp));
 }
 
 /*********************************************
@@ -497,6 +511,163 @@ STDMETHODIMP CController::get_RawDmdWidth(int *pVal)
 STDMETHODIMP CController::get_RawDmdHeight(int *pVal)
 {
 	*pVal = g_raw_dmdy;
+	return S_OK;
+}
+
+/**************************************************************************
+* IController.NVRAM (read-only): Copy whole NVRAM to a self allocated array
+***************************************************************************/
+STDMETHODIMP CController::get_NVRAM(VARIANT *pVal)
+{
+	if (Machine && Machine->drv && Machine->drv->nvram_handler && pVal)
+	{
+		// setup a ram file manually (MAME has no mechanism so far)
+		mame_file* nvram_file = (mame_file*)malloc(sizeof(mame_file));
+		memset(nvram_file, 0, sizeof(mame_file));
+		nvram_file->type = RAM_FILE;
+		// call nvram handler to write to file
+		(*Machine->drv->nvram_handler)(nvram_file, 1);
+
+		if (nvram_file->offset == 0)
+		{
+			mame_fclose(nvram_file);
+			return S_FALSE;
+		}
+
+		SAFEARRAY *psa = SafeArrayCreateVector(VT_VARIANT, 0, (ULONG)nvram_file->offset);
+
+		VARIANT NVState;
+		NVState.vt = VT_UI1;
+
+		for (LONG ofs = 0; ofs < nvram_file->offset; ++ofs)
+		{
+			NVState.cVal = nvram_file->data[ofs];
+			SafeArrayPutElement(psa, &ofs, &NVState);
+		}
+
+		pVal->vt = VT_ARRAY | VT_VARIANT;
+		pVal->parray = psa;
+
+		mame_fclose(nvram_file);
+
+		return S_OK;
+	}
+	else
+		return S_FALSE;
+}
+
+static UINT8 oldNVRAM[CORE_MAXNVRAM];
+static char* oldNVRAMname = 0;
+static vp_tChgNVRAMs chgNVRAMs; // stack overflow when put into get_ChangedNVRAM??
+
+/***************************************************************
+* IController.ChangedNVRAM property: returns a list of the
+* numbers of NVRAM locations, which state has changed since the last call
+* number is in the first, state in the second part, previous state in the third
+***************************************************************/
+STDMETHODIMP CController::get_ChangedNVRAM(VARIANT *pVal)
+{
+	if (!pVal) return S_FALSE;
+
+	if (WaitForSingleObject(m_hEmuIsRunning, 0) == WAIT_TIMEOUT)
+	{
+		pVal->vt = 0; return S_OK;
+	}
+
+	if (!(Machine && Machine->drv && Machine->drv->nvram_handler))
+		return S_FALSE;
+
+	// setup a ram file manually (MAME has no mechanism so far)
+	mame_file* nvram_file = (mame_file*)malloc(sizeof(mame_file));
+	memset(nvram_file, 0, sizeof(mame_file));
+	nvram_file->type = RAM_FILE;
+	// call nvram handler to write to file
+	(*Machine->drv->nvram_handler)(nvram_file, 1);
+
+	if (nvram_file->offset == 0)
+	{
+		mame_fclose(nvram_file);
+		return S_FALSE;
+	}
+
+	/*-- if enabled: wait for the worker thread to enter "throttle_speed()" --*/
+	if ((g_hEnterThrottle != INVALID_HANDLE_VALUE) && g_iSyncFactor)
+		WaitForSingleObject(g_hEnterThrottle, (synclevel <= 20) ? synclevel : 50);
+	else if (synclevel<0)
+		uSleep(-synclevel * 1000);
+
+	/*-- Count changes --*/
+	size_t uCount;
+
+	if (oldNVRAMname == 0 || strstr(Machine->gamedrv->name, oldNVRAMname) == 0) // detect initial VPM start or game change
+	{
+		uCount = min((size_t)nvram_file->offset, CORE_MAXNVRAM);
+		for (size_t i = 0; i < uCount; ++i)
+		{
+			chgNVRAMs[i].nvramNo = i;
+			chgNVRAMs[i].oldStat = 0; //!!
+			chgNVRAMs[i].currStat = nvram_file->data[i];
+		}
+		memcpy(oldNVRAM, nvram_file->data, uCount);
+
+		if (oldNVRAMname)
+			free(oldNVRAMname);
+		oldNVRAMname = (char*)malloc(strlen(Machine->gamedrv->name) + 1);
+		strcpy(oldNVRAMname, Machine->gamedrv->name);
+
+
+		mame_fclose(nvram_file);
+		pVal->vt = 0; return S_OK; //!! for now, as too many changes initially!?!
+	}
+	else
+	{
+		uCount = 0;
+		size_t uCountMax = min((size_t)nvram_file->offset, CORE_MAXNVRAM);
+		for (size_t i = 0; i < uCountMax; ++i)
+		{
+			if (oldNVRAM[i] != nvram_file->data[i])
+			{
+				chgNVRAMs[uCount].nvramNo = i;
+				chgNVRAMs[uCount].oldStat = oldNVRAM[i];
+				chgNVRAMs[uCount].currStat = nvram_file->data[i];
+				uCount++;
+
+				oldNVRAM[i] = nvram_file->data[i];
+			}
+		}
+	}
+
+	mame_fclose(nvram_file);
+
+	if (uCount == 0)
+	{
+		pVal->vt = 0; return S_OK;
+	}
+
+	/*-- Create array --*/
+	SAFEARRAYBOUND Bounds[] = { { (ULONG)uCount, 0 }, { 3, 0 } };
+	SAFEARRAY *psa = SafeArrayCreate(VT_VARIANT, 2, Bounds);
+	long ix[2];
+	VARIANT varValue;
+
+	varValue.vt = VT_I4;
+
+	/*-- add changed locations to array --*/
+	for (ix[0] = 0; ix[0] < (long)uCount; ix[0]++) {
+		ix[1] = 0;
+		varValue.lVal = chgNVRAMs[ix[0]].nvramNo;
+		SafeArrayPutElement(psa, ix, &varValue);
+		ix[1] = 1; // NVRAM value
+		varValue.lVal = chgNVRAMs[ix[0]].currStat;
+		SafeArrayPutElement(psa, ix, &varValue);
+		ix[1] = 2; // Old NVRAM value
+		varValue.lVal = chgNVRAMs[ix[0]].oldStat;
+		SafeArrayPutElement(psa, ix, &varValue);
+	}
+
+	pVal->vt = VT_ARRAY | VT_VARIANT;
+	pVal->parray = psa;
+
 	return S_OK;
 }
 
@@ -707,7 +878,7 @@ STDMETHODIMP CController::get_ChangedLampsState(int **buf, int *pVal)
   for (int i = 0; i < uCount; i++)
   {
     *(dst++) = chgLamps[i].lampNo;
-    *(dst++) = chgLamps[i].currStat ? 1:0;
+    *(dst++) = chgLamps[i].currStat;
   }
 
   *pVal = uCount;
@@ -1112,7 +1283,7 @@ STDMETHODIMP CController::get_ChangedLamps(VARIANT *pVal)
     varValue.lVal = chgLamps[ix[0]].lampNo;
     SafeArrayPutElement(psa, ix, &varValue);
     ix[1] = 1; // Lamp value
-    varValue.lVal = chgLamps[ix[0]].currStat?1:0;
+    varValue.lVal = chgLamps[ix[0]].currStat;
     SafeArrayPutElement(psa, ix, &varValue);
   }
 
@@ -1513,7 +1684,7 @@ STDMETHODIMP CController::get_SolMask(int nLow, long *pVal)
 
 STDMETHODIMP CController::put_SolMask(int nLow, long newVal)
 {
-	if ( (nLow<0) || (nLow>1) )
+	if ( (nLow<0) || (nLow>2) ) //TODO B2S hack, see vp_setSolMask()
 		return S_FALSE;
 
 	vp_setSolMask(nLow, newVal);

@@ -20,6 +20,15 @@ struct JoystickInfo
 	InputCode standardcode;	/* CODE_xxx equivalent from list below, or CODE_OTHER if n/a */
 };
 
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+struct PROCInfo
+{
+	char *name; /* OS dependant name; 0 terminates the list */
+	unsigned code; /* OS dependant code */
+	InputCode standardcode;	/* CODE_xxx equivalent from list below, or CODE_OTHER if n/a */
+};
+#endif /* PINMAME && PROC_SUPPORT */
+
 enum
 {
 	/* key */
@@ -100,6 +109,12 @@ enum
 #define __code_joy_first JOYCODE_1_LEFT
 #define __code_joy_last JOYCODE_MOUSE_8_BUTTON3
 
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+	PROC_FLIPPER_L, PROC_FLIPPER_R, PROC_START, PROC_ESC_SEQ,
+#define __code_proc_first PROC_FLIPPER_L
+#define __code_proc_last PROC_ESC_SEQ
+#endif /* PINMAME && PROC_SUPPORT */
+
 	__code_max, /* Temination of standard code */
 
 	/* special */
@@ -116,6 +131,8 @@ enum
 #define JOYCODE_OTHER CODE_OTHER
 #define KEYCODE_NONE CODE_NONE
 #define JOYCODE_NONE CODE_NONE
+#define PROCCODE_OTHER CODE_OTHER
+#define PROCCODE_NONE CODE_NONE
 
 /***************************************************************************/
 /* Single code functions */
@@ -125,6 +142,9 @@ void code_close(void);
 
 InputCode keyoscode_to_code(unsigned oscode);
 InputCode joyoscode_to_code(unsigned oscode);
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+InputCode procoscode_to_code(unsigned oscode);
+#endif /* PINMAME && PROC_SUPPORT */
 InputCode savecode_to_code(unsigned savecode);
 unsigned code_to_savecode(InputCode code);
 
@@ -162,7 +182,7 @@ void seq_set_4(InputSeq* seq, InputCode code1, InputCode code2, InputCode code3,
 void seq_set_5(InputSeq* seq, InputCode code1, InputCode code2, InputCode code3, InputCode code4, InputCode code5);
 void seq_copy(InputSeq* seqdst, InputSeq* seqsrc);
 int seq_cmp(InputSeq* seq1, InputSeq* seq2);
-void seq_name(InputSeq* seq, char* buffer, unsigned max);
+void seq_name(InputSeq* seq, char* buffer, size_t max);
 int seq_pressed(InputSeq* seq);
 void seq_read_async_start(void);
 int seq_read_async(InputSeq* code, int first);

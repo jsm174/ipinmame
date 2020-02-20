@@ -67,6 +67,13 @@ Tons of thanks to the guy who posted these, whoever he is...
 	#define IRQ_MAGIC_LEVEL -2
 #endif
 
+#define VERBOSE 0
+
+#if VERBOSE
+#define LOG(x)	logerror x
+#else
+#define LOG(x)
+#endif
 
 #include "memory.h"
 #include "mamedbg.h"
@@ -515,7 +522,7 @@ static void reset_decrementer(void);
 				return I.decrementer_count;
 			else if (I.decrementer_enabled && !(I.flag & 1))
 				/* timer mode, timer enabled */
-				return ceil(TIME_TO_CYCLES(cpu_getactivecpu(), timer_timeleft(I.timer)) / 16);
+				return (int)ceil(TIME_TO_CYCLES(cpu_getactivecpu(), timer_timeleft(I.timer)) / 16);
 			else
 				/* timer mode, timer disabled */
 				return 0;
@@ -570,7 +577,7 @@ static void reset_decrementer(void);
 		else if (addr < 0xfffa)
 		{
 			TMS99XX_ICOUNT -= I.memory_wait_states_byte;
-			return cpu_readmem16(addr);;
+			return cpu_readmem16(addr);
 		}
 		else if (addr < 0xfffc)
 		{
@@ -582,7 +589,7 @@ static void reset_decrementer(void);
 				value = I.decrementer_count;
 			else if (I.decrementer_enabled && !(I.flag & 1))
 				/* timer mode, timer enabled */
-				value = ceil(TIME_TO_CYCLES(cpu_getactivecpu(), timer_timeleft(I.timer)) / 16);
+				value = (int)ceil(TIME_TO_CYCLES(cpu_getactivecpu(), timer_timeleft(I.timer)) / 16);
 			else
 				/* timer mode, timer disabled */
 				value = 0;
@@ -880,7 +887,7 @@ int TMS99XX_EXECUTE(int cycles)
 				if (I.interrupt_pending)  /* we may have just cleared this */
 #endif
 				{
-					logerror("tms9900.c : the interrupt_pending flag was set incorrectly\n");
+					LOG(("tms9900.c : the interrupt_pending flag was set incorrectly\n"));
 					I.interrupt_pending = 0;
 				}
 			}
@@ -1446,7 +1453,7 @@ static void writeCRU(int CRUAddr, int Number, UINT16 Value)
 
 	CRUAddr &= wCRUAddrMask;
 
-	logerror("%04x: Write CRU %04x for %2d = %02x\n",I.PC,CRUAddr,Number,Value);
+	LOG(("%04x: Write CRU %04x for %2d = %02x\n",I.PC,CRUAddr,Number,Value));
 
 	/* Write Number bits from CRUAddr */
 
@@ -1523,11 +1530,11 @@ static void external_instruction_notify(int ext_op_ID)
 			break;
 		case 0:
 			/* normal CRU write !!! */
-			logerror("PC %4.4x : external_instruction_notify : wrong ext_op_ID",I.PC);
+			LOG(("PC %4.4x : external_instruction_notify : wrong ext_op_ID",I.PC));
 			break;
 		default:
 			/* unknown address */
-			logerror("PC %4.4x : external_instruction_notify : unknown ext_op_ID",I.PC);
+			LOG(("PC %4.4x : external_instruction_notify : unknown ext_op_ID",I.PC));
 			break;
 	}
 #endif
@@ -1593,7 +1600,7 @@ static UINT16 readCRU(int CRUAddr, int Number)
 
 	Location = CRUAddr >> 3;
 
-	logerror("%04x: Read  CRU  %03x for %2d\n",I.PC,Location,Number);
+	LOG(("%04x: Read  CRU  %03x for %2d\n",I.PC,Location,Number));
 
 	Offset   = CRUAddr & 07;
 
@@ -2910,7 +2917,7 @@ static void h2000(UINT16 opcode)
 		{
 			unsigned long prod = ((unsigned long) readword(dest)) * ((unsigned long) readword(src));
 			writeword(dest, prod >> 16);
-			writeword(dest+2, prod);
+			writeword(dest+2, prod & 0xFFFF);
 		}
 		CYCLES(52, 23);
 		break;
@@ -2932,7 +2939,7 @@ static void h2000(UINT16 opcode)
 			else
 			{
 				I.STATUS &= ~ST_OV;
-				writeword(dest, divq/d);
+				writeword(dest, (divq/d) & 0xFFFF);
 				writeword(dest+2, divq%d);
 				/* tms9900 : from 92 to 124, possibly 92 + 2*(number of bits to 1 (or 0?) in quotient) */
 				/* tms9995 : 28 is the worst case */

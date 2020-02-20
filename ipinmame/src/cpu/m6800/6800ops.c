@@ -1,3 +1,4 @@
+// PINMAME: All cmpx opcodes are different from the latest ones (10/2016) in MAME/MESS as it screws up AY emu of some machines
 
 /*
 
@@ -27,10 +28,6 @@ static void trap( void )
 	logerror("M6808: illegal opcode: address %04X, op %02X\n",PC,(int) M_RDOP_ARG(PC)&0xFF);
 	TAKE_TRAP;
 }
-#endif
-
-#ifdef macintosh
-#pragma mark ____0x____
 #endif
 
 /* $00 ILLEGAL */
@@ -129,10 +126,6 @@ INLINE void sei (void)
 	ONE_MORE_INSN();
 	CHECK_IRQ_LINES(); /* HJB 990417 */
 }
-
-#ifdef macintosh
-#pragma mark ____1x____
-#endif
 
 /* $10 SBA inherent -**** */
 INLINE void sba (void)
@@ -233,10 +226,6 @@ INLINE void aba (void)
 /* $1e ILLEGAL */
 
 /* $1f ILLEGAL */
-
-#ifdef macintosh
-#pragma mark ____2x____
-#endif
 
 /* $20 BRA relative ----- */
 INLINE void bra( void )
@@ -352,10 +341,6 @@ INLINE void ble( void )
 	BRANCH(NXORV||CC&0x04);
 }
 
-
-#ifdef macintosh
-#pragma mark ____3x____
-#endif
 
 /* $30 TSX inherent ----- */
 INLINE void tsx (void)
@@ -481,10 +466,6 @@ INLINE void swi( void )
 	CHANGE_PC();
 }
 
-#ifdef macintosh
-#pragma mark ____4x____
-#endif
-
 /* $40 NEGA inherent ?**** */
 INLINE void nega( void )
 {
@@ -582,11 +563,6 @@ INLINE void clra( void )
 }
 
 
-#ifdef macintosh
-#pragma mark ____5x____
-#endif
-
-
 /* $50 NEGB inherent ?**** */
 INLINE void negb( void )
 {
@@ -682,10 +658,6 @@ INLINE void clrb( void )
 	B=0;
 	CLR_NZVC; SEZ;
 }
-
-#ifdef macintosh
-#pragma mark ____6x____
-#endif
 
 /* $60 NEG indexed ?**** */
 INLINE void neg_ix( void )
@@ -832,10 +804,6 @@ INLINE void clr_ix( void )
 	INDEXED; WM(EAD,0);
 	CLR_NZVC; SEZ;
 }
-
-#ifdef macintosh
-#pragma mark ____7x____
-#endif
 
 /* $70 NEG extended ?**** */
 INLINE void neg_ex( void )
@@ -987,10 +955,6 @@ INLINE void clr_ex( void )
 }
 
 
-#ifdef macintosh
-#pragma mark ____8x____
-#endif
-
 /* $80 SUBA immediate ?**** */
 INLINE void suba_im( void )
 {
@@ -1098,6 +1062,7 @@ INLINE void adda_im( void )
 /* $8c CMPX immediate -***- */
 INLINE void cmpx_im( void )
 {
+#ifdef PINMAME
 	UINT32 r,d;
 	PAIR b;
 	IMMWORD(b);
@@ -1105,6 +1070,16 @@ INLINE void cmpx_im( void )
 	r = d - b.d;
 	CLR_NZV;
 	SET_NZ16(r); SET_V16(d,b.d,r);
+#else
+	PAIR r,d,b;
+	IMMWORD(b);
+	d.d = X;
+	r.d = d.d - b.d;
+	CLR_NZV;
+	SET_Z16(r.d);
+	SET_N8(r.b.h);
+	SET_V8(d.b.h, b.b.h, r.b.h);
+#endif
 }
 
 /* $8c CPX immediate -**** (6803) */
@@ -1145,10 +1120,6 @@ INLINE void sts_im( void )
 	IMM16;
 	WM16(EAD,&m6808.s);
 }
-
-#ifdef macintosh
-#pragma mark ____9x____
-#endif
 
 /* $90 SUBA direct ?**** */
 INLINE void suba_di( void )
@@ -1256,6 +1227,7 @@ INLINE void adda_di( void )
 /* $9c CMPX direct -***- */
 INLINE void cmpx_di( void )
 {
+#ifdef PINMAME
 	UINT32 r,d;
 	PAIR b;
 	DIRWORD(b);
@@ -1263,6 +1235,16 @@ INLINE void cmpx_di( void )
 	r = d - b.d;
 	CLR_NZV;
 	SET_NZ16(r); SET_V16(d,b.d,r);
+#else
+	PAIR r,d,b;
+	DIRWORD(b);
+	d.d = X;
+	r.d = d.d - b.d;
+	CLR_NZV;
+	SET_Z16(r.d);
+	SET_N8(r.b.h);
+	SET_V8(d.b.h, b.b.h, r.b.h);
+#endif
 }
 
 /* $9c CPX direct -**** (6803) */
@@ -1301,11 +1283,6 @@ INLINE void sts_di( void )
 	DIRECT;
 	WM16(EAD,&m6808.s);
 }
-
-#ifdef macintosh
-#pragma mark ____Ax____
-#endif
-
 
 /* $a0 SUBA indexed ?**** */
 INLINE void suba_ix( void )
@@ -1413,6 +1390,7 @@ INLINE void adda_ix( void )
 /* $ac CMPX indexed -***- */
 INLINE void cmpx_ix( void )
 {
+#ifdef PINMAME
 	UINT32 r,d;
 	PAIR b;
 	IDXWORD(b);
@@ -1420,6 +1398,16 @@ INLINE void cmpx_ix( void )
 	r = d - b.d;
 	CLR_NZV;
 	SET_NZ16(r); SET_V16(d,b.d,r);
+#else
+	PAIR r,d,b;
+	IDXWORD(b);
+	d.d = X;
+	r.d = d.d - b.d;
+	CLR_NZV;
+	SET_Z16(r.d);
+	SET_N8(r.b.h);
+	SET_V8(d.b.h, b.b.h, r.b.h);
+#endif
 }
 
 /* $ac CPX indexed -**** (6803)*/
@@ -1458,10 +1446,6 @@ INLINE void sts_ix( void )
 	INDEXED;
 	WM16(EAD,&m6808.s);
 }
-
-#ifdef macintosh
-#pragma mark ____Bx____
-#endif
 
 /* $b0 SUBA extended ?**** */
 INLINE void suba_ex( void )
@@ -1569,6 +1553,7 @@ INLINE void adda_ex( void )
 /* $bc CMPX extended -***- */
 INLINE void cmpx_ex( void )
 {
+#ifdef PINMAME
 	UINT32 r,d;
 	PAIR b;
 	EXTWORD(b);
@@ -1576,6 +1561,16 @@ INLINE void cmpx_ex( void )
 	r = d - b.d;
 	CLR_NZV;
 	SET_NZ16(r); SET_V16(d,b.d,r);
+#else
+	PAIR r,d,b;
+	EXTWORD(b);
+	d.d = X;
+	r.d = d.d - b.d;
+	CLR_NZV;
+	SET_Z16(r.d);
+	SET_N8(r.b.h);
+	SET_V8(d.b.h, b.b.h, r.b.h);
+#endif
 }
 
 /* $bc CPX extended -**** (6803) */
@@ -1615,10 +1610,6 @@ INLINE void sts_ex( void )
 	WM16(EAD,&m6808.s);
 }
 
-
-#ifdef macintosh
-#pragma mark ____Cx____
-#endif
 
 /* $c0 SUBB immediate ?**** */
 INLINE void subb_im( void )
@@ -1760,10 +1751,6 @@ INLINE void stx_im( void )
 }
 
 
-#ifdef macintosh
-#pragma mark ____Dx____
-#endif
-
 /* $d0 SUBB direct ?**** */
 INLINE void subb_di( void )
 {
@@ -1901,11 +1888,6 @@ INLINE void stx_di( void )
 	WM16(EAD,&m6808.x);
 }
 
-#ifdef macintosh
-#pragma mark ____Ex____
-#endif
-
-
 /* $e0 SUBB indexed ?**** */
 INLINE void subb_ix( void )
 {
@@ -2018,10 +2000,11 @@ INLINE void ldd_ix( void )
 }
 
 /* $ec ADCX immediate -****    NSC8105 only.  Flags are a guess - copied from addb_im() */
+// actually this is ADDX, causes garbage in nightgal.cpp otherwise
 INLINE void adcx_im( void )
 {
 	UINT16 t,r;
-	IMMBYTE(t); r = X+t+(CC&0x01);
+	IMMBYTE(t); r = X+t/*+(CC&0x01)*/;
 	CLR_HNZVC; SET_FLAGS8(X,t,r); SET_H(X,t,r);
 	X = r;
 }
@@ -2051,10 +2034,6 @@ INLINE void stx_ix( void )
 	INDEXED;
 	WM16(EAD,&m6808.x);
 }
-
-#ifdef macintosh
-#pragma mark ____Fx____
-#endif
 
 /* $f0 SUBB extended ?**** */
 INLINE void subb_ex( void )
@@ -2209,4 +2188,28 @@ INLINE void stx_ex( void )
 	SET_NZ16(X);
 	EXTENDED;
 	WM16(EAD,&m6808.x);
+}
+
+/* NSC8105 specific, guessed opcodes (tested by Night Gal Summer) */
+// $bb - $mask & [X + $disp8]
+INLINE void btst_ix( void )
+{
+	UINT8 val;
+	UINT8 mask = M_RDOP_ARG(PCD);
+	{EA=X+(M_RDOP_ARG(PCD+1));PC+=2;}
+	val = RM(EAD) & mask;
+	CLR_NZVC; SET_NZ8(val);
+}
+
+// $b2 - assuming correct, store first byte to (X + $disp8)
+INLINE void stx_nsc( void )
+{
+	UINT8 val;
+	IMM8;
+	val = RM(EAD);
+	IMM8;
+	EA = X + RM(EAD);
+	CLR_NZV;
+	SET_NZ8(val);
+	WM(EAD,val);
 }

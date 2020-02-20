@@ -212,8 +212,8 @@ S11CS_SOUNDROM88(    "pbot_u4.l1",  CRC(de5926bd) SHA1(3d111e27c5f0c8c0afc5fe5cc
 S11_ROMEND
 #define input_ports_pb input_ports_s11
 
-S11_ROMSTART48(pb,l5h,"pbot_u26.l5", CRC(511d9f9e) SHA1(4906fcc9de4c34c991cae6ccb266a077cc5ce0cd),
-                     "pbot_u27.l5", CRC(0e0af3f8) SHA1(b91eaf3f531a26a6641de90b377394983ab3d561))
+S11_ROMSTART48(pb,l5h,"pbot_u26_svm.l5", CRC(511d9f9e) SHA1(4906fcc9de4c34c991cae6ccb266a077cc5ce0cd),
+                     "pbot_u27_svm.l5", CRC(0e0af3f8) SHA1(b91eaf3f531a26a6641de90b377394983ab3d561))
 S11XS_SOUNDROM88(    "pbot_u21.l1", CRC(3eab88d9) SHA1(667e3b675e2ae8fec6a6faddb9b0dd5531d64f8f),
                      "pbot_u22.l1", CRC(a2d2c9cb) SHA1(46437dc54538f1626caf41a2818ddcf8000c44e4))
 S11CS_SOUNDROM88(    "pbot_u4.l1",  CRC(de5926bd) SHA1(3d111e27c5f0c8c0afc5fe5cc45bf77c12b69228),
@@ -253,7 +253,7 @@ S11CS_SOUNDROM88(    "pbot_u4.l1",  CRC(de5926bd) SHA1(3d111e27c5f0c8c0afc5fe5cc
 S11_ROMEND
 
 CORE_GAMEDEF(pb, l5, "Pin-Bot (L-5)", 1986, "Williams", s11_mS11XSL,0)
-CORE_CLONEDEF(pb,l5h,l5, "Pin-Bot (L-5, Free Play / solar value mod)", 2012, "Francis", s11_mS11XSL,0)
+CORE_CLONEDEF(pb,l5h,l5, "Pin-Bot (L-5, Free Play / Solar Value Mod)", 2012, "Francis", s11_mS11XSL,0)
 CORE_CLONEDEF(pb,l3,l5, "Pin-Bot (L-3)", 1986, "Williams", s11_mS11XSL,0)
 CORE_CLONEDEF(pb,l2,l5, "Pin-Bot (L-2)", 1986, "Williams", s11_mS11XSL,0)
 CORE_CLONEDEF(pb,l1,l5, "Pin-Bot (L-1)", 1986, "Williams", s11_mS11XSL,0)
@@ -508,6 +508,20 @@ S11XS_SOUNDROM88(       "taxi_u21.l1", CRC(2b20e9ab) SHA1(d785667ae0fd237dd8343b
 S11CS_SOUNDROM88(       "taxi_u4.l1",  CRC(6082ebb5) SHA1(37e19ad27fe05b4c8e572f6598d2d574e4ac5a7d),
                         "taxi_u19.l1", CRC(91c64913) SHA1(10e48977f925f6bc1be0c56854aafa99283b4047))
 S11_ROMEND
+S11_ROMSTART48(taxi, l5c,"taxi_u26.l4", CRC(a70d8088) SHA1(0986035436e2b1199571248dac8eb7a903b5015c),
+                        "taxi_u27.l5c", CRC(15dab081) SHA1(7b6c195ed9588d09d7e8d046a260e25c384a4426))
+S11XS_SOUNDROM88(       "taxi_u21.l1", CRC(2b20e9ab) SHA1(d785667ae0fd237dd8343bb1ecfbacf050ec2c6f),
+                        "taxi_u22.l1", CRC(d13055c5) SHA1(8c2959bde03567b83db425ebc9e7309d9601c2b2))
+S11CS_SOUNDROM88(       "taxi_u4.l1",  CRC(6082ebb5) SHA1(37e19ad27fe05b4c8e572f6598d2d574e4ac5a7d),
+                        "taxi_u19.l1", CRC(91c64913) SHA1(10e48977f925f6bc1be0c56854aafa99283b4047))
+S11_ROMEND
+S11_ROMSTART48(taxi, l5cm,"taxi_u26.l4", CRC(a70d8088) SHA1(0986035436e2b1199571248dac8eb7a903b5015c),
+                        "taxi_u27.l5cm", CRC(4cf164bc) SHA1(26150540860667e6857ef426c0ac08fcd2073ce1))
+S11XS_SOUNDROM88(       "taxi_u21.l1", CRC(2b20e9ab) SHA1(d785667ae0fd237dd8343bb1ecfbacf050ec2c6f),
+                        "taxi_u22.l1", CRC(d13055c5) SHA1(8c2959bde03567b83db425ebc9e7309d9601c2b2))
+S11CS_SOUNDROM88(       "taxi_u4.l1",  CRC(6082ebb5) SHA1(37e19ad27fe05b4c8e572f6598d2d574e4ac5a7d),
+                        "taxi_u19.l1", CRC(91c64913) SHA1(10e48977f925f6bc1be0c56854aafa99283b4047))
+S11_ROMEND
 S11_ROMSTART48(taxi, l3,"taxi_u26.l4", CRC(a70d8088) SHA1(0986035436e2b1199571248dac8eb7a903b5015c),
                         "taxi_u27.l3", CRC(e2bfb6fa) SHA1(ba1bddffe4d4e8f04131dd6f5a0380765fbcdfc5))
 S11XS_SOUNDROM88(       "taxi_u21.l1", CRC(2b20e9ab) SHA1(d785667ae0fd237dd8343bb1ecfbacf050ec2c6f),
@@ -515,7 +529,14 @@ S11XS_SOUNDROM88(       "taxi_u21.l1", CRC(2b20e9ab) SHA1(d785667ae0fd237dd8343b
 S11CS_SOUNDROM88(       "taxi_u4.l1",  CRC(6082ebb5) SHA1(37e19ad27fe05b4c8e572f6598d2d574e4ac5a7d),
                         "taxi_u19.l1", CRC(91c64913) SHA1(10e48977f925f6bc1be0c56854aafa99283b4047))
 S11_ROMEND
-S11_ROMSTART48(taxi, lg1,"u26-lg1m.rom", CRC(40a2f33c) SHA1(815910b36a5df6c63862590c42b6a41286f38236),
+S11_ROMSTART48(taxi, lu1,"u26-lu1m.rom", CRC(40a2f33c) SHA1(815910b36a5df6c63862590c42b6a41286f38236),
+                        "u27-lu1m.rom", CRC(d15f08b4) SHA1(adef8c2c7ee685207b146b4401dc9b732cf212b7))
+S11XS_SOUNDROM88(       "taxi_u21.l1", CRC(2b20e9ab) SHA1(d785667ae0fd237dd8343bb1ecfbacf050ec2c6f),
+                        "taxi_u22.l1", CRC(d13055c5) SHA1(8c2959bde03567b83db425ebc9e7309d9601c2b2))
+S11CS_SOUNDROM88(       "taxi_u4.l1",  CRC(6082ebb5) SHA1(37e19ad27fe05b4c8e572f6598d2d574e4ac5a7d),
+                        "taxi_u19.l1", CRC(91c64913) SHA1(10e48977f925f6bc1be0c56854aafa99283b4047))
+S11_ROMEND
+S11_ROMSTART48(taxi, lg1,"u26-lu1m.rom", CRC(40a2f33c) SHA1(815910b36a5df6c63862590c42b6a41286f38236),
                         "u27-lg1m.rom", CRC(955dcbab) SHA1(e66e0da6366885ceed7618b09cf66fe11ae27627))
 S11XS_SOUNDROM88(       "taxi_u21.l1", CRC(2b20e9ab) SHA1(d785667ae0fd237dd8343bb1ecfbacf050ec2c6f),
                         "taxi_u22.l1", CRC(d13055c5) SHA1(8c2959bde03567b83db425ebc9e7309d9601c2b2))
@@ -531,7 +552,10 @@ S11CS_SOUNDROM88(       "taxi_u4.l1",  CRC(6082ebb5) SHA1(37e19ad27fe05b4c8e572f
 S11_ROMEND
 #define input_ports_taxi input_ports_s11
 CORE_GAMEDEF(taxi , l4, "Taxi (Lola) (L-4)", 1988, "Williams", s11_mS11BS,0)
+CORE_CLONEDEF(taxi , l5c, l4, "Taxi (Lola) (L-5C Competition MOD)", 2016, "Williams", s11_mS11BS,0)
+CORE_CLONEDEF(taxi , l5cm, l4, "Taxi (Marilyn) (L-5C Competition MOD)", 2016, "Williams", s11_mS11BS,0)
 CORE_CLONEDEF(taxi , l3, l4, "Taxi (Marilyn) (L-3)", 1988, "Williams", s11_mS11BS,0)
+CORE_CLONEDEF(taxi , lu1, l4, "Taxi (Marilyn) (LU-1)", 1988, "Williams", s11_mS11BS,0)
 CORE_CLONEDEF(taxi , lg1, l4, "Taxi (Marilyn) (L-1 German)", 1988, "Williams", s11_mS11BS,0)
 CORE_CLONEDEF(taxi , p5, l4, "Taxi (P-5)", 1988, "Williams", s11_mS11BS,0)
 
@@ -576,8 +600,16 @@ S11CS_SOUNDROM88(       "eshk_u4.l1",  CRC(40069f8c) SHA1(aafdc189259fa9c8dc49e6
                         "eshk_u19.l1", CRC(e5593075) SHA1(549b03402e5639b449e35325eb52e78f8810b07a))
 S11_ROMEND
 
-S11_ROMSTART48(esha,ma3,"eshk_u26.l3", CRC(7b7b1a8a) SHA1(8c1d5e4e0b4217055ad9e1490ff3dba52ef013f4),
-                        "eshk_u27.l3", CRC(6197c56c) SHA1(338438e8e4c9a7790977dc8e394f6f032516f755))
+S11_ROMSTART48(esha,l4c,"eshk_u26.l4c", CRC(e2e067ec) SHA1(946ce6764bbd992591d9f8215da333d50d7d2593),
+                        "eshk_u27.l4c", CRC(aacfb7aa) SHA1(17abe7f294f815f5078601f548526022497ef0b1))
+S11XS_SOUNDROM88(       "eshk_u21.l1", CRC(feac68e5) SHA1(2f12a78398bc3a468e3e0656da91260d45b0663b),
+                        "eshk_u22.l1", CRC(44f50fe1) SHA1(a8e24dbb0f5cf300118e1ebdcd2bb6b274d87936))
+S11CS_SOUNDROM88(       "eshk_u4.l1",  CRC(40069f8c) SHA1(aafdc189259fa9c8dc49e60e978b84775e16c64e),
+                        "eshk_u19.l1", CRC(e5593075) SHA1(549b03402e5639b449e35325eb52e78f8810b07a))
+S11_ROMEND
+
+S11_ROMSTART48(esha,ma3,"eshk_u26.ma3", CRC(7b7b1a8a) SHA1(8c1d5e4e0b4217055ad9e1490ff3dba52ef013f4),
+                        "eshk_u27.ma3", CRC(6197c56c) SHA1(338438e8e4c9a7790977dc8e394f6f032516f755))
 S11XS_SOUNDROM88(       "eshk_u21.l1", CRC(feac68e5) SHA1(2f12a78398bc3a468e3e0656da91260d45b0663b),
                         "eshk_u22.l1", CRC(44f50fe1) SHA1(a8e24dbb0f5cf300118e1ebdcd2bb6b274d87936))
 S11CS_SOUNDROM88(       "eshk_u4.l1",  CRC(40069f8c) SHA1(aafdc189259fa9c8dc49e60e978b84775e16c64e),
@@ -618,7 +650,8 @@ S11_ROMEND
 
 #define input_ports_esha input_ports_s11
 CORE_GAMEDEF (esha, la3, "Earthshaker (LA-3)", 1988, "Williams", s11_mS11BS,0)
-CORE_CLONEDEF(esha, ma3, la3, "Earthshaker (Metallica mod) (LA-3)", 1989, "Williams", s11_mS11BS,0)
+CORE_CLONEDEF(esha, l4c, la3, "Earthshaker (LA-4C Competition MOD)", 2016, "Williams", s11_mS11BS,0)
+CORE_CLONEDEF(esha, ma3, la3, "Earthshaker (LA-3 Metallica MOD)", 1989, "Williams", s11_mS11BS,0)
 CORE_CLONEDEF(esha, pr4, la3, "Earthshaker (PR-4 Family version)", 1989, "Williams", s11_mS11BS,0)
 CORE_CLONEDEF(esha, lg1, la3, "Earthshaker (LG-1 German)", 1988, "Williams", s11_mS11BS,0)
 CORE_CLONEDEF(esha, lg2, la3, "Earthshaker (LG-2 German)", 1988, "Williams", s11_mS11BS,0)
@@ -879,6 +912,22 @@ CORE_GAMEDEF(gs,l4,"Game Show (L-4)", 1990, "Bally", s11c_one,0)
 /*--------------------
 / Rollergames 5/90
 /--------------------*/
+/*
+This is Dan Forden, the sound guy for said pin, I just couldn't believe
+anyone actually remembered (or cared) about this game. Actually, it is
+the well-worn voice of Steve "needs more bass" Ritchie doing the
+impressive monster-truck/wrestling announcer impression throughout the
+game. We used as little as possible from the show itself (the opening
+vocoded "RollerGames" is the only remnant). We also used the show's theme
+as the main play tune (although initially Germany said they hated the
+music so I composed an alternative - which I preferred but Steve wanted to
+stick with the original - I think Hans, the German distributor, just
+wanted to say "jump" and have us do it. The music went out essentially
+unchanged). Even though this game was based on the absolute worst theme
+of all time and future, it was pretty fun. I have a Getaway now and kind
+of miss RollerGames (I used to have one). So there's some inside RollerGames dope.
+dwf
+*/
 INITGAME(rollr,GEN_S11C,s11_dispS11c,12,FLIP_SWNO(58,57),S11_LOWALPHA|S11_DISPINV,S11_MUXSW2)
 S11_ROMSTART48(rollr,l2,"rolr_u26.l2", CRC(cd7cad9e) SHA1(e381fa73895c307a0b3b4b699cfec2a68908f6f7),
                         "rolr_u27.l2", CRC(f3bac2b8) SHA1(9f0ff32ea83e43097de42065909137a362b29d49))
@@ -891,9 +940,9 @@ CORE_GAMEDEF(rollr, l2, "Rollergames (L-2)", 1990, "Williams", s11_mS11CS,0)
 
 S11_ROMSTART48(rollr,ex,"rolr-u26.ea3", CRC(78c3c1ad) SHA1(04e4370548b3ba85c49634402a0ea166e3643f68),
                         "rolr_u27.ea3", CRC(18685158) SHA1(d1a79fbe1185fb9e1ae1d9e2b2751429f487bb4c))
-S11CS_SOUNDROM000(      "rolr_u4.l3",  CRC(d366c705) SHA1(76018305b5040b2e5d8c45cc81a18f13e1a8f8da),
-                        "rolr_u19.l3", CRC(45a89e55) SHA1(3aff897514d242c83a8e7575d430d594a873736e),
-                        "rolr_u20.l3", CRC(77f89aff) SHA1(dcd9fe233f33ef8f97cdeaaa365532e485a28944))
+S11CS_SOUNDROM000(      "rolr_u4.l3",   CRC(d366c705) SHA1(76018305b5040b2e5d8c45cc81a18f13e1a8f8da),
+                        "rolr_u19.l3",  CRC(45a89e55) SHA1(3aff897514d242c83a8e7575d430d594a873736e),
+                        "rolr_u20.l3",  CRC(77f89aff) SHA1(dcd9fe233f33ef8f97cdeaaa365532e485a28944))
 S11_ROMEND
 CORE_CLONEDEF(rollr,ex,l2, "Rollergames (EXPERIMENTAL)", 1991, "Williams", s11_mS11CS,0)
 
@@ -908,26 +957,51 @@ CORE_CLONEDEF(rollr,e1,l2, "Rollergames (PU-1)", 1991, "Williams", s11_mS11CS,0)
 S11_ROMSTART48(rollr,p2,"rolr_u26.pa2", CRC(11d96b1c) SHA1(e96991bdef8b14043285feeb4cacc182a6e9dcbd),
                         "rolr_u27.pa2", CRC(ee547bd5) SHA1(db45bf7a25321ac041f58404f7512bded9ebf11e))
 S11CS_SOUNDROM000(      "rolr_u4.pa1",  CRC(324df946) SHA1(e7ba2b9434baea20a0cf38540fdab1668c058539),
-                        "rolr_u19.pa1", CRC(45a89e55) SHA1(3aff897514d242c83a8e7575d430d594a873736e),
+                        "rolr_u19.l3",  CRC(45a89e55) SHA1(3aff897514d242c83a8e7575d430d594a873736e),
                         "rolr_u20.pa1", CRC(8ddaaad1) SHA1(33f58c6a9b0e509b7c9a460a687d6e2c388b4b54))
 S11_ROMEND
 CORE_CLONEDEF(rollr,p2,l2, "Rollergames (PA-2, PA-1 Sound)", 1991, "Williams", s11_mS11CS,0)
 
 S11_ROMSTART48(rollr,l3,"rolr-u26.lu3", CRC(7d71ed50) SHA1(092aa13706a7fe58ad80e88c1c4a5c1d7d712546),
-                        "rolr_u27.l2", CRC(f3bac2b8) SHA1(9f0ff32ea83e43097de42065909137a362b29d49))
-S11CS_SOUNDROM000(      "rolr_u4.l3",  CRC(d366c705) SHA1(76018305b5040b2e5d8c45cc81a18f13e1a8f8da),
-                        "rolr_u19.l3", CRC(45a89e55) SHA1(3aff897514d242c83a8e7575d430d594a873736e),
-                        "rolr_u20.l3", CRC(77f89aff) SHA1(dcd9fe233f33ef8f97cdeaaa365532e485a28944))
+                        "rolr_u27.l2",  CRC(f3bac2b8) SHA1(9f0ff32ea83e43097de42065909137a362b29d49))
+S11CS_SOUNDROM000(      "rolr_u4.l3",   CRC(d366c705) SHA1(76018305b5040b2e5d8c45cc81a18f13e1a8f8da),
+                        "rolr_u19.l3",  CRC(45a89e55) SHA1(3aff897514d242c83a8e7575d430d594a873736e),
+                        "rolr_u20.l3",  CRC(77f89aff) SHA1(dcd9fe233f33ef8f97cdeaaa365532e485a28944))
 S11_ROMEND
 CORE_CLONEDEF(rollr,l3,l2, "Rollergames (LU-3 Europe)", 1990, "Williams", s11_mS11CS,0)
 
 S11_ROMSTART48(rollr,g3,"rolr-u26.lg3", CRC(438d2b94) SHA1(f507a06794563701b6d4fc51ff90a42a6d21d060),
+                        "rolr_u27.l2",  CRC(f3bac2b8) SHA1(9f0ff32ea83e43097de42065909137a362b29d49))
+S11CS_SOUNDROM000(      "rolr_u4.l3",   CRC(d366c705) SHA1(76018305b5040b2e5d8c45cc81a18f13e1a8f8da),
+                        "rolr_u19.l3",  CRC(45a89e55) SHA1(3aff897514d242c83a8e7575d430d594a873736e),
+                        "rolr_u20.l3",  CRC(77f89aff) SHA1(dcd9fe233f33ef8f97cdeaaa365532e485a28944))
+S11_ROMEND
+CORE_CLONEDEF(rollr,g3,l2, "Rollergames (LG-3 German)", 1990, "Williams", s11_mS11CS,0)
+
+// American Drops 2 - sample/prototype with 8 drop targets
+S11_ROMSTART48(rollr,d2,"rolr-u26.ad2", CRC(913574ac) SHA1(52e2b398d087e998ba5c16a623c7d1a02b99ca55),
+                        "rolr_u27.ad2", CRC(92d2172f) SHA1(73f15d338f2680ee2dd961e9e4d4ea97e9328b6e))
+S11CS_SOUNDROM000(      "rolr_u4.l3",   CRC(d366c705) SHA1(76018305b5040b2e5d8c45cc81a18f13e1a8f8da),
+                        "rolr_u19.l3",  CRC(45a89e55) SHA1(3aff897514d242c83a8e7575d430d594a873736e),
+                        "rolr_u20.l3",  CRC(77f89aff) SHA1(dcd9fe233f33ef8f97cdeaaa365532e485a28944))
+S11_ROMEND
+CORE_CLONEDEF(rollr,d2,l2, "Rollergames (AD-2 Prototype)", 1990, "Williams", s11_mS11CS,0)
+
+S11_ROMSTART48(rollr,f2,"rolr-u26.lf2",CRC(a33a3a39) SHA1(fa67cede5fe9f86ce8772e49dba8d929d2b53ecb),
                         "rolr_u27.l2", CRC(f3bac2b8) SHA1(9f0ff32ea83e43097de42065909137a362b29d49))
 S11CS_SOUNDROM000(      "rolr_u4.l3",  CRC(d366c705) SHA1(76018305b5040b2e5d8c45cc81a18f13e1a8f8da),
                         "rolr_u19.l3", CRC(45a89e55) SHA1(3aff897514d242c83a8e7575d430d594a873736e),
                         "rolr_u20.l3", CRC(77f89aff) SHA1(dcd9fe233f33ef8f97cdeaaa365532e485a28944))
 S11_ROMEND
-CORE_CLONEDEF(rollr,g3,l2, "Rollergames (LG-3 German)", 1990, "Williams", s11_mS11CS,0)
+CORE_CLONEDEF(rollr,f2,l2, "Rollergames (LF-2 French)", 1990, "Williams", s11_mS11CS,0)
+
+S11_ROMSTART48(rollr,f3,"rolr-u26.lf3",CRC(0c54de2a) SHA1(764a0986bb1966ddfd547ee6380debaaa1ea3769),
+                        "rolr_u27.l2", CRC(f3bac2b8) SHA1(9f0ff32ea83e43097de42065909137a362b29d49))
+S11CS_SOUNDROM000(      "rolr_u4.l3",  CRC(d366c705) SHA1(76018305b5040b2e5d8c45cc81a18f13e1a8f8da),
+                        "rolr_u19.l3", CRC(45a89e55) SHA1(3aff897514d242c83a8e7575d430d594a873736e),
+                        "rolr_u20.l3", CRC(77f89aff) SHA1(dcd9fe233f33ef8f97cdeaaa365532e485a28944))
+S11_ROMEND
+CORE_CLONEDEF(rollr,f3,l2, "Rollergames (LF-3 French)", 1990, "Williams", s11_mS11CS,0)
 
 /*--------------------
 / Pool Sharks 6/90

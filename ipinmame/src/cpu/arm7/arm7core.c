@@ -95,11 +95,11 @@ static void HandleALU( data32_t insn);
 static void HandleMul( data32_t insn);
 static void HandleUMulLong( data32_t insn);
 static void HandleSMulLong( data32_t insn);
-//static void HandleBranch( data32_t insn);
-INLINE void HandleBranch( data32_t insn);		//pretty short, so inline should be ok
+//static void HandleBranch( data32_t insn, data8_t h_bit);
+INLINE void HandleBranch( data32_t insn, data8_t h_bit);		//pretty short, so inline should be ok
 static void HandleMemSingle( data32_t insn);
 static void HandleMemBlock( data32_t insn);
-static data32_t decodeShift( data32_t insn, data32_t *pCarry);
+INLINE data32_t decodeShift( data32_t insn, data32_t *pCarry);
 INLINE void SwitchMode( int );
 static void arm7_check_irq_state(void);
 
@@ -313,7 +313,7 @@ INLINE void SwitchMode (int cpsr_mode_val)
    ROR >32   = Same result as ROR n-32 until amount in range of 1-32 then follow rules
 */
 
-static data32_t decodeShift( data32_t insn, data32_t *pCarry)
+INLINE data32_t decodeShift( data32_t insn, data32_t *pCarry)
 {
 	data32_t k	= (insn & INSN_OP2_SHIFT) >> INSN_OP2_SHIFT_SHIFT;	//Bits 11-7
 	data32_t rm	= GET_REGISTER( insn & INSN_OP2_RM );
@@ -690,7 +690,7 @@ static void arm7_core_reset(void *param)
 	SwitchMode(eARM7_MODE_SVC);
 	SET_CPSR(GET_CPSR | I_MASK | F_MASK);
 	R15 = 0;
-//change_pc32lew(R15);
+    //change_pc(R15);
 }
 
 //Execute used to be here.. moved to separate file (arm7exec.c) to be included by cpu cores separately
@@ -727,6 +727,7 @@ static void arm7_check_irq_state(void)
 
 	//FIRQ
 	if (ARM7.pendingFiq && (cpsr & F_MASK)==0) {
+		//ARM7.pendingFiq = 0;
 		SwitchMode(eARM7_MODE_FIQ);				/* Set FIQ mode so PC is saved to correct R14 bank */
 		SET_REGISTER( 14, pc - 4 + 4);			/* save PC to R14 */
 		SET_REGISTER( SPSR, cpsr );				/* Save current CPSR */
@@ -738,6 +739,7 @@ static void arm7_check_irq_state(void)
 
 	//IRQ
 	if (ARM7.pendingIrq && (cpsr & I_MASK)==0) {
+		//ARM7.pendingIrq = 0;
 		SwitchMode(eARM7_MODE_IRQ);				/* Set IRQ mode so PC is saved to correct R14 bank */
 		SET_REGISTER( 14, pc - 4 + 4);			/* save PC to R14 */
 		SET_REGISTER( SPSR, cpsr );				/* Save current CPSR */
@@ -804,11 +806,11 @@ static void arm7_core_set_irq_line(int irqline, int state)
 	switch (irqline) {
 
 	case ARM7_IRQ_LINE: /* IRQ */
-		ARM7.pendingIrq= (state & 1);
+		ARM7.pendingIrq = (state & 1);
 		break;
 
 	case ARM7_FIRQ_LINE: /* FIRQ */
-		ARM7.pendingFiq= (state & 1);
+		ARM7.pendingFiq = (state & 1);
 		break;
 
 	case ARM7_ABORT_EXCEPTION:
@@ -942,9 +944,14 @@ static void HandleCoProcDT(data32_t insn)
 		SET_REGISTER(rn,ornv);
 }
 
-static void HandleBranch(  data32_t insn )
+static void HandleBranch(  data32_t insn, data8_t h_bit )
 {
 	data32_t off = (insn & INSN_BRANCH) << 2;
+	if (h_bit)
+	{
+		// H goes to bit1
+		off |= (insn & 0x01000000) >> 23;
+	}
 
 	/* Save PC into LR if this is a branch with link */
 	if (insn & INSN_BL)
@@ -1079,6 +1086,10 @@ static void HandleMemSingle( data32_t insn )
 
 			//WRITE32(rnv, rd == eR15 ? R15 + 8 : GET_REGISTER(rd));
 			WRITE32(rnv, rd == eR15 ? R15 + 8 + 4 : GET_REGISTER(rd)); //manual says STR rd = PC, +12
+#if JIT_ENABLED
+			// This is to handle code in self-modifying color patches.
+			jit_untranslate(ARM7.jit, rnv);
+#endif
 		}
 		//Store takes only 2 N Cycles, so add + 1
 		ARM7_ICOUNT += 1;
@@ -1141,8 +1152,8 @@ static void HandleMemSingle( data32_t insn )
 			}
 		}
 	}
-
-	//	ARM7_CHECKIRQ
+	// Can't do this here, R15 gets incremented after. 
+	//ARM7_CHECKIRQ;
 
 } /* HandleMemSingle */
 
@@ -1698,7 +1709,7 @@ static void HandleALU( data32_t insn )
 				ARM7_ICOUNT -= 2;
 
 				/* IRQ masks may have changed in this instruction */
-//				ARM7_CHECKIRQ;
+				ARM7_CHECKIRQ;
 			}
 			else
 				/* S Flag is set - Write results to register & update CPSR (which was already handled using HandleALU flag macros) */
@@ -1716,7 +1727,7 @@ static void HandleALU( data32_t insn )
 			R15 = rd;
 
 			/* IRQ masks may have changed in this instruction */
-//			ARM7_CHECKIRQ;
+			ARM7_CHECKIRQ;
 		}
 		else
 		{

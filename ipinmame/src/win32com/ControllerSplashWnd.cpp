@@ -24,7 +24,7 @@ public:
 
 private:
 	char*		m_pszCredits;		// use defined credit text, displayed at the bottom of the picture
-	unsigned long long m_uClosedTimer; // if this timer runs out, the window will be closed
+	UINT_PTR    m_uClosedTimer;     // if this timer runs out, the window will be closed
 	HBITMAP		m_hBitmap;			// the bitmap we are displaying
 	BITMAP		m_Bitmap;			// bitmap info to hBitmap
 	HFONT		m_hFont;			// font for the credit line
@@ -75,7 +75,7 @@ private:
 		m_pszCredits = (char*) ((LPCREATESTRUCT) lParam)->lpCreateParams;
 
 		srand( (unsigned)time(NULL));
-		int iSplashScreenNo = int(rand()%4);
+		int iSplashScreenNo = int(rand()%2)+1;
 
 		// choose the right color and font style for the user setable text
 		int iWeight = FW_NORMAL;
@@ -90,9 +90,6 @@ private:
 			case 2: // Forchia's image
 				m_Color = RGB(0,0,0);
 				iWeight = FW_BOLD;
-				break;
-			default: // The original one (0) and Steve's new one (3)
-				m_Color = RGB(255,255,255);
 				break;
 		}
 		m_hBitmap = LoadBitmap(_Module.m_hInst, MAKEINTRESOURCE(IDB_SPLASH)+iSplashScreenNo);

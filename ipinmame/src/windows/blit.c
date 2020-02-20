@@ -557,6 +557,38 @@ int win_perform_blit(const struct win_blit_params *blit, int update)
 #else
 	if ((blit->dstdepth == 15) || (blit->dstdepth == 16))
 	{
+#if 0 // only works 'correctly' if compact display disabled, and still has this nasty black border on the bottom due to its hacky nature
+		int c, c2, s,sy;
+		const UINT8 * src = asmblit_srcdata;
+		UINT8* dst = asmblit_dstdata;
+		const UINT32 r = blit->dstyscale + blit->dstxscale;
+
+		for (c = 0; c < asmblit_srcheight; c+=2)
+		{
+			UINT8* dstc2 = dst;
+			for (c2 = 0; c2 < blit->srcwidth; c2 += 2, dstc2 += blit->dstxscale * (2*sizeof(UINT16)))
+			{
+				UINT8* dstsy = dstc2;
+				const UINT16 col = blit->srclookup[((UINT16*)src)[c2]];
+				for (sy = 0; sy < blit->dstyscale * 2; ++sy, dstsy += blit->dstpitch)
+				{
+					UINT32 rcy = sy - blit->dstyscale;
+					rcy *= rcy;
+					for (s = 0; s < blit->dstxscale * 2; ++s)
+					{
+						UINT32 rc = s - blit->dstxscale;
+						rc = rc*rc + rcy;
+						((UINT16*)dstsy)[s] = ((rc < r) ? col : 0); //(rc < r - 2) ? (rc < r - 4) ? col : (col & (30 | (30 << 5) | (30 << 10))) >> 1 : (col & (28 | (28 << 5) | (28 << 10))) >> 2 : 0);
+					}
+				}
+			}
+			src += blit->srcpitch*2;
+			dst += blit->dstpitch * (blit->dstyscale * 2 - (blit->dstyscale > 1 ? 1 : 0)); //!! hack anti-skip one line to make up for bottom
+		}
+
+		if (blit->dstyscale > 1) //!! due to hack above, make bottom black
+			memset(dst, 0, blit->dstpitch*(asmblit_srcheight / 2));
+#else
 		int c, c2, s;
 		const UINT8 * src = asmblit_srcdata;
 		UINT8 * dst = asmblit_dstdata;
@@ -569,11 +601,12 @@ int win_perform_blit(const struct win_blit_params *blit, int update)
 				for (s = 0; s < blit->dstxscale; ++s)
 					((UINT16*)dst)[c2 * blit->dstxscale + s] = col;
 			}
-			for(s = 0; s < blit->dstyscale; ++s)
-				memcpy(dst + blit->dstpitch*(s+1), dst, blit->dstpitch);
+			for (s = 1; s < blit->dstyscale; ++s)
+				memcpy(dst + blit->dstpitch*s, dst, blit->dstpitch);
 			src += blit->srcpitch;
 			dst += blit->dstpitch * blit->dstyscale;
 		}
+#endif
 	}
 	else if (blit->dstdepth == 32)
 	{
@@ -589,8 +622,8 @@ int win_perform_blit(const struct win_blit_params *blit, int update)
 				for (s = 0; s < blit->dstxscale; ++s)
 					((UINT32*)dst)[c2 * blit->dstxscale + s] = col;
 			}
-			for (s = 0; s < blit->dstyscale; ++s)
-				memcpy(dst + blit->dstpitch*(s + 1), dst, blit->dstpitch);
+			for (s = 1; s < blit->dstyscale; ++s)
+				memcpy(dst + blit->dstpitch*s, dst, blit->dstpitch);
 			src += blit->srcpitch;
 			dst += blit->dstpitch * blit->dstyscale;
 		}
@@ -697,7 +730,7 @@ static int snippet_length(void *snippet)
 	// determine the length of a code snippet
 	while (current[0] != 0xcc || current[1] != 0xcc || current[2] != 0xcc || current[3] != 0xe0)
 		current++;
-	return current - (UINT8 *)snippet;
+	return (int)(current - (UINT8 *)snippet);
 }
 
 
@@ -1404,7 +1437,7 @@ static void fixup_addresses(UINT8 **fixups, UINT8 *start, UINT8 *end)
 		if (start[0] == 0xcc && start[1] == 0xcc && start[2] == 0xcc && (start[3] & 0xe0) == 0x00)
 		{
 			int idx = start[3] & 0x1f;
-			*(UINT32 *)start = fixups[idx] - (start + 4);
+			*(UINT32 *)start = (UINT32)(fixups[idx] - (start + 4));
 		}
 	}
 }

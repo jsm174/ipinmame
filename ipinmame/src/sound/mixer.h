@@ -126,4 +126,10 @@ void mixer_write_config(mame_file *f);
 
 void mixer_set_stereo_volume(int ch, int l_vol, int r_vol );
 
+#ifdef PINMAME
+void mixer_set_reverb_filter(int ch, float delay, float force);
+#endif
+
+void mixer_set_channel_legacy_resample(int ch, int enable);
+
 #endif

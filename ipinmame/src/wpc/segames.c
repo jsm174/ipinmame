@@ -30,7 +30,7 @@ SE_INPUT_PORTS_START(se, 1) SE_INPUT_PORTS_END
 /-------------------------------------------------------------------*/
 static struct core_dispLayout se_apollo[] = {
   {0,0, 32,128, CORE_DMD, (genf *)dedmd32_update, NULL},
-  {7,0,  0,  1, CORE_SEG7, (genf *)led_update, NULL},
+  {7,0,  0,  1, CORE_SEG7 | CORE_NODISP, (genf *)led_update, NULL},
   {0}
 };
 INITGAME(apollo13,GEN_WS,se_apollo,SE_DIGIT)
@@ -143,7 +143,7 @@ DE2S_SOUNDROM144 ("id4sndu7.512",CRC(deeaed37) SHA1(06d79967a25af0b90a5f1d6360a5
                   "id4sdu21.400",CRC(f384a9ab) SHA1(06bd607e7efd761017a7b605e0294a34e4c6255c))
 SE_ROMEND
 #define input_ports_id4f input_ports_se
-CORE_GAMEDEFNV(id4f,"ID4: Independence Day (2.02 French)",1996,"Sega",de_mSES1,0)
+CORE_CLONEDEFNV(id4f,id4,"ID4: Independence Day (2.02 French)",1996,"Sega",de_mSES1,0)
 
 INITGAME(id4_201,GEN_WS,se_dmd128x32,0)
 SE128_ROMSTART(id4_201, "id4cpu.201",CRC(c0cd47a1) SHA1(63bb6da28b4f6fcc8525a8f1a6d262e35931efc9))
@@ -153,7 +153,7 @@ DE2S_SOUNDROM144 ("id4sndu7.512",CRC(deeaed37) SHA1(06d79967a25af0b90a5f1d6360a5
                   "id4sdu21.400",CRC(f384a9ab) SHA1(06bd607e7efd761017a7b605e0294a34e4c6255c))
 SE_ROMEND
 #define input_ports_id4_201 input_ports_se
-CORE_GAMEDEFNV(id4_201,"ID4: Independence Day (2.01)",1996,"Sega",de_mSES1,0)
+CORE_CLONEDEFNV(id4_201,id4,"ID4: Independence Day (2.01)",1996,"Sega",de_mSES1,0)
 
 INITGAME(id4_201f,GEN_WS,se_dmd128x32,0)
 SE128_ROMSTART(id4_201f, "id4cpu.201",CRC(c0cd47a1) SHA1(63bb6da28b4f6fcc8525a8f1a6d262e35931efc9))
@@ -163,7 +163,7 @@ DE2S_SOUNDROM144 ("id4sndu7.512",CRC(deeaed37) SHA1(06d79967a25af0b90a5f1d6360a5
                   "id4sdu21.400",CRC(f384a9ab) SHA1(06bd607e7efd761017a7b605e0294a34e4c6255c))
 SE_ROMEND
 #define input_ports_id4_201f input_ports_se
-CORE_GAMEDEFNV(id4_201f,"ID4: Independence Day (2.01 French)",1996,"Sega",de_mSES1,0)
+CORE_CLONEDEFNV(id4_201f,id4,"ID4: Independence Day (2.01 French)",1996,"Sega",de_mSES1,0)
 
 /*-------------------------------------------------------------------
 / Space Jam
@@ -278,6 +278,14 @@ SE_ROMEND
 #define input_ports_xfiles input_ports_se
 CORE_GAMEDEFNV(xfiles,"X-Files, The (3.03)",1997,"Sega",de_mSES1,0)
 
+SE128_ROMSTART(xfilesf,"xfcpu.303",CRC(c7ab5efe) SHA1(dcb4b89adfb5ba39e59c1118a00b29941d3ea4e9))
+DE_DMD32ROM8x(   "xfildspf.300",CRC(fe9b1292) SHA1(ead40d2cdff060829008f468e08512c4f5f9e055))
+XFIL_SND
+SE_ROMEND
+#define input_ports_xfilesf input_ports_xfiles
+#define init_xfilesf init_xfiles
+CORE_CLONEDEFNV(xfilesf,xfiles,"X-Files, The (3.03 French)",1997,"Sega",de_mSES1,0)
+
 SE128_ROMSTART(xfiles2,"xfcpu.204",CRC(a4913128) SHA1(1fe348725e13fd5dc56b6b2dbd173d0b49953483))
 DE_DMD32ROM8x(   "xfildspa.201",CRC(bb015f24) SHA1(ca539d978ef0b8244227ea0c60087da5e7f0ee9e))
 XFIL_SND
@@ -360,11 +368,11 @@ DE2S_SOUNDROM14444("lisu7.100",CRC(96e6b3c4) SHA1(5cfb43b8c182aed4b49ad1b8803812
 
 INITGAME(lostspc,GEN_WS,se_dmd128x32,0)
 SE128_ROMSTART(lostspc, "liscpu.101",CRC(81b2ced8) SHA1(a1933e2686b2a4e48d0f327593df95a927b132cb))
-DE_DMD32ROM8x(  "lisdspa.102",CRC(e8bf4a58) SHA1(572313fb79e5a0c0034938a09b04ef43fc235c84))
+DE_DMD32ROM8x("lisdspa.102",CRC(e8bf4a58) SHA1(572313fb79e5a0c0034938a09b04ef43fc235c84))
 LIS_SND
 SE_ROMEND
 #define input_ports_lostspc input_ports_se
-CORE_GAMEDEFNV(lostspc,"Lost in Space (1.01)",1998,"Sega",de_mSES1,0)
+CORE_GAMEDEFNV(lostspc,"Lost in Space (1.01, Display 1.02)",1998,"Sega",de_mSES1,0)
 
 INITGAME(lostspcg,GEN_WS,se_dmd128x32,0)
 SE128_ROMSTART(lostspcg, "liscpu.101",CRC(81b2ced8) SHA1(a1933e2686b2a4e48d0f327593df95a927b132cb))
@@ -374,13 +382,21 @@ SE_ROMEND
 #define input_ports_lostspcg input_ports_lostspc
 CORE_CLONEDEFNV(lostspcg,lostspc,"Lost in Space (1.01 German)",1998,"Sega",de_mSES1,0)
 
+INITGAME(lostspcf,GEN_WS,se_dmd128x32,0)
+SE128_ROMSTART(lostspcf, "liscpu.101",CRC(81b2ced8) SHA1(a1933e2686b2a4e48d0f327593df95a927b132cb))
+DE_DMD32ROM8x("lis_f-102.bin",CRC(422ba6d5) SHA1(0cd09b14a953fda39f8c7e5521c4115d2ada9186))
+LIS_SND
+SE_ROMEND
+#define input_ports_lostspcf input_ports_lostspc
+CORE_CLONEDEFNV(lostspcf,lostspc,"Lost in Space (1.01 French)",1998,"Sega",de_mSES1,0)
+
 INITGAME(lostspc1,GEN_WS,se_dmd128x32,0)
 SE128_ROMSTART(lostspc1, "liscpu.101",CRC(81b2ced8) SHA1(a1933e2686b2a4e48d0f327593df95a927b132cb))
 DE_DMD32ROM8x("lisdspa.101",CRC(a8bfa71f) SHA1(45886ae8edcfd26a2225914aaf96eb960fc7e988))
 LIS_SND
 SE_ROMEND
 #define input_ports_lostspc1 input_ports_lostspc
-CORE_CLONEDEFNV(lostspc1,lostspc,"Lost in Space (1.01, Display 1.01)",1998,"Sega",de_mSES1,0)
+CORE_CLONEDEFNV(lostspc1,lostspc,"Lost in Space (1.01)",1998,"Sega",de_mSES1,0)
 
 /*-------------------------------------------------------------------
 / Golden Cue
@@ -421,7 +437,7 @@ DE2S_SOUNDROM14444("gdzu7.100" ,CRC(a0afe8b7) SHA1(33e4a824b26b58e8f963fa8a525a6
                   "gdzu37.100",CRC(2c1acb14) SHA1(4d710e09f5500da937932b4b01d862abb4a89e5a))
 SE_ROMEND
 #define input_ports_godz_100 input_ports_se
-CORE_GAMEDEFNV(godz_100,"Godzilla (1.00)",1998,"Sega",de_mSES1,0)
+CORE_CLONEDEFNV(godz_100, godzilla,"Godzilla (1.00)", 1998, "Sega", de_mSES1, 0)
 
 INITGAME(godz_090,GEN_WS,se_dmd128x32,0)
 SE128_ROMSTART(godz_090,"gdzcpu.090",CRC(54e3b6d7) SHA1(c11cf71140c00c96c7feea569fa04f75061b9af7))
@@ -433,7 +449,7 @@ DE2S_SOUNDROM14444("gdzu7.090" ,CRC(076401a9) SHA1(17aa63c2b26e6fc4849a5101ff970
                   "gdzu37.090",CRC(1410ae6b) SHA1(28d025403fd60b1bb132cffcc14be21be48d808c))
 SE_ROMEND
 #define input_ports_godz_090 input_ports_se
-CORE_GAMEDEFNV(godz_090,"Godzilla (0.90)",1998,"Sega",de_mSES1,0)
+CORE_CLONEDEFNV(godz_090, godzilla,"Godzilla (0.90)", 1998, "Sega", de_mSES1, 0)
 
 /********************* SEGA GAMES DISTRIBUTED BY STERN  **********************/
 
@@ -610,7 +626,7 @@ DE2S_SOUNDROM18888("hrsndu7.100", CRC(c41f91a7) SHA1(2af3be10754ea633558bdbeded2
 
 static struct core_dispLayout dispHRC[] = {
   DISP_SEG_IMPORT(se_dmd128x32),
-  {34,10, 7, 15, CORE_DMD, (genf *)seminidmd1_update, NULL}, {0}
+  {34,10, 7, 15, CORE_DMD | CORE_NODISP, (genf *)seminidmd1_update, NULL}, {0}
 };
 INITGAME(hirolcas,GEN_WS,dispHRC,SE_MINIDMD)
 SE128_ROMSTART(hirolcas,"hrccpu.300",CRC(0d1117fa) SHA1(a19f9dfc2288fc16cb8e992ffd7f13e70ef042c7))
@@ -768,7 +784,7 @@ DE_DMD32ROM8x(           "pbdispa.500",  CRC(40450165) SHA1(80295466838cb08fe149
 PLAY_SND
 SE_ROMEND
 #define input_ports_playboys input_ports_se
-CORE_GAMEDEFNV(playboys,"Playboy (5.00)",2002,"Stern",de_mSES2,0)
+CORE_GAMEDEFNV(playboys,"Playboy (Stern, 5.00)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(playboyf, "pbcpu.500",    CRC(e4d924ae) SHA1(2aab64eee57e9569c3cc1bde28cda69ff4cacc69))
 DE_DMD32ROM8x(           "pbdispf.500",  CRC(aedc6c32) SHA1(c930ae1b1308ae641553de34f8249b17f408be56))
@@ -776,7 +792,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_playboyf input_ports_playboys
 #define init_playboyf init_playboys
-CORE_CLONEDEFNV(playboyf,playboys,"Playboy (5.00 French)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(playboyf,playboys,"Playboy (Stern, 5.00 French)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(playboyg, "pbcpu.500",    CRC(e4d924ae) SHA1(2aab64eee57e9569c3cc1bde28cda69ff4cacc69))
 DE_DMD32ROM8x(           "pbdispg.500",  CRC(681392fe) SHA1(23011d538282da144b8ff9cbb7c5655567017e5e))
@@ -784,7 +800,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_playboyg input_ports_playboys
 #define init_playboyg init_playboys
-CORE_CLONEDEFNV(playboyg,playboys,"Playboy (5.00 German)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(playboyg,playboys,"Playboy (Stern, 5.00 German)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(playboyi, "pbcpu.500",    CRC(e4d924ae) SHA1(2aab64eee57e9569c3cc1bde28cda69ff4cacc69))
 DE_DMD32ROM8x(           "pbdispi.500",  CRC(d90d7ec6) SHA1(7442160f403a8ccabfc9dc8dc53f8b44f5df26bc))
@@ -792,7 +808,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_playboyi input_ports_playboys
 #define init_playboyi init_playboys
-CORE_CLONEDEFNV(playboyi,playboys,"Playboy (5.00 Italian)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(playboyi,playboys,"Playboy (Stern, 5.00 Italian)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(playboyl, "pbcpu.500",    CRC(e4d924ae) SHA1(2aab64eee57e9569c3cc1bde28cda69ff4cacc69))
 DE_DMD32ROM8x(           "pbdispl.500",  CRC(b019f0f6) SHA1(184a9905cd3af9d272577e43666aed5e5a8a5281))
@@ -800,7 +816,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_playboyl input_ports_playboys
 #define init_playboyl init_playboys
-CORE_CLONEDEFNV(playboyl,playboys,"Playboy (5.00 Spanish)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(playboyl,playboys,"Playboy (Stern, 5.00 Spanish)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play401,  "pbcpu.401",    CRC(cb2e2824) SHA1(01413ff1f4fbee9d62776babb60ccc88f97feedf))
 DE_DMD32ROM8x(           "pbdispa.400",  CRC(244e9740) SHA1(1a2de2c53104e1123cbcc9ccc92e0888b4cf4bec))
@@ -808,7 +824,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play401 input_ports_playboys
 #define init_play401 init_playboys
-CORE_CLONEDEFNV(play401,playboys,"Playboy (4.01)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play401,playboys,"Playboy (Stern, 4.01)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play401l, "pbcpu.401",    CRC(cb2e2824) SHA1(01413ff1f4fbee9d62776babb60ccc88f97feedf))
 DE_DMD32ROM8x(           "pbdisps.400",  CRC(92b48fdd) SHA1(deebb0bf6ec13b0cead3970c19bd0e8321046786))
@@ -816,7 +832,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play401l input_ports_playboys
 #define init_play401l init_playboys
-CORE_CLONEDEFNV(play401l,playboys,"Playboy (4.01 Spanish)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play401l,playboys,"Playboy (Stern, 4.01 Spanish)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play401g, "pbcpu.401",    CRC(cb2e2824) SHA1(01413ff1f4fbee9d62776babb60ccc88f97feedf))
 DE_DMD32ROM8x(           "pbdispg.400",  CRC(c26a0c73) SHA1(1841ab278e5d3e146cb3b43dfedc208d302dbc17))
@@ -824,7 +840,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play401g input_ports_playboys
 #define init_play401g init_playboys
-CORE_CLONEDEFNV(play401g,playboys,"Playboy (4.01 German)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play401g,playboys,"Playboy (Stern, 4.01 German)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play401f, "pbcpu.401",    CRC(cb2e2824) SHA1(01413ff1f4fbee9d62776babb60ccc88f97feedf))
 DE_DMD32ROM8x(           "pbdispf.400",  CRC(8ccce5d9) SHA1(28370445d38b065001e96b455d283bc047ed0f21))
@@ -832,7 +848,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play401f input_ports_playboys
 #define init_play401f init_playboys
-CORE_CLONEDEFNV(play401f,playboys,"Playboy (4.01 French)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play401f,playboys,"Playboy (Stern, 4.01 French)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play401i, "pbcpu.401",    CRC(cb2e2824) SHA1(01413ff1f4fbee9d62776babb60ccc88f97feedf))
 DE_DMD32ROM8x(           "pbdispi.400",  CRC(90c5afed) SHA1(ea7ab06adb18854c9871b02f39fe616a27293415))
@@ -840,7 +856,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play401i input_ports_playboys
 #define init_play401i init_playboys
-CORE_CLONEDEFNV(play401i,playboys,"Playboy (4.01 Italian)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play401i,playboys,"Playboy (Stern, 4.01 Italian)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play303,  "pbcpu.303",    CRC(6a6f6aab) SHA1(cac5d68d699db4016244ffd56355e2834be3da1f))
 DE_DMD32ROM8x(           "pbdispa.300",  CRC(2dbb372a) SHA1(b694ae06f380ea9f9730ea6bbfab7f9f7ec7342b))
@@ -848,7 +864,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play303 input_ports_playboys
 #define init_play303 init_playboys
-CORE_CLONEDEFNV(play303,playboys,"Playboy (3.03)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play303,playboys,"Playboy (Stern, 3.03)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play303l, "pbcpu.303",    CRC(6a6f6aab) SHA1(cac5d68d699db4016244ffd56355e2834be3da1f))
 DE_DMD32ROM8x(           "pbdispl.300",  CRC(e7697fc3) SHA1(7a9796e7b99af0d3d2079876a8054209a3067e64))
@@ -856,7 +872,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play303l input_ports_playboys
 #define init_play303l init_playboys
-CORE_CLONEDEFNV(play303l,playboys,"Playboy (3.03 Spanish)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play303l,playboys,"Playboy (Stern, 3.03 Spanish)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play303g, "pbcpu.303",    CRC(6a6f6aab) SHA1(cac5d68d699db4016244ffd56355e2834be3da1f))
 DE_DMD32ROM8x(           "pbdispg.300",  CRC(ed7b7c62) SHA1(28b0ab490f8abd5f29e8cb0996da9e7200918157))
@@ -864,7 +880,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play303g input_ports_playboys
 #define init_play303g init_playboys
-CORE_CLONEDEFNV(play303g,playboys,"Playboy (3.03 German)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play303g,playboys,"Playboy (Stern, 3.03 German)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play303f, "pbcpu.303",    CRC(6a6f6aab) SHA1(cac5d68d699db4016244ffd56355e2834be3da1f))
 DE_DMD32ROM8x(           "pbdispf.300",  CRC(69ab3bb2) SHA1(59d7ad5eca701d1216200cd489d2d07825a0856e))
@@ -872,7 +888,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play303f input_ports_playboys
 #define init_play303f init_playboys
-CORE_CLONEDEFNV(play303f,playboys,"Playboy (3.03 French)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play303f,playboys,"Playboy (Stern, 3.03 French)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play303i, "pbcpu.303",    CRC(6a6f6aab) SHA1(cac5d68d699db4016244ffd56355e2834be3da1f))
 DE_DMD32ROM8x(           "pbdispi.300",  CRC(74c8cedf) SHA1(474ad1939ea0a58852003e549ed85478e239a67c))
@@ -880,7 +896,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play303i input_ports_playboys
 #define init_play303i init_playboys
-CORE_CLONEDEFNV(play303i,playboys,"Playboy (3.03 Italian)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play303i,playboys,"Playboy (Stern, 3.03 Italian)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play302,  "pbcpu.302",    CRC(206285ed) SHA1(65ec90b20f7be6fac62170f69b744f9e4eb6254c))
 DE_DMD32ROM8x(           "pbdispa.300",  CRC(2dbb372a) SHA1(b694ae06f380ea9f9730ea6bbfab7f9f7ec7342b))
@@ -888,7 +904,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play302 input_ports_playboys
 #define init_play302 init_playboys
-CORE_CLONEDEFNV(play302,playboys,"Playboy (3.02)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play302,playboys,"Playboy (Stern, 3.02)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play302l, "pbcpu.302",    CRC(206285ed) SHA1(65ec90b20f7be6fac62170f69b744f9e4eb6254c))
 DE_DMD32ROM8x(           "pbdispl.300",  CRC(e7697fc3) SHA1(7a9796e7b99af0d3d2079876a8054209a3067e64))
@@ -896,7 +912,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play302l input_ports_playboys
 #define init_play302l init_playboys
-CORE_CLONEDEFNV(play302l,playboys,"Playboy (3.02 Spanish)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play302l,playboys,"Playboy (Stern, 3.02 Spanish)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play302g, "pbcpu.302",    CRC(206285ed) SHA1(65ec90b20f7be6fac62170f69b744f9e4eb6254c))
 DE_DMD32ROM8x(           "pbdispg.300",  CRC(ed7b7c62) SHA1(28b0ab490f8abd5f29e8cb0996da9e7200918157))
@@ -904,7 +920,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play302g input_ports_playboys
 #define init_play302g init_playboys
-CORE_CLONEDEFNV(play302g,playboys,"Playboy (3.02 German)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play302g,playboys,"Playboy (Stern, 3.02 German)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play302f, "pbcpu.302",    CRC(206285ed) SHA1(65ec90b20f7be6fac62170f69b744f9e4eb6254c))
 DE_DMD32ROM8x(           "pbdispf.300",  CRC(69ab3bb2) SHA1(59d7ad5eca701d1216200cd489d2d07825a0856e))
@@ -912,7 +928,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play302f input_ports_playboys
 #define init_play302f init_playboys
-CORE_CLONEDEFNV(play302f,playboys,"Playboy (3.02 French)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play302f,playboys,"Playboy (Stern, 3.02 French)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play302i, "pbcpu.302",    CRC(206285ed) SHA1(65ec90b20f7be6fac62170f69b744f9e4eb6254c))
 DE_DMD32ROM8x(           "pbdispi.300",  CRC(74c8cedf) SHA1(474ad1939ea0a58852003e549ed85478e239a67c))
@@ -920,7 +936,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play302i input_ports_playboys
 #define init_play302i init_playboys
-CORE_CLONEDEFNV(play302i,playboys,"Playboy (3.02 Italian)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play302i,playboys,"Playboy (Stern, 3.02 Italian)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play300,  "pbcpu.300",    CRC(d7e5bada) SHA1(e4d5bc015751a559eb95acb6da04246b7418eaf5))
 DE_DMD32ROM8x(           "pbdispa.300",  CRC(2dbb372a) SHA1(b694ae06f380ea9f9730ea6bbfab7f9f7ec7342b))
@@ -928,7 +944,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play300 input_ports_playboys
 #define init_play300 init_playboys
-CORE_CLONEDEFNV(play300,playboys,"Playboy (3.00)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play300,playboys,"Playboy (Stern, 3.00)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play203,  "pbcpu.203",    CRC(50eb01b0) SHA1(1618874f35432bd9fb2592e1a56592e7624257c4))
 DE_DMD32ROM8x(           "pbdisp-a.201", CRC(78ec6af8) SHA1(35b8de8ab345cf81eec4f7b7d4f654115fe69ddf))
@@ -936,7 +952,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play203 input_ports_playboys
 #define init_play203 init_playboys
-CORE_CLONEDEFNV(play203,playboys,"Playboy (2.03)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play203,playboys,"Playboy (Stern, 2.03)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play203l, "pbcpu.203",    CRC(50eb01b0) SHA1(1618874f35432bd9fb2592e1a56592e7624257c4))
 DE_DMD32ROM8x(           "pbdisp-l.201", CRC(eaa65c45) SHA1(4ec9f815e40ac2185812faad7b991723f0b5775b))
@@ -944,7 +960,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play203l input_ports_playboys
 #define init_play203l init_playboys
-CORE_CLONEDEFNV(play203l,playboys,"Playboy (2.03 Spanish)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play203l,playboys,"Playboy (Stern, 2.03 Spanish)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play203g, "pbcpu.203",    CRC(50eb01b0) SHA1(1618874f35432bd9fb2592e1a56592e7624257c4))
 DE_DMD32ROM8x(           "pbdisp-g.201", CRC(ff525cc7) SHA1(475578cf8b2262a11f640883b70b706f705d90ff))
@@ -952,7 +968,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play203g input_ports_playboys
 #define init_play203g init_playboys
-CORE_CLONEDEFNV(play203g,playboys,"Playboy (2.03 German)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play203g,playboys,"Playboy (Stern, 2.03 German)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play203f, "pbcpu.203",    CRC(50eb01b0) SHA1(1618874f35432bd9fb2592e1a56592e7624257c4))
 DE_DMD32ROM8x(           "pbdisp-f.201", CRC(eedea4f4) SHA1(31eb1d4de0a4aee73c424c0f21dd2042e6ad0dca))
@@ -960,7 +976,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play203f input_ports_playboys
 #define init_play203f init_playboys
-CORE_CLONEDEFNV(play203f,playboys,"Playboy (2.03 French)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play203f,playboys,"Playboy (Stern, 2.03 French)",2002,"Stern",de_mSES2,0)
 
 SE128_ROMSTART(play203i, "pbcpu.203",    CRC(50eb01b0) SHA1(1618874f35432bd9fb2592e1a56592e7624257c4))
 DE_DMD32ROM8x(           "pbdisp-i.201", CRC(48f190dc) SHA1(bf5c096f755871b12783a63b55908751f9fa5b07))
@@ -968,7 +984,7 @@ PLAY_SND
 SE_ROMEND
 #define input_ports_play203i input_ports_playboys
 #define init_play203i init_playboys
-CORE_CLONEDEFNV(play203i,playboys,"Playboy (2.03 Italian)",2002,"Stern",de_mSES2,0)
+CORE_CLONEDEFNV(play203i,playboys,"Playboy (Stern, 2.03 Italian)",2002,"Stern",de_mSES2,0)
 
 //Strange that they went back to the 11 voice model here!
 /*-------------------------------------------------------------------
@@ -982,7 +998,7 @@ DE2S_SOUNDROM1888("rcsndu7.100", CRC(e6cde9b1) SHA1(cbaadafd18ad9c0338bf2cce94b2
 
 static struct core_dispLayout dispRCT[] = {
   DISP_SEG_IMPORT(se_dmd128x32),
-  {34,10, 5,21, CORE_DMD|CORE_DMDNOAA, (genf *)seminidmd3_update, NULL}, {0}
+  {34,10, 5,21, CORE_DMD|CORE_DMDNOAA | CORE_NODISP, (genf *)seminidmd3_update, NULL}, {0}
 };
 INITGAME(rctycn, GEN_WS, dispRCT, SE_MINIDMD3)
 SE128_ROMSTART(rctycn, "rctcpu.702",CRC(5736a816) SHA1(fcfd06eeca74df0bca2c0bc57aeaa00400e4ab55))
@@ -1147,7 +1163,7 @@ DE2S_SOUNDROM18888("spp101.u7",   CRC(32efcdf6) SHA1(1d437e8649408be91e0dd10598c
 
 static struct core_dispLayout dispSPP[] = {
   DISP_SEG_IMPORT(se_dmd128x32),
-  {34,10,10,14, CORE_DMD|CORE_DMDNOAA, (genf *)seminidmd4_update, NULL}, {0}
+  {34,10,10,14, CORE_DMD|CORE_DMDNOAA | CORE_NODISP, (genf *)seminidmd4_update, NULL}, {0}
 };
 static core_tGameData simpprtyGameData = { \
   GEN_WS, dispSPP, {FLIP_SW(FLIP_L) | FLIP_SOL(FLIP_L), 0, 4, 0, 0, SE_MINIDMD2}}; \
@@ -1838,9 +1854,9 @@ DE3S_SOUNDROM18888("ripsndi.u7", CRC(86b1b2b2) SHA1(9e2cf7368b31531998d546a1be2a
 
 static struct core_dispLayout dispBION[] = {
   DISP_SEG_IMPORT(se_dmd128x32),
-  {34,10, 7, 5, CORE_DMD, (genf *)seminidmd1s_update},
-  {34,18, 7, 5, CORE_DMD, (genf *)seminidmd1s_update},
-  {34,26, 7, 5, CORE_DMD, (genf *)seminidmd1s_update}, {0}
+  {34,10, 7, 5, CORE_DMD | CORE_NODISP, (genf *)seminidmd1s_update},
+  {34,18, 7, 5, CORE_DMD | CORE_NODISP, (genf *)seminidmd1s_update},
+  {34,26, 7, 5, CORE_DMD | CORE_NODISP, (genf *)seminidmd1s_update}, {0}
 };
 INITGAME(ripleys,GEN_WS,dispBION,SE_MINIDMD3)
 SE128_ROMSTART(ripleys, "ripcpu.320",CRC(aa997826) SHA1(2f9701370e64dd55a9bafe0c65e7eb4b9c5dbdd2))
@@ -2278,7 +2294,7 @@ SE_ROMEND
 CORE_CLONEDEFNV(sopr107i,sopranos, "Sopranos, The (1.07 Italian)",2005,"Stern",de_mSES3,0)
 
 /*-------------------------------------------------------------------
-/ Nascar
+/ NASCAR
 /-------------------------------------------------------------------*/
 #define NASCAR_SND \
 DE3SC_SOUNDROM18888("nassnd.u7",  CRC(3a3c8203) SHA1(c64c424c01ec91e2578fd6ddc5d3596b8a485c22), \
@@ -2301,7 +2317,7 @@ DE_DMD32ROM8x(      "nasdspa.400", CRC(364878bf) SHA1(a1fb477a37459a3583d3767386
 NASCAR_SND
 SE_ROMEND
 #define input_ports_nascar input_ports_se
-CORE_GAMEDEFNV(nascar,"Nascar (4.50)",2006,"Stern",de_mSES3,0)
+CORE_GAMEDEFNV(nascar,"NASCAR (4.50)",2006,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(nascarl, "nascpul.450", CRC(3eebae3f) SHA1(654f0e44ce009450e66250423fcf0ff4727e5ee1))
 DE_DMD32ROM8x(      "nasdspl.400", CRC(a4de490f) SHA1(bc1aa9fc0182045f5d10044b3e4fa083572be4ac))
@@ -2309,7 +2325,7 @@ NASCAR_SND_SP
 SE_ROMEND
 #define input_ports_nascarl input_ports_se
 #define init_nascarl init_nascar
-CORE_CLONEDEFNV(nascarl,nascar,"Nascar (4.50 Spanish)",2006,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(nascarl,nascar,"NASCAR (4.50 Spanish)",2006,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(nas400, "nascpua.400", CRC(24a72071) SHA1(5bfe473e85e12b30963b15dfc8732f2ef9c299c3))
 DE_DMD32ROM8x(      "nasdspa.400", CRC(364878bf) SHA1(a1fb477a37459a3583d3767386f87aa620e31e34))
@@ -2317,7 +2333,7 @@ NASCAR_SND
 SE_ROMEND
 #define input_ports_nas400 input_ports_se
 #define init_nas400 init_nascar
-CORE_CLONEDEFNV(nas400,nascar,"Nascar (4.00)",2005,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(nas400,nascar,"NASCAR (4.00)",2005,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(nas400l, "nascpul.400", CRC(23ca7b4a) SHA1(9ea7afb283157a8e65106dc027cfd45eecc3f86a))
 DE_DMD32ROM8x(      "nasdspl.400", CRC(a4de490f) SHA1(bc1aa9fc0182045f5d10044b3e4fa083572be4ac))
@@ -2325,7 +2341,7 @@ NASCAR_SND_SP
 SE_ROMEND
 #define input_ports_nas400l input_ports_se
 #define init_nas400l init_nascar
-CORE_CLONEDEFNV(nas400l,nascar,"Nascar (4.00 Spanish)",2005,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(nas400l,nascar,"NASCAR (4.00 Spanish)",2005,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(nas352, "nascpua.352", CRC(65b8132e) SHA1(b42dca3e68d3eff158bae830f6c8cca00e0ed3e2))
 DE_DMD32ROM8x(      "nasdspa.303", CRC(86e20410) SHA1(c499682713facc6b2923fdd0eff47b98f6a36d14))
@@ -2333,7 +2349,7 @@ NASCAR_SND
 SE_ROMEND
 #define input_ports_nas352 input_ports_se
 #define init_nas352 init_nascar
-CORE_CLONEDEFNV(nas352,nascar,"Nascar (3.52)",2005,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(nas352,nascar,"NASCAR (3.52)",2005,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(nas352l, "nascpul.352", CRC(c78549d8) SHA1(9796c0d413fd2ea7f616ad238b67311c8c29286d))
 DE_DMD32ROM8x(      "nasdspl.303", CRC(868277f0) SHA1(9c058054e6dc3b838bfc3a91d37438afcd59aa4b))
@@ -2341,7 +2357,7 @@ NASCAR_SND_SP
 SE_ROMEND
 #define input_ports_nas352l input_ports_se
 #define init_nas352l init_nascar
-CORE_CLONEDEFNV(nas352l,nascar,"Nascar (3.52 Spanish)",2005,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(nas352l,nascar,"NASCAR (3.52 Spanish)",2005,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(nas350, "nascpua.350", CRC(e5b4ed49) SHA1(0d38c0e08862a0a5a200225634c5bf0d0afe5afe))
 DE_DMD32ROM8x(      "nasdspa.303", CRC(86e20410) SHA1(c499682713facc6b2923fdd0eff47b98f6a36d14))
@@ -2349,7 +2365,7 @@ NASCAR_SND
 SE_ROMEND
 #define input_ports_nas350 input_ports_se
 #define init_nas350 init_nascar
-CORE_CLONEDEFNV(nas350,nascar,"Nascar (3.50)",2005,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(nas350,nascar,"NASCAR (3.50)",2005,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(nas350l, "nascpul.350", CRC(ab749309) SHA1(95d35126bda75c68037010f001c28a860b6a6e0c))
 DE_DMD32ROM8x(      "nasdspl.303", CRC(868277f0) SHA1(9c058054e6dc3b838bfc3a91d37438afcd59aa4b))
@@ -2357,7 +2373,7 @@ NASCAR_SND_SP
 SE_ROMEND
 #define input_ports_nas350l input_ports_se
 #define init_nas350l init_nascar
-CORE_CLONEDEFNV(nas350l,nascar,"Nascar (3.50 Spanish)",2005,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(nas350l,nascar,"NASCAR (3.50 Spanish)",2005,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(nas340, "nascpua.340", CRC(120dc65a) SHA1(151c1604dacb1c1cf74449291d81629a05fb1b09))
 DE_DMD32ROM8x(      "nasdspa.303", CRC(86e20410) SHA1(c499682713facc6b2923fdd0eff47b98f6a36d14))
@@ -2365,7 +2381,7 @@ NASCAR_SND
 SE_ROMEND
 #define input_ports_nas340 input_ports_se
 #define init_nas340 init_nascar
-CORE_CLONEDEFNV(nas340,nascar,"Nascar (3.40)",2005,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(nas340,nascar,"NASCAR (3.40)",2005,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(nas340l, "nascpul.340", CRC(d5827082) SHA1(660216472a1faa445701eb3735771568cdba7b24))
 DE_DMD32ROM8x(      "nasdspl.303", CRC(868277f0) SHA1(9c058054e6dc3b838bfc3a91d37438afcd59aa4b))
@@ -2373,7 +2389,7 @@ NASCAR_SND_SP
 SE_ROMEND
 #define input_ports_nas340l input_ports_se
 #define init_nas340l init_nascar
-CORE_CLONEDEFNV(nas340l,nascar,"Nascar (3.40 Spanish)",2005,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(nas340l,nascar,"NASCAR (3.40 Spanish)",2005,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(nas301, "nascpua.301", CRC(8ede60c2) SHA1(aa49da40f2ed858c5fa260ce5e7dd096b4217544))
 DE_DMD32ROM8x(      "nasdspa.301", CRC(4de3c8d5) SHA1(c2c08ddd0ecc511cf34ba6a6cae9968e903b88ad))
@@ -2381,7 +2397,7 @@ NASCAR_SND
 SE_ROMEND
 #define input_ports_nas301 input_ports_se
 #define init_nas301 init_nascar
-CORE_CLONEDEFNV(nas301,nascar,"Nascar (3.01)",2005,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(nas301,nascar,"NASCAR (3.01)",2005,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(nas301l, "nascpul.301", CRC(6c8fc295) SHA1(2852afb38807a96907bc7357c08235de643dfb29))
 DE_DMD32ROM8x(      "nasdspl.301", CRC(a6d4a9e7) SHA1(c87286bd173a50e17994474f98574c30cd6d8d39))
@@ -2389,7 +2405,7 @@ NASCAR_SND_SP
 SE_ROMEND
 #define input_ports_nas301l input_ports_se
 #define init_nas301l init_nascar
-CORE_CLONEDEFNV(nas301l,nascar,"Nascar (3.01 Spanish)",2005,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(nas301l,nascar,"NASCAR (3.01 Spanish)",2005,"Stern",de_mSES3,0)
 
 /*-------------------------------------------------------------------
 / Dale Jr. (NASCAR 5.00)
