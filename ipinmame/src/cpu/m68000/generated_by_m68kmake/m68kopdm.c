@@ -383,11 +383,10 @@ void m68k_op_divs_16_d(void)
 {
 	uint* r_dst = &DX;
 	sint src = MAKE_INT_16(DY);
-	sint quotient;
-	sint remainder;
 
 	if(src != 0)
 	{
+		sint quotient, remainder;
 		if((uint32)*r_dst == 0x80000000 && src == -1)
 		{
 			FLAG_Z = 0;
@@ -421,11 +420,10 @@ void m68k_op_divs_16_ai(void)
 {
 	uint* r_dst = &DX;
 	sint src = MAKE_INT_16(OPER_AY_AI_16());
-	sint quotient;
-	sint remainder;
 
 	if(src != 0)
 	{
+		sint quotient, remainder;
 		if((uint32)*r_dst == 0x80000000 && src == -1)
 		{
 			FLAG_Z = 0;
@@ -459,11 +457,10 @@ void m68k_op_divs_16_pi(void)
 {
 	uint* r_dst = &DX;
 	sint src = MAKE_INT_16(OPER_AY_PI_16());
-	sint quotient;
-	sint remainder;
 
 	if(src != 0)
 	{
+		sint quotient, remainder;
 		if((uint32)*r_dst == 0x80000000 && src == -1)
 		{
 			FLAG_Z = 0;
@@ -497,11 +494,10 @@ void m68k_op_divs_16_pd(void)
 {
 	uint* r_dst = &DX;
 	sint src = MAKE_INT_16(OPER_AY_PD_16());
-	sint quotient;
-	sint remainder;
 
 	if(src != 0)
 	{
+		sint quotient, remainder;
 		if((uint32)*r_dst == 0x80000000 && src == -1)
 		{
 			FLAG_Z = 0;
@@ -535,11 +531,10 @@ void m68k_op_divs_16_di(void)
 {
 	uint* r_dst = &DX;
 	sint src = MAKE_INT_16(OPER_AY_DI_16());
-	sint quotient;
-	sint remainder;
 
 	if(src != 0)
 	{
+		sint quotient, remainder;
 		if((uint32)*r_dst == 0x80000000 && src == -1)
 		{
 			FLAG_Z = 0;
@@ -573,11 +568,10 @@ void m68k_op_divs_16_ix(void)
 {
 	uint* r_dst = &DX;
 	sint src = MAKE_INT_16(OPER_AY_IX_16());
-	sint quotient;
-	sint remainder;
 
 	if(src != 0)
 	{
+		sint quotient, remainder;
 		if((uint32)*r_dst == 0x80000000 && src == -1)
 		{
 			FLAG_Z = 0;
@@ -611,11 +605,10 @@ void m68k_op_divs_16_aw(void)
 {
 	uint* r_dst = &DX;
 	sint src = MAKE_INT_16(OPER_AW_16());
-	sint quotient;
-	sint remainder;
 
 	if(src != 0)
 	{
+		sint quotient, remainder;
 		if((uint32)*r_dst == 0x80000000 && src == -1)
 		{
 			FLAG_Z = 0;
@@ -649,11 +642,10 @@ void m68k_op_divs_16_al(void)
 {
 	uint* r_dst = &DX;
 	sint src = MAKE_INT_16(OPER_AL_16());
-	sint quotient;
-	sint remainder;
 
 	if(src != 0)
 	{
+		sint quotient, remainder;
 		if((uint32)*r_dst == 0x80000000 && src == -1)
 		{
 			FLAG_Z = 0;
@@ -687,11 +679,10 @@ void m68k_op_divs_16_pcdi(void)
 {
 	uint* r_dst = &DX;
 	sint src = MAKE_INT_16(OPER_PCDI_16());
-	sint quotient;
-	sint remainder;
 
 	if(src != 0)
 	{
+		sint quotient, remainder;
 		if((uint32)*r_dst == 0x80000000 && src == -1)
 		{
 			FLAG_Z = 0;
@@ -725,11 +716,10 @@ void m68k_op_divs_16_pcix(void)
 {
 	uint* r_dst = &DX;
 	sint src = MAKE_INT_16(OPER_PCIX_16());
-	sint quotient;
-	sint remainder;
 
 	if(src != 0)
 	{
+		sint quotient, remainder;
 		if((uint32)*r_dst == 0x80000000 && src == -1)
 		{
 			FLAG_Z = 0;
@@ -763,11 +753,10 @@ void m68k_op_divs_16_i(void)
 {
 	uint* r_dst = &DX;
 	sint src = MAKE_INT_16(OPER_I_16());
-	sint quotient;
-	sint remainder;
 
 	if(src != 0)
 	{
+		sint quotient, remainder;
 		if((uint32)*r_dst == 0x80000000 && src == -1)
 		{
 			FLAG_Z = 0;

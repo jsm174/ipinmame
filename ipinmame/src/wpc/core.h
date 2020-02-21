@@ -211,8 +211,8 @@
 typedef UINT8 tDMDDot[DMD_MAXY+2][DMD_MAXX+2];
 
 /* Shortcuts for some common display sizes */
-#define DISP_SEG_16(row,type)    {4*row, 0, 20*row, 16, type}
-#define DISP_SEG_7(row,col,type) {4*row,16*col,row*20+col*8+1,7,type}
+#define DISP_SEG_16(row,type)    {4*(row), 0, 20*(row), 16, type}
+#define DISP_SEG_7(row,col,type) {4*(row),16*(col),(row)*20+(col)*8+1,7,type}
 #define DISP_SEG_CREDIT(no1,no2,type) {2,2,no1,1,type},{2,4,no2,1,type}
 #define DISP_SEG_BALLS(no1,no2,type)  {2,8,no1,1,type},{2,10,no2,1,type}
 #define DISP_SEG_IMPORT(x) {0,0,0,1,CORE_IMPORT,NULL,x}
@@ -304,14 +304,14 @@ extern void video_update_core_dmd(struct mame_bitmap *bitmap, const struct recta
 #define CORE_CUSTSWCOL     CORE_STDSWCOLS  /* first custom (game specific) switch column */
 #define CORE_MAXLAMPCOL     42   /* lamp column (0-7=std lamp matrix 8- custom) */
 #define CORE_CUSTLAMPCOL   CORE_STDLAMPCOLS  /* first custom lamp column */
-#define CORE_MAXRGBLAMPS     260
+#define CORE_MAXRGBLAMPS     260 /* Currently the max needed for SAM support, see SAM_LEDS_MAX */
 #define CORE_MAXPORTS        8   /* Maximum input ports */
 #define CORE_MAXGI           5   /* Maximum GI strings */
 #define CORE_MAXNVRAM        131118 /* Maximum number of NVRAM bytes, only used for get_ChangedNVRAM so far */
 
 /*-- create a custom switch number --*/
 /* example: #define swCustom CORE_CUSTSWNO(1,2)  // custom column 1 row 2 */
-#define CORE_CUSTSWNO(c,r) ((CORE_CUSTSWCOL-1+c)*10+r)
+#define CORE_CUSTSWNO(c,r) ((CORE_CUSTSWCOL-1+(c))*10+(r))
 
 /*-------------------
 /  Flipper Switches
@@ -454,6 +454,8 @@ extern const int core_bcd2seg9a[]; /* BCD to 9 segment display, missing 6 top li
 extern const int core_bcd2seg7[]; /* BCD to 7 segment display */
 extern const int core_bcd2seg7a[]; /* BCD to 7 segment display, missing 6 top line */
 extern const int core_bcd2seg7e[]; /* BCD to 7 segment display with A to E letters */
+extern const UINT16 core_ascii2seg16[]; /* BCD to regular 16 segment display */
+extern const UINT16 core_ascii2seg16s[]; /* BCD to 16 segment display with split top / botom lines */
 #define core_bcd2seg  core_bcd2seg7
 
 /*-- Exported Display handling functions--*/

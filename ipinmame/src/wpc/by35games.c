@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+
 #include "driver.h"
 #include "core.h"
 #include "sndbrd.h"
@@ -56,7 +58,21 @@ BY17_ROMSTART228(freedom,"720-08_1.474",CRC(b78bceeb) SHA1(acf6f1a497ada344211f1
                          "720-07_6.716",CRC(0f4e8b83) SHA1(faa05dde24eb60be0cdc4456ae2e660a15ed85ac))
 BY17_ROMEND
 #define input_ports_freedom input_ports_by35
-CORE_GAMEDEFNV(freedom,"Freedom",1977,"Bally",by35_mBY17,GAME_USES_CHIMES)
+CORE_GAMEDEFNV(freedom,"Freedom",1976,"Bally",by35_mBY17,GAME_USES_CHIMES)
+
+#define init_freedoma init_freedom
+BY17_ROMSTART8x8(freedoma,"Freedom_U2.2716",CRC(f3ca1bc8) SHA1(5fcbd0e20a140310b01fb8bb4778715c62c05582),
+                          "Freedom_U6.2716",CRC(f0fb205d) SHA1(c29221918b293874fdc5caf7fa8f23941fb0de6a))
+BY17_ROMEND
+#define input_ports_freedoma input_ports_freedom
+CORE_CLONEDEFNV(freedoma,freedom,"Freedom (Free Play+ rev. 07)",2019,"Bally",by35_mBY17,GAME_USES_CHIMES) // also features for example 'Remove Tilt exploit bug'
+
+#define init_freedomb init_freedom
+BY17_ROMSTART8x8(freedomb,"Freedom20_U2.2716",CRC(30ec9fa5) SHA1(7ed00aee05e38e54c4978821a2f37662b80966d7),
+                          "Freedom20_U6.2716",CRC(536bed9f) SHA1(2d45ee00406a36fd30cc43298b6052e69f3e0da2))
+BY17_ROMEND
+#define input_ports_freedomb input_ports_freedom
+CORE_CLONEDEFNV(freedomb,freedom,"Freedom (Free Play+ rev. 20)",2019,"Bally",by35_mBY17,GAME_USES_CHIMES) // audits order aligned to other Bally machines, also features for example 'Remove Tilt exploit bug'
 
 /*--------------------------------
 / Night Rider
@@ -82,6 +98,13 @@ BY35_ROMEND
 #define input_ports_nightrdb input_ports_nightrdr
 CORE_CLONEDEFNV(nightrdb,nightrdr,"Night Rider (Free Play)",2008,"Bally / Oliver",by35_mBY17,GAME_USES_CHIMES)
 
+#define init_nightrdc init_nightrdr
+BY17_ROMSTART8x8(nightrdc,"NightRider_U2.2716", CRC(4128e648) SHA1(c499f99eceb6560c5c9e6b8b81b0461045aabfff),
+                          "System-17_U6.2716",  CRC(7171d600) SHA1(7997a8733a29d0f2f883e02f9b635799f8d679f5))
+BY17_ROMEND
+#define input_ports_nightrdc input_ports_nightrdr
+CORE_CLONEDEFNV(nightrdc,nightrdr,"Night Rider (Free Play+)",2019,"Bally",by35_mBY17,GAME_USES_CHIMES) // also features for example 'Remove Tilt exploit bug'
+
 /*--------------------------------
 / Evel Knievel
 /-------------------------------*/
@@ -98,6 +121,13 @@ BY35_ROMSTARTx00(evelknib,"evel2732.u2",CRC(d17b6869) SHA1(f095adbdd0a9be34fc320
 BY35_ROMEND
 #define input_ports_evelknib input_ports_evelknie
 CORE_CLONEDEFNV(evelknib,evelknie,"Evel Knievel (Free Play)",2008,"Bally / Oliver",by35_mBY17,GAME_USES_CHIMES)
+
+INITGAME(evelknic,GEN_BY17,dispBy6,FLIP_SW(FLIP_L),0,0,0)
+BY17_ROMSTARTx88(evelknic,"EvelKnievel_U2.2716", CRC(a6b063d1) SHA1(342bb2f93e27ca8c11290973ecc7158f29915404),
+                          "System-17_U6.2716",   CRC(7171d600) SHA1(7997a8733a29d0f2f883e02f9b635799f8d679f5))
+BY17_ROMEND
+#define input_ports_evelknic input_ports_evelknie
+CORE_CLONEDEFNV(evelknic,evelknie,"Evel Knievel (Free Play+)",2019,"Bally",by35_mBY17,GAME_USES_CHIMES) // also features for example 'Remove Tilt exploit bug'
 
 /*--------------------------------
 / Eight Ball
@@ -120,7 +150,7 @@ BY17_ROMSTARTx88(eightblo, "E723-17.U2",   CRC(7e7554ae) SHA1(e03c47c4a7a7352293
                            "720-20_6.716", CRC(0c17aa4d) SHA1(729e61a29691857112579efcdb96a35e8e5b1279)) /*MAME: E720-20.U6*/
 BY17_ROMEND
 #define input_ports_eightblo input_ports_eightbll
-CORE_CLONEDEFNV(eightblo,eightbll,"Eight Ball (Old)",1977,"Bally",by35_mBY17,GAME_USES_CHIMES)
+CORE_CLONEDEFNV(eightblo,eightbll,"Eight Ball (Old/Tilt Bug)",1977,"Bally",by35_mBY17,GAME_USES_CHIMES)
 
 INITGAME(eightblb,GEN_BY17,dispBy6,FLIP_SW(FLIP_L),0,0,0)
 BY35_ROMSTARTx00(eightblb,"8bal2732.u2",CRC(da2da9a5) SHA1(3ee3614914bf477c74db83accf8b2f34b1eda3f0),
@@ -128,6 +158,13 @@ BY35_ROMSTARTx00(eightblb,"8bal2732.u2",CRC(da2da9a5) SHA1(3ee3614914bf477c74db8
 BY35_ROMEND
 #define input_ports_eightblb input_ports_eightbll
 CORE_CLONEDEFNV(eightblb,eightbll,"Eight Ball (Free Play)",2008,"Bally / Oliver",by35_mBY17,GAME_USES_CHIMES)
+
+INITGAME(eightblc,GEN_BY17,dispBy6,FLIP_SW(FLIP_L),0,0,0)
+BY17_ROMSTARTx88(eightblc, "EightBall_U2.2716", CRC(3af0a16c) SHA1(518f6c76d08ff65ba02c158e862bdce3eb28dec7),
+                           "System-17_U6.2716", CRC(7171d600) SHA1(7997a8733a29d0f2f883e02f9b635799f8d679f5))
+BY17_ROMEND
+#define input_ports_eightblc input_ports_eightbll
+CORE_CLONEDEFNV(eightblc,eightbll,"Eight Ball (Free Play+)",2018,"Bally",by35_mBY17,GAME_USES_CHIMES)
 
 /*--------------------------------
 / Power Play
@@ -145,6 +182,13 @@ BY35_ROMSTARTx00(pwerplab,"powr2732.u2",CRC(6d18b4a2) SHA1(4750e7b4a07b3e5552bb5
 BY35_ROMEND
 #define input_ports_pwerplab input_ports_pwerplay
 CORE_CLONEDEFNV(pwerplab,pwerplay,"Power Play (Free Play)",2008,"Bally / Oliver",by35_mBY17,GAME_USES_CHIMES)
+
+INITGAME(pwerplac,GEN_BY17,dispBy6,FLIP_SW(FLIP_L),0,0,0)
+BY17_ROMSTARTx88(pwerplac,"PowerPlay_U2.2716", CRC(ed6a58d5) SHA1(13251ea7c89fbc7c3205fed4539faef23733c409),
+                          "System-17_U6.2716", CRC(7171d600) SHA1(7997a8733a29d0f2f883e02f9b635799f8d679f5))
+BY17_ROMEND
+#define input_ports_pwerplac input_ports_pwerplay
+CORE_CLONEDEFNV(pwerplac,pwerplay,"Power Play (Free Play+)",2018,"Bally",by35_mBY17,GAME_USES_CHIMES)
 
 /*--------------------------------
 / Mata Hari
@@ -170,6 +214,13 @@ BY35_ROMEND
 #define input_ports_mataharb input_ports_matahari
 CORE_CLONEDEFNV(mataharb,matahari,"Mata Hari (Free Play)",2008,"Bally / Oliver",by35_mBY17,GAME_USES_CHIMES)
 
+INITGAME(mataharc,GEN_BY17,dispBy6,FLIP_SW(FLIP_L),0,0,0)
+BY17_ROMSTARTx88(mataharc,"MataHari_U2.2716",  CRC(5794ecfb) SHA1(a8e9b7366d79685a96b7552e6c76ba0efafc3124),
+                          "System-17_U6.2716", CRC(7171d600) SHA1(7997a8733a29d0f2f883e02f9b635799f8d679f5))
+BY17_ROMEND
+#define input_ports_mataharc input_ports_matahari
+CORE_CLONEDEFNV(mataharc,matahari,"Mata Hari (Free Play+)",2019,"Bally",by35_mBY17,GAME_USES_CHIMES)
+
 /*--------------------------------
 / Strikes and Spares
 /-------------------------------*/
@@ -187,6 +238,13 @@ BY35_ROMEND
 #define input_ports_stk_sprb input_ports_stk_sprs
 CORE_CLONEDEFNV(stk_sprb,stk_sprs,"Strikes and Spares (Free Play)",2008,"Bally / Oliver",by35_mBY17,GAME_USES_CHIMES)
 
+INITGAME(stk_sprc,GEN_BY17,dispBy6,FLIP_SW(FLIP_L),0,0,0)
+BY17_ROMSTARTx88(stk_sprc,"StrikesAndSpares_U2.2716", CRC(8991df1e) SHA1(efd66d5ef1d078052a4ef74816b0a49c71dd3479),
+                          "System-17_U6.2716",        CRC(7171d600) SHA1(7997a8733a29d0f2f883e02f9b635799f8d679f5))
+BY17_ROMEND
+#define input_ports_stk_sprc input_ports_stk_sprs
+CORE_CLONEDEFNV(stk_sprc,stk_sprs,"Strikes and Spares (Free Play+)",2018,"Bally",by35_mBY17,GAME_USES_CHIMES)
+
 /*--------------------------------
 / Black Jack
 /-------------------------------*/
@@ -203,6 +261,35 @@ BY35_ROMSTARTx00(blackjcb,"blkj2732.u2",CRC(38f1baf4) SHA1(703a6da990355a8f165ae
 BY35_ROMEND
 #define input_ports_blackjcb input_ports_blackjck
 CORE_CLONEDEFNV(blackjcb,blackjck,"Black Jack (Free Play)",2008,"Bally / Oliver",by35_mBY17,GAME_USES_CHIMES)
+
+/* by Robotworkshop on pinside, rule changes:
+If the player wins when landing in the dealer saucer all is normal.
+However, if the ball lands in the saucer when the dealer is winning:
+- Any pending points are lost and a short loss tune is played
+- Player score decreases by 5000 in 1000 decrements (and chimes)
+- If player score reaches 0 or lower then the score is reset to 0 and another dirge tune is played.
+
+If the ball reaches the spinner before scoring any other points on the players ball, the game is designed to tilt.
+This unusual tilt behavior has been removed.
+
+Dip Switch 29 enables/disables the new dealer saucer rule change:
+DSW29
+ Off      Dealer wins subtract score rule is enabled (conservative)
+ On       Dealer wins subtract score rule is disabled (liberal)
+*/
+INITGAME(blackjcc,GEN_BY17,dispBy6,FLIP_SW(FLIP_L),0,0,0)
+BY17_ROMSTARTx88(blackjcc,"728-32_2c.716",CRC(92ea5a4a) SHA1(1a81a64904e54140a65778d2d10af48ef75b9a59),
+                          "720-20_6.716", CRC(0c17aa4d) SHA1(729e61a29691857112579efcdb96a35e8e5b1279))
+BY17_ROMEND
+#define input_ports_blackjcc input_ports_blackjck
+CORE_CLONEDEFNV(blackjcc,blackjck,"Black Jack (Saucer points modification)",2018,"Bally",by35_mBY17,GAME_USES_CHIMES)
+
+INITGAME(blackjcd,GEN_BY17,dispBy6,FLIP_SW(FLIP_L),0,0,0)
+BY17_ROMSTARTx88(blackjcd,"BlackJack_U2.2716", CRC(3c9b14a0) SHA1(18c98ee172fc59c1bf8d1a86352c5697898790b9),
+                          "System-17_U6.2716", CRC(7171d600) SHA1(7997a8733a29d0f2f883e02f9b635799f8d679f5))
+BY17_ROMEND
+#define input_ports_blackjcd input_ports_blackjck
+CORE_CLONEDEFNV(blackjcd,blackjck,"Black Jack (Free Play+)",2018,"Bally",by35_mBY17,GAME_USES_CHIMES)
 
 /* -------------------------------------*/
 /* All games below use Sound Module -32 */
@@ -259,7 +346,7 @@ BY35_ROMSTARTx00(smmanc,"6mi$2732.u2", CRC(52a6bcd4) SHA1(d7be836776ff5be8d69472
 BY50_SOUNDROM(            "729-18_3.123",CRC(7b6b7d45) SHA1(22f791bac0baab71754b2f6c00c217a342c92df5))
 BY35_ROMEND
 #define input_ports_smmanc input_ports_by35
-CORE_CLONEDEFNV(smmanc,smman,"Six Million Dollar Man, The (7-digit rev. 3 Free Play)",2008,"Bally / Oliver",by35_mBY35_32S,0)
+CORE_CLONEDEFNV(smmanc,smman,"Six Million Dollar Man, The (7-digit Free Play rev. 3)",2008,"Bally / Oliver",by35_mBY35_32S,0)
 
 INITGAME(smmand,GEN_BY35,smmanDisp,FLIP_SW(FLIP_L),0,SNDBRD_BY32,0x81)
 BY35_ROMSTARTx00(smmand,"6mi$2732.u2", CRC(52a6bcd4) SHA1(d7be836776ff5be8d694726b785023ceba312f5b),
@@ -295,7 +382,7 @@ BY35_ROMSTARTx00(playboyc,"play2732.u2", CRC(da49e8ce) SHA1(fa2b7731e6ade119b1c1
 BY32_SOUNDROM(            "729-18_3.123",CRC(7b6b7d45) SHA1(22f791bac0baab71754b2f6c00c217a342c92df5))
 BY35_ROMEND
 #define input_ports_playboyc input_ports_by35
-CORE_CLONEDEFNV(playboyc,playboy, "Playboy (7-digit rev. 3 Free Play)",2008,"Bally / Oliver",by35_mBY35_32S,0)
+CORE_CLONEDEFNV(playboyc,playboy, "Playboy (7-digit Free Play rev. 3)",2008,"Bally / Oliver",by35_mBY35_32S,0)
 
 INITGAME(playboyd,GEN_BY35,dispBy7,FLIP_SW(FLIP_L),0,SNDBRD_BY32,0)
 BY35_ROMSTARTx00(playboyd,"play2732.u2", CRC(da49e8ce) SHA1(fa2b7731e6ade119b1c18e85e15bdc21ea9e46af),
@@ -331,7 +418,7 @@ BY35_ROMSTARTx00(voltanc, "volt2732.u2", CRC(a4670a54) SHA1(7bb792e388d52bd350e3
 BY32_SOUNDROM(            "729-18_3.123",CRC(7b6b7d45) SHA1(22f791bac0baab71754b2f6c00c217a342c92df5))
 BY35_ROMEND
 #define input_ports_voltanc input_ports_by35
-CORE_CLONEDEFNV(voltanc,voltan, "Voltan Escapes Cosmic Doom (7-digit rev. 3 Free Play)",2008,"Bally / Oliver",by35_mBY35_32S,0)
+CORE_CLONEDEFNV(voltanc,voltan, "Voltan Escapes Cosmic Doom (7-digit Free Play rev. 3)",2008,"Bally / Oliver",by35_mBY35_32S,0)
 
 INITGAME(voltand,GEN_BY35,dispBy7,FLIP_SW(FLIP_L),0,SNDBRD_BY32,0)
 BY35_ROMSTARTx00(voltand, "volt2732.u2", CRC(a4670a54) SHA1(7bb792e388d52bd350e38c02fcde2f8ed9993dc1),
@@ -367,7 +454,7 @@ BY35_ROMSTARTx00(sstc,    "surp2732.u2", CRC(4987f46e) SHA1(a32984f29ba41c8c0388
 BY32_SOUNDROM(            "729-18_3.123",CRC(7b6b7d45) SHA1(22f791bac0baab71754b2f6c00c217a342c92df5))
 BY35_ROMEND
 #define input_ports_sstc input_ports_by35
-CORE_CLONEDEFNV(sstc,sst, "Supersonic (7-digit rev. 3 Free Play)",2008,"Bally / Oliver",by35_mBY35_32S,0)
+CORE_CLONEDEFNV(sstc,sst, "Supersonic (7-digit Free Play rev. 3)",2008,"Bally / Oliver",by35_mBY35_32S,0)
 
 INITGAME(sstd,GEN_BY35,dispBy7,FLIP_SW(FLIP_L),0,SNDBRD_BY32,0)
 BY35_ROMSTARTx00(sstd,    "surp2732.u2", CRC(4987f46e) SHA1(a32984f29ba41c8c03883cb80797c55b20d1ce42),
@@ -406,7 +493,7 @@ BY35_ROMSTARTx00(startrec,"star2732.u2", CRC(34dd99c3) SHA1(86dd5b46873c19103115
 BY50_SOUNDROM(            "729-18_3.123",CRC(7b6b7d45) SHA1(22f791bac0baab71754b2f6c00c217a342c92df5))
 BY35_ROMEND
 #define input_ports_startrec input_ports_by35
-CORE_CLONEDEFNV(startrec,startrek, "Star Trek (7-digit rev. 3 Free Play)",2008,"Bally / Oliver",by35_mBY35_50S,0)
+CORE_CLONEDEFNV(startrec,startrek, "Star Trek (7-digit Free Play rev. 3)",2008,"Bally / Oliver",by35_mBY35_50S,0)
 
 INITGAME(startred,GEN_BY35,dispBy7,FLIP_SW(FLIP_L),0,SNDBRD_BY50,0)
 BY35_ROMSTARTx00(startred,"star2732.u2", CRC(34dd99c3) SHA1(86dd5b46873c1910311504bdbfcd340317109be6),
@@ -442,7 +529,7 @@ BY35_ROMSTARTx00(paragonc,"para2732.u2", CRC(b3c990a1) SHA1(cb90c5fa52fefc29574a
 BY50_SOUNDROM(            "729-51_3.123",CRC(6e7d3e8b) SHA1(7a93d82a05213ffa6eacfa318051414f872a701d))
 BY35_ROMEND
 #define input_ports_paragonc input_ports_by35
-CORE_CLONEDEFNV(paragonc,paragon, "Paragon (7-digit rev. 3 Free Play)",2008,"Bally / Oliver",by35_mBY35_50S,0)
+CORE_CLONEDEFNV(paragonc,paragon, "Paragon (7-digit Free Play rev. 3)",2008,"Bally / Oliver",by35_mBY35_50S,0)
 
 INITGAME(paragond,GEN_BY35,dispBy7,FLIP_SW(FLIP_L),0,SNDBRD_BY50,0)
 BY35_ROMSTARTx00(paragond,"para2732.u2", CRC(b3c990a1) SHA1(cb90c5fa52fefc29574a86d0f39fd29b2a70b8f2),
@@ -518,7 +605,7 @@ BY35_ROMSTARTx00(kissc,   "kiss2732.u2", CRC(716adcfd) SHA1(048e3142cfa307ea4552
 BY50_SOUNDROM(            "729-18_3.123",CRC(7b6b7d45) SHA1(22f791bac0baab71754b2f6c00c217a342c92df5))
 BY35_ROMEND
 #define input_ports_kissc input_ports_by35
-CORE_CLONEDEFNV(kissc,kiss,"Kiss (7-digit rev. 3 Free Play)",2008,"Bally / Oliver",by35_mBY35_50S,0)
+CORE_CLONEDEFNV(kissc,kiss,"Kiss (7-digit Free Play rev. 3)",2008,"Bally / Oliver",by35_mBY35_50S,0)
 
 INITGAME(kissd,GEN_BY35,dispBy7,FLIP_SW(FLIP_L),0,SNDBRD_BY50,0)
 BY35_ROMSTARTx00(kissd,   "kiss2732.u2", CRC(716adcfd) SHA1(048e3142cfa307ea4552e6af3812b0d7301b62ad),
@@ -663,13 +750,17 @@ BY35_ROMEND
 #define input_ports_hotdoggn input_ports_by35
 CORE_GAMEDEFNV(hotdoggn,"Hot Doggin",1980,"Bally",by35_mBY35_51S,0)
 
+// credit display is always on
+// dip switch 25 = on and dip switch 26 = on enables freegame
+// decrease credits not lower then 01
+// Reset lit letter SKI FUN HOTDOGGIN after each ball if dip 27 = off
 INITGAME(hotdogga,GEN_BY35,dispBy6,FLIP_SW(FLIP_L),0,SNDBRD_BY51,0)
 BY35_ROMSTARTx00(hotdogga,"hot2un.u2",   CRC(65699a74) SHA1(b9894d3ed1f78228139ca630b1a5fd07a2f94bcf),
                           "hot2un.u6",   CRC(5197c298) SHA1(8eb7409830add41e0daab187f4ac8d1c016c78a5))
 BY51_SOUNDROM8(           "809-07_4.716",CRC(43f28d7f) SHA1(01fca0ee0137a0715421eaa3582ff8d324340ecf))
 BY35_ROMEND
 #define input_ports_hotdogga input_ports_hotdoggn
-CORE_CLONEDEFNV(hotdogga,hotdoggn,"Hot Doggin (Free Play)",2002,"Bally / Oliver",by35_mBY35_51S,0)
+CORE_CLONEDEFNV(hotdogga,hotdoggn,"Hot Doggin (modified rules rev. 2 Free Play)",2002,"Bally / Oliver",by35_mBY35_51S,0)
 
 INITGAME(hotdoggb,GEN_BY35,dispBy7,FLIP_SW(FLIP_L),0,SNDBRD_BY51,0)
 BY35_ROMSTARTx00(hotdoggb,"hotd2732.u2", CRC(709305ee) SHA1(37d5e681a1a2b8b2782dae3007db3e5036003e00),
@@ -717,7 +808,7 @@ BY35_ROMSTARTx00(skateblb,"skate02.u2",  CRC(91607e8a) SHA1(00d4ff84acc594037b8b
 BY51_SOUNDROM8(           "823-02_4.716",CRC(d1037b20) SHA1(8784728540573be5e8ebb940ec0046b778f9413b))
 BY35_ROMEND
 #define input_ports_skateblb input_ports_skatebll
-CORE_CLONEDEFNV(skateblb,skatebll,"Skateball (alternate set rev. 3)",2005,"Bally / Oliver",by35_mBY35_51S,0)
+CORE_CLONEDEFNV(skateblb,skatebll,"Skateball (Improved attract mode, Free Play rev. 3)",2005,"Bally / Oliver",by35_mBY35_51S,0)
 
 INITGAME2(skatebla,GEN_BY35,dispBy7,FLIP_SW(FLIP_L),0,SNDBRD_BY51,0)
 BY35_ROMSTARTx00(skatebla,"skat2732.u2",  CRC(448bf439) SHA1(ec3224b166f159f60e252789f6dc84164f537ef2),
@@ -739,9 +830,26 @@ BY35_ROMEND
 #define input_ports_frontier input_ports_by35
 CORE_GAMEDEFNV(frontier,"Frontier",1980,"Bally",by35_mBY35_51S,0)
 
+/* From rec.games.pinball:
+U6 offset zero (checksum): change from AB to BB
+U6 offset $289 change from FE 50 90 AD 00 to 86 EF BD 5E EB
+
+adds what some might consider to be another bug though - say you're on
+ball one, you get the gate open.  Decide to add another player - the
+gate's gonna close.  The hack above shuts the gate regardless of status
+when you start a game/add a player. */
+INITGAME2(frontieg,GEN_BY35,dispBy7,FLIP_SW(FLIP_L),0,SNDBRD_BY51,0)
+BY35_ROMSTART880(frontieg,"819-08_1.716", CRC(e2f8ce9d) SHA1(03b38486e12f1677dcabcd0f14d194c59b3bd214),
+                          "819-07_2.716", CRC(af023a85) SHA1(95df232ba654293066beccbad158146259a764b7),
+                          "720-40_6g.732",CRC(8ffb8c27) SHA1(caf44646d29211ddc5c2eea17ebb4a2e94eaa0f4))
+BY51_SOUNDROM8(           "819-09_4.716", CRC(a62059ca) SHA1(75e139ea2573a8c3b666c9a1024d9308da9875c7))
+BY35_ROMEND
+#define input_ports_frontieg input_ports_frontier
+CORE_CLONEDEFNV(frontieg,frontier,"Frontier (Gate Fix)",2011,"Bally / Scott",by35_mBY35_51S,0)
+
 INITGAME2(frontiea,GEN_BY35,dispBy7,FLIP_SW(FLIP_L),0,SNDBRD_BY51,0)
-BY35_ROMSTARTx00(frontiea,"frnt2732.u2",  CRC(d866b2da) SHA1(d16cd346886149d7a19d3be8f0a626c34827242a),
-                          "7406fn.u6",  CRC(43a5f459) SHA1(3c8326df8a363d9bd64863a467b6988c3608e9f8))
+BY35_ROMSTARTx00(frontiea,"frnt2732.u2", CRC(d866b2da) SHA1(d16cd346886149d7a19d3be8f0a626c34827242a),
+                          "7406fn.u6",   CRC(43a5f459) SHA1(3c8326df8a363d9bd64863a467b6988c3608e9f8))
 BY51_SOUNDROM8(           "819-09_4.716",CRC(a62059ca) SHA1(75e139ea2573a8c3b666c9a1024d9308da9875c7))
 BY35_ROMEND
 #define input_ports_frontiea input_ports_frontier
@@ -848,6 +956,36 @@ BY35_ROMEND
 #define input_ports_flashgva input_ports_by35
 CORE_CLONEDEFNV(flashgva,flashgdn,"Flash Gordon (Vocalizer Sound Free Play)",2004,"Bally / Oliver",by35_mBY35_56S,0) // rev. 1
 
+INITGAME2(flashgvf,GEN_BY35,dispBy7,FLIP_SW(FLIP_L),8,SNDBRD_BY56,0)
+BY35_ROMSTARTx00(flashgvf,"834-23_2.732",CRC(0c7a0d91) SHA1(1f79be15817975acbc35cb08591e2289e2eca938),
+                          "720-52_6.732",CRC(2a43d9fb) SHA1(9ff903c32b80780383578a9abaa3ef9d3bcecbc7))
+BY56_SOUNDROM(            "834-37_4.532",CRC(c4687fe1) SHA1(104a44fd05d7ca0640971cc52152ac7a03349fc7))
+BY57_SOUNDROM(            "834-27_1.532",CRC(2152efff) SHA1(07d2af3e1f9077548e3932fd1d104275de889eae),
+                          "834-28_2.532",CRC(01d0bb0f) SHA1(77a35f357d712e9d24e56b45d04dc28b372d8634),
+                          "834-29_3.532",CRC(8beb4a87) SHA1(bd415303e73950a19b02226d35ee5c12fe58e300),
+                          "834-30_4.532",CRC(35040596) SHA1(3167d29f6346aef8ce3bdf51652ba248c1b7bdf0),
+                          "834-31_5.532",CRC(a2e4cfd3) SHA1(ba1501d9d1d7af406affd53e80eb08afa6219036),
+                          "834-32_6.532",CRC(d18c6803) SHA1(a24a8a63280ed365618592de8690985ed1797cfd),
+                          "834-09_7.532",CRC(19ceabd1) SHA1(37e7780f2ba3e06462e775547278dcba1b6d2ac8))
+BY35_ROMEND
+#define input_ports_flashgvf input_ports_by35
+CORE_CLONEDEFNV(flashgvf,flashgdn,"Flash Gordon (French Vocalizer Sound)",1981,"Bally",by35_mBY35_56S,0)
+
+INITGAME2(flashgvffp,GEN_BY35,dispBy7,FLIP_SW(FLIP_L),8,SNDBRD_BY56,0)
+BY35_ROMSTARTx00(flashgvffp,"834-23_2.732",CRC(0c7a0d91) SHA1(1f79be15817975acbc35cb08591e2289e2eca938),
+                          "7526fn.u6",CRC(00258a56) SHA1(40143d65ee92d20a565d21b6c1c3507d659a38e0))
+BY56_SOUNDROM(            "834-37_4.532",CRC(c4687fe1) SHA1(104a44fd05d7ca0640971cc52152ac7a03349fc7))
+BY57_SOUNDROM(            "834-27_1.532",CRC(2152efff) SHA1(07d2af3e1f9077548e3932fd1d104275de889eae),
+                          "834-28_2.532",CRC(01d0bb0f) SHA1(77a35f357d712e9d24e56b45d04dc28b372d8634),
+                          "834-29_3.532",CRC(8beb4a87) SHA1(bd415303e73950a19b02226d35ee5c12fe58e300),
+                          "834-30_4.532",CRC(35040596) SHA1(3167d29f6346aef8ce3bdf51652ba248c1b7bdf0),
+                          "834-31_5.532",CRC(a2e4cfd3) SHA1(ba1501d9d1d7af406affd53e80eb08afa6219036),
+                          "834-32_6.532",CRC(d18c6803) SHA1(a24a8a63280ed365618592de8690985ed1797cfd),
+                          "834-09_7.532",CRC(19ceabd1) SHA1(37e7780f2ba3e06462e775547278dcba1b6d2ac8))
+BY35_ROMEND
+#define input_ports_flashgvffp input_ports_by35
+CORE_CLONEDEFNV(flashgvffp,flashgdn,"Flash Gordon (French Vocalizer Sound Free Play)",2004,"Bally / Oliver",by35_mBY35_56S,0)
+
 /* -----------------------------------------------------------*/
 /* All games below use Squalk N Talk -61 (except where noted) */
 /* -----------------------------------------------------------*/
@@ -918,7 +1056,7 @@ CORE_CLONEDEFNV(eballd14,eballdlx,"Eight Ball Deluxe (rev. 14)",1981,"Bally",by3
 
 #define init_eballdla init_eballdlx
 BY35_ROMSTARTx00(eballdla,"838-15_2.732",CRC(68d92acc) SHA1(f37b16d2953677cd779073bc3eac4b586d62fad8),
-                          "7526fn.u6",CRC(00258a56) SHA1(40143d65ee92d20a565d21b6c1c3507d659a38e0))
+                          "7526fn.u6",   CRC(00258a56) SHA1(40143d65ee92d20a565d21b6c1c3507d659a38e0))
 BY61_SOUNDROMx080(        "838-08_3.532",CRC(c39478d7) SHA1(8148aca7c4113921ab882da32d6d88e66abb22cc),
                           "838-09_4.716",CRC(518ea89e) SHA1(a387274ef530bb57f31819733b35615a39260126),
                           "838-10_5.532",CRC(9c63925d) SHA1(abd1fa6308d3569e16ee10bfabce269a124d8f26))
@@ -927,8 +1065,8 @@ BY35_ROMEND
 CORE_CLONEDEFNV(eballdla,eballdlx,"Eight Ball Deluxe (Free Play)",2004,"Bally / Oliver",by35_mBY35_61S,0) // rev. 1
 
 #define init_eballdlb init_eballdlx
-BY35_ROMSTARTx00(eballdlb,"8bd029.u2",CRC(ebc65a0d) SHA1(cb0bdb8750362e4e822dd6b41ad45ee8c9fb1452),
-                          "8bd029.u6",CRC(6977de87) SHA1(5986337b7a75f8212f16d3d704ab8c1a8a828d0c))
+BY35_ROMSTARTx00(eballdlb,"8bd029.u2",   CRC(ebc65a0d) SHA1(cb0bdb8750362e4e822dd6b41ad45ee8c9fb1452),
+                          "8bd029.u6",   CRC(6977de87) SHA1(5986337b7a75f8212f16d3d704ab8c1a8a828d0c))
 BY61_SOUNDROMx080(        "838-08_3.532",CRC(c39478d7) SHA1(8148aca7c4113921ab882da32d6d88e66abb22cc),
                           "838-09_4.716",CRC(518ea89e) SHA1(a387274ef530bb57f31819733b35615a39260126),
                           "838-10_5.532",CRC(9c63925d) SHA1(abd1fa6308d3569e16ee10bfabce269a124d8f26))
@@ -937,14 +1075,25 @@ BY35_ROMEND
 CORE_CLONEDEFNV(eballdlb,eballdlx,"Eight Ball Deluxe (modified rules rev. 29)",2007,"Bally / Oliver",by35_mBY35_61S,0)
 
 #define init_eballdlc init_eballdlx
-BY35_ROMSTARTx00(eballdlc,"8bdhun.u2",CRC(12f5f247) SHA1(b447f886826a4ad2ddc8c8be42db03930474cbc2),
-                          "8bdhun.u6",CRC(a4916eb8) SHA1(cfbbc035a747d7db72f42af35a5832487ea72b13))
+BY35_ROMSTARTx00(eballdlc,"8bdhun.u2",   CRC(12f5f247) SHA1(b447f886826a4ad2ddc8c8be42db03930474cbc2),
+                          "8bdhun.u6",   CRC(a4916eb8) SHA1(cfbbc035a747d7db72f42af35a5832487ea72b13))
 BY61_SOUNDROMx080(        "838-08_3.532",CRC(c39478d7) SHA1(8148aca7c4113921ab882da32d6d88e66abb22cc),
                           "838-09_4.716",CRC(518ea89e) SHA1(a387274ef530bb57f31819733b35615a39260126),
                           "838-10_5.532",CRC(9c63925d) SHA1(abd1fa6308d3569e16ee10bfabce269a124d8f26))
 BY35_ROMEND
 #define input_ports_eballdlc input_ports_eballdlx
 CORE_CLONEDEFNV(eballdlc,eballdlx,"Eight Ball Deluxe (modified rules rev. 32)",2007,"Bally / Oliver",by35_mBY35_61S,0)
+
+// fixes player 2 and player 4 bonus countdown bug, based on rev. 15
+#define init_eballdld init_eballdlx
+BY35_ROMSTARTx00(eballdld,"838-fix2.732",CRC(1d9350f4) SHA1(c4ff2e896846420798e89024aa1d5ed4cc28a228),
+                          "720-52_6.732",CRC(2a43d9fb) SHA1(9ff903c32b80780383578a9abaa3ef9d3bcecbc7))
+BY61_SOUNDROMx080(        "838-08_3.532",CRC(c39478d7) SHA1(8148aca7c4113921ab882da32d6d88e66abb22cc),
+                          "838-09_4.716",CRC(518ea89e) SHA1(a387274ef530bb57f31819733b35615a39260126),
+                          "838-10_5.532",CRC(9c63925d) SHA1(abd1fa6308d3569e16ee10bfabce269a124d8f26))
+BY35_ROMEND
+#define input_ports_eballdld input_ports_eballdlx
+CORE_CLONEDEFNV(eballdld,eballdlx,"Eight Ball Deluxe (P2/4 Bonus Bugfix)",2019,"Bally / idleman",by35_mBY35_61S,0)
 
 /*--------------------------------
 / Fireball II
@@ -1015,6 +1164,15 @@ BY35_ROMEND
 #define init_embryond init_embryonb
 CORE_CLONEDEFNV(embryond,embryon ,"Embryon (7-digit conversion rev. 9)",2004,"Bally / Oliver",by35_mBY35_61BS,0)
 
+BY35_ROMSTARTx00(embryone,"emb2xsp.u2",  CRC(9e721fd7) SHA1(83e1d081a48e68bb4a61833156c539bcd04c9505),
+                          "emb2xsp.u6",  CRC(a421784b) SHA1(9997805abeb8877b96eb0587a56f2f89fbf7fa55))
+BY61_SOUNDROMxx80(        "841-01_4.716",CRC(e8b234e3) SHA1(584e553748b1c6571491150e346d815005948b68),
+                          "841-02_5.532",CRC(9cd8c04e) SHA1(7d74d8f33a98c9832fda1054187eb7300dbf5f5e))
+BY35_ROMEND
+#define input_ports_embryone input_ports_embryon
+#define init_embryone init_embryonb
+CORE_CLONEDEFNV(embryone,embryon ,"Embryon (7-digit conversion rev. 92)",2011,"Bally",by35_mBY35_61BS,0) // also done by Oliver??
+
 /*--------------------------------
 / Fathom
 /-------------------------------*/
@@ -1043,7 +1201,7 @@ BY61_SOUNDROMxx00(       "842-01_4.532",CRC(2ac02093) SHA1(a89c1d24f4f3e1f58ca4e
                          "842-02_5.532",CRC(736800bc) SHA1(2679d4d76e7258ad18ffe05cf333f21c35adfe0e))
 BY35_ROMEND
 #define input_ports_fathomb input_ports_fathom
-CORE_CLONEDEFNV(fathomb,fathom,"Fathom (modified rules)",2004,"Bally / Oliver",by35_mBY35_61BS,0)
+CORE_CLONEDEFNV(fathomb,fathom,"Fathom (modified rules rev. 5)",2004,"Bally / Oliver",by35_mBY35_61BS,0)
 
 /*--------------------------------
 / Medusa
@@ -1191,16 +1349,40 @@ BY35_ROMEND
 #define input_ports_vectora input_ports_vector
 CORE_CLONEDEFNV(vectora,vector,"Vector (Free Play)",2004,"Bally / Oliver",by35_mBY35_61S,0) // rev. 1
 
+#define init_vector4 init_vector
+BY35_ROMSTARTx00(vector4,"vectoru2.732",CRC(1b1740d5) SHA1(0e4e932bcdf37ac033fa1f9fe5ead4073a6280f0),
+                         "vectoru6.732",CRC(42d7f176) SHA1(93460c46b3cf033ff23d063e8160cc2c18d00458))
+BY61_SOUNDROM0000(       "858-01_2.532",CRC(bd2edef9) SHA1(8f129016440bad5e78d4b073268e76e542b61684),
+                         "858-02_3.532",CRC(c592fb35) SHA1(5201824f129812c907e7d8a4600de23d95fd1eb0),
+                         "858-03_4.532",CRC(8661d312) SHA1(36d04d875382ff5387991d660d031c662b414698),
+                         "858-06_5.532",CRC(3050edf6) SHA1(e028192d9a8c17123b07566c6d73302cec07b440))
+BY35_ROMEND
+#define input_ports_vector4 input_ports_vector
+CORE_CLONEDEFNV(vector4,vector,"Vector (modified rules rev. 4)",2004,"Bally / Oliver",by35_mBY35_61S,0)
+
 #define init_vectorb init_vector
-BY35_ROMSTARTx00(vectorb,"vectoru2.732",CRC(6b2cbd42) SHA1(f778d19f8ff7a6228ccd3b49af9d60bc9eeffe7b),
-                         "vectoru6.732",CRC(fe504d05) SHA1(27c72358ea53fd051e64c0179019116356f543d5))
+BY35_ROMSTARTx00(vectorb,"vec2uN.U2",   CRC(6b2cbd42) SHA1(f778d19f8ff7a6228ccd3b49af9d60bc9eeffe7b),
+                         "vec2uN.U6",   CRC(fe504d05) SHA1(27c72358ea53fd051e64c0179019116356f543d5))
 BY61_SOUNDROM0000(       "858-01_2.532",CRC(bd2edef9) SHA1(8f129016440bad5e78d4b073268e76e542b61684),
                          "858-02_3.532",CRC(c592fb35) SHA1(5201824f129812c907e7d8a4600de23d95fd1eb0),
                          "858-03_4.532",CRC(8661d312) SHA1(36d04d875382ff5387991d660d031c662b414698),
                          "858-06_5.532",CRC(3050edf6) SHA1(e028192d9a8c17123b07566c6d73302cec07b440))
 BY35_ROMEND
 #define input_ports_vectorb input_ports_vector
-CORE_CLONEDEFNV(vectorb,vector,"Vector (modified rules)",2004,"Bally / Oliver",by35_mBY35_61S,0)
+CORE_CLONEDEFNV(vectorb,vector,"Vector (modified rules rev. 5)",2004,"Bally / Oliver",by35_mBY35_61S,0)
+
+#define init_vectorc init_vector
+ROM_START(vectorc)
+  NORMALREGION(0x10000, BY35_CPUREGION)
+    ROM_LOAD("vewo.256", 0x0000, 0x8000,CRC(7b07b152) SHA1(5fc90a90f788710b955999a82a34cf1883f54321))
+    ROM_RELOAD(0x8000, 0x8000)
+BY61_SOUNDROM0000(       "858-01_2.532",CRC(bd2edef9) SHA1(8f129016440bad5e78d4b073268e76e542b61684),
+                         "858-02_3.532",CRC(c592fb35) SHA1(5201824f129812c907e7d8a4600de23d95fd1eb0),
+                         "858-03_4.532",CRC(8661d312) SHA1(36d04d875382ff5387991d660d031c662b414698),
+                         "858-06_5.532",CRC(3050edf6) SHA1(e028192d9a8c17123b07566c6d73302cec07b440))
+BY35_ROMEND
+#define input_ports_vectorc input_ports_vector
+CORE_CLONEDEFNV(vectorc,vector,"Vector (modified rules rev. 10)",2008,"Bally / Oliver",by35_mBY35_61S,0)
 
 /*--------------------------------
 / Spectrum
@@ -1627,10 +1809,8 @@ const struct sndbrdIntf grandIntf = {
 INITGAME(bullseye,GEN_BY17,dispBy6,FLIP_SW(FLIP_L),8,SNDBRD_GRAND,0)
 ROM_START(bullseye) \
   NORMALREGION(0x10000, BY35_CPUREGION) \
-    ROM_LOAD("bull.u2", 0x2000, 0x0800, CRC(a2951aa2) SHA1(f9c0826c5d1d6d904286678ed90de3850a13b5f4)) \
-    ROM_CONTINUE( 0x2800, 0x0800) \
-    ROM_LOAD("bull.u6", 0x3000, 0x0800, CRC(64d4b9c4) SHA1(bf4d0671372fd3a445c4c7330b9849171ca8048c)) \
-    ROM_CONTINUE( 0x3800, 0x0800) \
+    ROM_LOAD("bull.u2", 0x2000, 0x1000, CRC(a2951aa2) SHA1(f9c0826c5d1d6d904286678ed90de3850a13b5f4)) \
+    ROM_LOAD("bull.u6", 0x3000, 0x1000, CRC(64d4b9c4) SHA1(bf4d0671372fd3a445c4c7330b9849171ca8048c)) \
     ROM_RELOAD( 0xf000, 0x1000)
   SOUNDREGION(0x10000, BY51_CPUREGION) \
     ROM_LOAD("bull.snd", 0x8000, 0x0800, CRC(c0482a2f) SHA1(a6aa698ad517cdc078129d702ee936af576260ed)) \
@@ -1648,10 +1828,8 @@ CORE_GAMEDEFNV(bullseye,"301/Bullseye",1986,"Grand Products Inc.",by35_GP,0)
 INITGAME(bullseyn,GEN_BY17,dispBy6,FLIP_SW(FLIP_L),8,SNDBRD_GRAND,0)
 ROM_START(bullseyn) \
   NORMALREGION(0x10000, BY35_CPUREGION) \
-    ROM_LOAD("301NEW_normalscoring.U2", 0x2000, 0x0800, CRC(febebc63) SHA1(9221b02bc5952203f5b2527e4c40d17d5986abdf)) \
-    ROM_CONTINUE( 0x2800, 0x0800) \
-    ROM_LOAD("301NEW_normalscoring.U6", 0x3000, 0x0800, CRC(1357cd6a) SHA1(4e02c96b141dab6cdea1a15539214976eb052838)) \
-    ROM_CONTINUE( 0x3800, 0x0800) \
+    ROM_LOAD("301NEW_normalscoring.U2", 0x2000, 0x1000, CRC(febebc63) SHA1(9221b02bc5952203f5b2527e4c40d17d5986abdf)) \
+    ROM_LOAD("301NEW_normalscoring.U6", 0x3000, 0x1000, CRC(1357cd6a) SHA1(4e02c96b141dab6cdea1a15539214976eb052838)) \
     ROM_RELOAD( 0xf000, 0x1000)
   SOUNDREGION(0x10000, BY51_CPUREGION) \
     ROM_LOAD("bull.snd", 0x8000, 0x0800, CRC(c0482a2f) SHA1(a6aa698ad517cdc078129d702ee936af576260ed)) \

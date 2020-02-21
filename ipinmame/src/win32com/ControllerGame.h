@@ -51,7 +51,7 @@ public:
 	STDMETHOD(get_Description)(/*[out, retval]*/ BSTR *pVal);
 	STDMETHOD(get_CloneOf)(/*[out, retval]*/ BSTR *pVal);
 	STDMETHOD(get_Roms)(/*[out, retval]*/ IRoms* *pVal);
-	STDMETHOD(ShowInfoDlg)(/*[in,defaultvalue(0)]*/ int nShowOptions, /*[in,defaultvalue(0)]*/ long hParentWnd, /*[out, retval]*/ int *pVal);
+	STDMETHOD(ShowInfoDlg)(/*[in,defaultvalue(0)]*/ int nShowOptions, /*[in,defaultvalue(0)]*/ LONG_PTR hParentWnd, /*[out, retval]*/ int *pVal);
 	STDMETHOD(get_Settings)(/*[out, retval]*/ IGameSettings * *pVal);
 
 	HRESULT Init(const struct GameDriver *gamedrv);
@@ -63,9 +63,9 @@ private:
 
 /* some helper functions */
 
-int	  GetGameNumFromString(char *name);
-char* GetGameRegistryKey(char *pszRegistryKey, char* pszGameName);
-BOOL  GameUsedTheFirstTime(char* pszROMName);
+int	  GetGameNumFromString(const char * const name);
+char* GetGameRegistryKey(char *pszRegistryKey, const char* const pszGameName);
+BOOL  GameUsedTheFirstTime(const char* const pszROMName);
 
 BOOL GameWasNeverStarted(char* pszROMName);
 void SetGameWasStarted(char* pszROMName);

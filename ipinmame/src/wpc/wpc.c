@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+
 #include <stdarg.h>
 #include <time.h>
 #include "driver.h"
@@ -31,7 +33,7 @@
 #define WPC_LAMPSMOOTH     2 /* Smooth the lamps over this number of VBLANKS */
 #define WPC_DISPLAYSMOOTH  2 /* Smooth the display over this number of VBLANKS */
 #define WPC_MODSOLSMOOTH   28 /* Modulated solenoids - History length to smooth over */
-#define WPC_MODSOLSAMPLE   2  /* Modulated solenodi sampling rate (every n IRQs) */
+#define WPC_MODSOLSAMPLE   2  /* Modulated solenoid sampling rate (every n IRQs) */
 #endif
 
 
@@ -83,6 +85,12 @@ static SWITCH_UPDATE(wpc);
 /  Global variables
 /---------------------*/
 UINT8 *wpc_data;     /* WPC registers */
+
+#ifdef VPINMAME
+extern UINT8  g_raw_gtswpc_dmd[];
+extern UINT32 g_raw_gtswpc_dmdframes;
+#endif
+
 const struct core_dispLayout wpc_dispAlpha[] = {
   {0,0, 0,13,CORE_SEG16R},{0,26,13,2,CORE_SEG16D},{0,30,15,1,CORE_SEG16N},
   {4,0,20,13,CORE_SEG16R},{4,26,33,2,CORE_SEG16D},{4,30,35,1,CORE_SEG16N},
@@ -126,6 +134,7 @@ static struct {
 
 // Have to put this here, instead of wpclocals, since wpclocals is cleared/initialized AFTER game specific init.   Grrr.
 static int wpc_modsol_aux_board = 0;
+static int wpc_fastflip_addr = 0;
 
 static struct {
   UINT8 *DMDFrames[DMD_FRAMES];
@@ -134,7 +143,7 @@ static struct {
 
 /*-- pointers --*/
 static mame_file *wpc_printfile = NULL;
-static UINT8 *wpc_ram = NULL;
+UINT8 *wpc_ram = NULL;
 
 /*---------------------------
 /  Memory map for CPU board
@@ -181,6 +190,11 @@ static void wpc_zc(int data) {
 void wpc_set_modsol_aux_board(int board)
 {
 	wpc_modsol_aux_board = board;
+}
+
+void wpc_set_fastflip_addr(int addr)
+{
+	wpc_fastflip_addr = addr;
 }
 
 #ifdef PROC_SUPPORT
@@ -443,6 +457,15 @@ static INTERRUPT_GEN(wpc_vblank) {
       coreGlobals.solenoids2 |= wpclocals.solFlip;
       wpclocals.solFlip = wpclocals.solFlipPulse;
     }
+	// If fastflipaddr is set, we want sol31 to be triggered by a nonzero value
+	// in that location
+	if (wpc_fastflip_addr > 0)
+	{
+		coreGlobals.solenoids2 &= ~(0x400);
+		if (wpc_ram[wpc_fastflip_addr] > 0)
+			coreGlobals.solenoids2 |= 0x400;
+	}
+
   }
   else if (((wpclocals.vblankCount % WPC_VBLANKDIV) == 0) &&
            (core_gameData->gen & GENWPC_HASFLIPTRON)) {
@@ -928,6 +951,7 @@ static void wpc_pic_w(int data) {
 /  Generate IRQ interrupt
 /--------------------------*/
 static INTERRUPT_GEN(wpc_irq) {
+#ifdef WPC_MODSOLSAMPLE
 	if (options.usemodsol)
 	{
 		if (wpclocals.modsol_sample < WPC_MODSOLSAMPLE-1)
@@ -968,7 +992,9 @@ static INTERRUPT_GEN(wpc_irq) {
 			else
 			{
 				wpclocals.modsol_count  = 0;
-				for (i = 0; i < 32; i++)
+				// TODO: Does GEN_ALLWPC apply to everything in this driver?  If yes this check is not needed here, but I can
+				// see the same check is made in the P-ROC stuff above?
+				for (i = 0; i < ((core_gameData->gen & GEN_ALLWPC) ? 28 : 32); i++)
 				{
 					coreGlobals.modulatedSolenoids[CORE_MODSOL_CUR][i] = core_calc_modulated_light(wpclocals.solenoidbits[i], WPC_MODSOLSMOOTH, &coreGlobals.modulatedSolenoids[CORE_MODSOL_PREV][i]);
 				}
@@ -987,7 +1013,7 @@ static INTERRUPT_GEN(wpc_irq) {
 				{
 					for (i = 36; i < 40; i++)
 					{
-						coreGlobals.modulatedSolenoids[CORE_MODSOL_CUR][i] = coreGlobals.modulatedSolenoids[CORE_MODSOL_CUR][i - 8];
+						coreGlobals.modulatedSolenoids[CORE_MODSOL_CUR][i] = core_calc_modulated_light(wpclocals.solenoidbits[i - 8], WPC_MODSOLSMOOTH, &coreGlobals.modulatedSolenoids[CORE_MODSOL_PREV][i - 8]);
 					}
 				}
 				else
@@ -997,7 +1023,7 @@ static INTERRUPT_GEN(wpc_irq) {
 						coreGlobals.modulatedSolenoids[CORE_MODSOL_CUR][i] = core_getSol(i + 1) ? 1 : 0;
 					}
 				}
-				// Now that we've copied 29-32 to 37-41, we can replace 29-32 if needed.
+				// Now that we've copied 29-32 to 37-41, we can replace 29-32 if needed.   Also see above TODO
 				if (core_gameData->gen & GEN_ALLWPC)
 				{
 					for(i=28;i<32;i++)
@@ -1016,6 +1042,7 @@ static INTERRUPT_GEN(wpc_irq) {
 			}
 		}
 	}
+#endif
   cpu_set_irq_line(WPC_CPUNO, M6809_IRQ_LINE, HOLD_LINE);
 }
 
@@ -1187,18 +1214,28 @@ PINMAME_VIDEO_UPDATE(wpcdmd_update) {
   tDMDDot dotCol;
   int ii,jj,kk;
 
+#ifdef VPINMAME
+  g_raw_gtswpc_dmdframes = DMD_FRAMES;
+#endif
+
   /* Create a temporary buffer with all pixels */
   for (kk = 0, ii = 1; ii < 33; ii++) {
     UINT8 *line = &dotCol[ii][0];
     for (jj = 0; jj < 16; jj++) {
       /* Intensity depends on how many times the pixel */
       /* been on in the last 3 frames                  */
-      unsigned int intens1 = ((dmdlocals.DMDFrames[0][kk] & 0x55) +
-                              (dmdlocals.DMDFrames[1][kk] & 0x55) +
-                              (dmdlocals.DMDFrames[2][kk] & 0x55));
-      unsigned int intens2 = ((dmdlocals.DMDFrames[0][kk] & 0xaa) +
-                              (dmdlocals.DMDFrames[1][kk] & 0xaa) +
-                              (dmdlocals.DMDFrames[2][kk] & 0xaa));
+      const unsigned int intens1 = ((dmdlocals.DMDFrames[0][kk] & 0x55) +
+                                    (dmdlocals.DMDFrames[1][kk] & 0x55) +
+                                    (dmdlocals.DMDFrames[2][kk] & 0x55));
+      const unsigned int intens2 = ((dmdlocals.DMDFrames[0][kk] & 0xaa) +
+                                    (dmdlocals.DMDFrames[1][kk] & 0xaa) +
+                                    (dmdlocals.DMDFrames[2][kk] & 0xaa));
+
+#ifdef VPINMAME
+      g_raw_gtswpc_dmd[kk        ] = dmdlocals.DMDFrames[0][kk];
+      g_raw_gtswpc_dmd[kk + 0x200] = dmdlocals.DMDFrames[1][kk];
+      g_raw_gtswpc_dmd[kk + 0x400] = dmdlocals.DMDFrames[2][kk];
+#endif
 
       *line++ = (intens1)    & 0x03;
       *line++ = (intens2>>1) & 0x03;
@@ -1208,7 +1245,8 @@ PINMAME_VIDEO_UPDATE(wpcdmd_update) {
       *line++ = (intens2>>5) & 0x03;
       *line++ = (intens1>>6) & 0x03;
       *line++ = (intens2>>7) & 0x03;
-      kk +=1;
+
+      kk++;
     }
     *line = 0; /* to simplify antialiasing */
   }

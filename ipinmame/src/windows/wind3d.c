@@ -4,6 +4,8 @@
 //
 //============================================================
 
+#ifndef DISABLE_DX7
+
 // standard windows headers
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -834,7 +836,7 @@ static double compute_mode_score(int width, int height, int depth, int refresh)
 	}
 
 	// compute initial score based on difference between target and current (adjusted for zoom level)
-	size_score = 1.0 / (1.0 + (fabs(width - target_width) / win_screen_aspect + fabs(height - target_height)) / 16 / win_gfx_zoom);
+	size_score = 1.0 / (1.0 + (abs(width - target_width) / win_screen_aspect + abs(height - target_height)) / 16 / win_gfx_zoom);
 
 	// if we're looking for a particular mode, make sure it matches
 	if (win_gfx_width && win_gfx_height && (width != win_gfx_width || height != win_gfx_height))
@@ -2605,3 +2607,5 @@ static void init_vertices_preprocess(LPRECT src)
 	preprocess_vertex[2].sx = -0.5f + rect.left;  preprocess_vertex[2].sy = -0.5f + rect.bottom;
 	preprocess_vertex[3].sx = -0.5f + rect.right; preprocess_vertex[3].sy = -0.5f + rect.bottom;
 }
+
+#endif

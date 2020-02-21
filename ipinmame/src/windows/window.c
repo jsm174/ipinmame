@@ -52,8 +52,10 @@ extern UINT8 win_trying_to_quit;
 // from video.c
 HMONITOR monitor;
 
+#ifndef DISABLE_DX7
 // from wind3dfx.c
 int win_d3d_effects_in_use(void);
+#endif
 
 
 
@@ -266,6 +268,7 @@ INLINE int wnd_extra_height(void)
 //	wnd_extra_left
 //============================================================
 
+#ifndef PINMAME
 INLINE int wnd_extra_left(void)
 {
 	RECT window = { 100, 100, 200, 200 };
@@ -274,7 +277,7 @@ INLINE int wnd_extra_left(void)
 	AdjustWindowRectEx(&window, WINDOW_STYLE, win_has_menu(), WINDOW_STYLE_EX);
 	return 100 - window.left;
 }
-
+#endif
 
 
 //============================================================
@@ -367,6 +370,7 @@ INLINE void set_aligned_window_pos(HWND wnd, HWND insert, int x, int y, int cx, 
 //	erase_outer_rect
 //============================================================
 
+#ifndef VPINMAME
 INLINE void erase_outer_rect(RECT *outer, RECT *inner, HDC dc)
 {
 	HBRUSH brush = GetStockObject(BLACK_BRUSH);
@@ -408,7 +412,7 @@ INLINE void erase_outer_rect(RECT *outer, RECT *inner, HDC dc)
 			FillRect(dc, &clear, brush);
 	}
 }
-
+#endif
 
 
 //============================================================
@@ -646,6 +650,7 @@ int win_create_window(int width, int height, int depth, int attributes, double a
 	}
 
 	// finish off by trying to initialize DirectX
+#ifndef DISABLE_DX7
 	if (win_use_directx)
 	{
 		if (win_use_directx == USE_D3D)
@@ -665,6 +670,7 @@ int win_create_window(int width, int height, int depth, int attributes, double a
 		if (win_d3d_effects_in_use())
 			fprintf(stderr, "Warning: hardware-accelerated blitting-effects selected, but currently disabled\n         use the -direct3d option to enable hardware acceleration\n");
 	}
+#endif
 
 	// return directx initialisation status
 	if (win_use_directx)
@@ -1338,6 +1344,7 @@ void win_toggle_maximize(void)
 
 void win_toggle_full_screen(void)
 {
+#ifndef DISABLE_DX7
 	// rip down DirectDraw
 	if (win_use_directx)
 	{
@@ -1350,6 +1357,7 @@ void win_toggle_full_screen(void)
 			win_ddraw_kill();
 		}
 	}
+#endif
 
 	// hide the window
 	ShowWindow(win_video_window, SW_HIDE);
@@ -1415,6 +1423,7 @@ void win_toggle_full_screen(void)
 		ShowWindow(win_debug_window, SW_SHOW);
 
 	// reinit
+#ifndef DISABLE_DX7
 	if (win_use_directx)
 	{
 		if (win_use_directx == USE_D3D)
@@ -1428,6 +1437,7 @@ void win_toggle_full_screen(void)
 				exit(1);
 		}
 	}
+#endif
 
 	// make sure the window is properly readjusted
 	win_adjust_window();
@@ -1543,6 +1553,7 @@ int win_process_events(void)
 
 void win_wait_for_vsync(void)
 {
+#ifndef DISABLE_DX7
 	// if we have DirectDraw, we can use that
 	if (win_use_directx)
 	{
@@ -1555,6 +1566,7 @@ void win_wait_for_vsync(void)
 			win_ddraw_wait_vsync();
 		}
 	}
+#endif
 }
 
 

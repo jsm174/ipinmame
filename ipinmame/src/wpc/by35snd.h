@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+
 #ifndef INC_BY35SND
 #define INC_BY35SND
 #if !defined(__GNUC__) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4) || (__GNUC__ >= 4)	// GCC supports "pragma once" correctly since 3.4
@@ -20,7 +22,8 @@
   ------------------------------
   M6802/M6808
   AY8910 Sound Generator
-  HC55516 DAC
+  MC3417
+  DAC
 
   Squalk N Talk -61
   -------------
@@ -111,6 +114,7 @@ extern MACHINE_DRIVER_EXTERN(by32);
 #define BY51_CPUNO     1
 #define BY51_CPUREGION (REGION_CPU1+BY51_CPUNO)
 extern MACHINE_DRIVER_EXTERN(by51);
+extern MACHINE_DRIVER_EXTERN(by51N);
 extern MACHINE_DRIVER_EXTERN(by56);
 
 #define BY51_SOUNDROM8(n1,chk1) \
@@ -145,8 +149,21 @@ extern MACHINE_DRIVER_EXTERN(by45);
 
 #define BY45_SOUNDROMx2(n1,chk1) \
   SOUNDREGION(0x10000, BY45_CPUREGION) \
-    ROM_LOAD(n1, 0xc000, 0x2000, chk1) \
+    ROM_LOAD(n1, 0x8000, 0x2000, chk1) \
+      ROM_RELOAD(0xa000, 0x2000) \
+      ROM_RELOAD(0xc000, 0x2000) \
       ROM_RELOAD(0xe000, 0x2000)
+
+#define BY45_SOUNDROM2x(n1,chk1) \
+  SOUNDREGION(0x10000, BY45_CPUREGION) \
+    ROM_LOAD(n1, 0x8000, 0x1000, chk1) \
+      ROM_CONTINUE(0xc000, 0x1000) \
+      ROM_RELOAD(0x9000, 0x1000) \
+      ROM_CONTINUE(0xd000, 0x1000) \
+      ROM_RELOAD(0xa000, 0x1000) \
+      ROM_CONTINUE(0xe000, 0x1000) \
+      ROM_RELOAD(0xb000, 0x1000) \
+      ROM_CONTINUE(0xf000, 0x1000)
 
 /* 2 x 4K ROMS */
 #define BY45_SOUNDROM11(n2,chk2,n1,chk1) \

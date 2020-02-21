@@ -258,6 +258,9 @@ int MSM5232_num(const struct MachineSound *msound) { return ((struct MSM5232inte
 #if (HAS_HC55516)
 int HC55516_num(const struct MachineSound *msound) { return ((struct hc55516_interface*)msound->sound_interface)->num; }
 #endif
+#if (HAS_MC3417)
+int MC3417_num(const struct MachineSound *msound) { return ((struct mc3417_interface*)msound->sound_interface)->num; }
+#endif
 #if (HAS_K007232)
 int K007232_clock(const struct MachineSound *msound) { return ((struct K007232_interface*)msound->sound_interface)->baseclock; }
 int K007232_num(const struct MachineSound *msound) { return ((struct K007232_interface*)msound->sound_interface)->num_chips; }
@@ -872,6 +875,18 @@ struct snd_interface sndintf[] =
 		HC55516_num,
 		0,
 		hc55516_sh_start,
+		0,
+		0,
+		0
+	},
+#endif
+#if (HAS_MC3417)
+    {
+		SOUND_MC3417,
+		"MC3417",
+		MC3417_num,
+		0,
+		mc3417_sh_start,
 		0,
 		0,
 		0

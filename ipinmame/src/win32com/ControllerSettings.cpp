@@ -1,5 +1,5 @@
 // ControllerSettings.cpp : Implementation of CControllerSettings
-#include "stdafx.h"
+#include "StdAfx.h"
 
 #if _MSC_VER >= 1700
  #ifdef inline
@@ -12,7 +12,7 @@
 #include "VPinMAMEConfig.h"
 #include "VPinMAMEAboutDlg.h"
 
-#include "ControllerRegKeys.h"
+#include "ControllerRegkeys.h"
 
 #include <atlwin.h>
 #include <shlobj.h>
@@ -124,6 +124,7 @@ private:
 		SetDlgItemText(IDC_CFGDIR,	   (char*) get_option("cfg_directory"));
 		SetDlgItemText(IDC_NVRAMDIR,   (char*) get_option("nvram_directory"));
 		SetDlgItemText(IDC_SAMPLEDIRS, (char*) get_option("samplepath"));
+		SetDlgItemText(IDC_MEMCARDDIRS, (char*)get_option("memcard_directory"));
 		SetDlgItemText(IDC_IMGDIR,     (char*) get_option("snapshot_directory"));
 
 		// Set check boxes
@@ -155,6 +156,9 @@ private:
 
 		GetDlgItemText(IDC_SAMPLEDIRS, szPath, sizeof(szPath));
 		pControllerSettings->put_Value(CComBSTR("samplepath"), CComVariant(szPath));
+
+		GetDlgItemText(IDC_MEMCARDDIRS, szPath, sizeof(szPath));
+		pControllerSettings->put_Value(CComBSTR("memcard_directory"), CComVariant(szPath));
 
 		GetDlgItemText(IDC_IMGDIR, szPath, sizeof(szPath));
 		pControllerSettings->put_Value(CComBSTR("snapshot_directory"), CComVariant(szPath));
@@ -300,6 +304,9 @@ private:
 		case IDDIRBUTTONSAMPLE:
 				SetDlgItemText(IDC_SAMPLEDIRS, szDir);
 			break;
+		case IDDIRBUTTONMEMCARD:
+				SetDlgItemText(IDC_MEMCARDDIRS, szDir);
+			break;
 		case IDDIRBUTTONIMG:
 				SetDlgItemText(IDC_IMGDIR, szDir);
 			break;
@@ -329,7 +336,7 @@ CControllerSettings::CControllerSettings()
 {
 }
 
-STDMETHODIMP CControllerSettings::ShowSettingsDlg(long hParentWnd)
+STDMETHODIMP CControllerSettings::ShowSettingsDlg(LONG_PTR hParentWnd)
 {
 	CControllerSettingsDlg ControllerSettingsDlg;
 	ControllerSettingsDlg.DoModal((HWND) hParentWnd, (LPARAM) this);

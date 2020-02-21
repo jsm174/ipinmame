@@ -481,14 +481,14 @@ PROTOTYPES(Z80xycb,xycb);
 /* Burn an odd amount of cycles, that is instructions taking something		*/
 /* different from 4 T-states per opcode (and R increment)					*/
 /****************************************************************************/
-INLINE void BURNODD(int cycles, int opcodes, int cyclesum)
+/*INLINE void BURNODD(int cycles, int opcodes, int cyclesum)
 {
 	if( cycles > 0 )
 	{
 		_R += (cycles / cyclesum) * opcodes;
 		Z80_ICOUNT -= (cycles / cyclesum) * cyclesum;
 	}
-}
+}*/
 
 /***************************************************************
  * define an opcode function
@@ -3260,7 +3260,11 @@ static void take_interrupt(void)
 			{
 				/* Clear both interrupt flip flops */
 				_IFF1 = _IFF2 = 0;
-				irq_vector = Z80.irq[Z80.request_irq].interrupt_entry(Z80.irq[Z80.request_irq].irq_param);
+#ifdef PINMAME
+				irq_vector = (*Z80.irq_callback)(0); // if the callback returns ff, use that vector (EFO sound hardware needs it)
+				if (0xff != irq_vector)
+#endif
+					irq_vector = Z80.irq[Z80.request_irq].interrupt_entry(Z80.irq[Z80.request_irq].irq_param);
 				LOG(("Z80 #%d daisy chain irq_vector $%02x\n", cpu_getactivecpu(), irq_vector));
 				Z80.request_irq = -1;
 			} else return;
@@ -3334,7 +3338,7 @@ static void take_interrupt(void)
 void z80_init(void)
 {
 	int cpu = cpu_getactivecpu();
-	int i, p;
+	int i;
 	if( !SZHVC_add || !SZHVC_sub )
 	{
 		int oldval, newval, val;
@@ -3396,7 +3400,7 @@ void z80_init(void)
 
 	for (i = 0; i < 256; i++)
 	{
-		p = 0;
+		int p = 0;
 		if( i&0x01 ) ++p;
 		if( i&0x02 ) ++p;
 		if( i&0x04 ) ++p;
@@ -3772,14 +3776,14 @@ const char *z80_info(void *context, int regnum)
 		case CPU_INFO_REG+Z80_DC3: if(Z80.irq_max >= 4) sprintf(buffer[which], "DC3:%X", r->int_state[3]); break;
 		case CPU_INFO_FLAGS:
 			sprintf(buffer[which], "%c%c%c%c%c%c%c%c",
-				r->AF.b.l & 0x80 ? 'S':'.',
-				r->AF.b.l & 0x40 ? 'Z':'.',
-				r->AF.b.l & 0x20 ? '5':'.',
-				r->AF.b.l & 0x10 ? 'H':'.',
-				r->AF.b.l & 0x08 ? '3':'.',
-				r->AF.b.l & 0x04 ? 'P':'.',
-				r->AF.b.l & 0x02 ? 'N':'.',
-				r->AF.b.l & 0x01 ? 'C':'.');
+				(r->AF.b.l & 0x80) ? 'S':'.',
+				(r->AF.b.l & 0x40) ? 'Z':'.',
+				(r->AF.b.l & 0x20) ? '5':'.',
+				(r->AF.b.l & 0x10) ? 'H':'.',
+				(r->AF.b.l & 0x08) ? '3':'.',
+				(r->AF.b.l & 0x04) ? 'P':'.',
+				(r->AF.b.l & 0x02) ? 'N':'.',
+				(r->AF.b.l & 0x01) ? 'C':'.');
 			break;
 		case CPU_INFO_NAME: return "Z80";
 		case CPU_INFO_FAMILY: return "Zilog Z80";

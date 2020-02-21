@@ -1,5 +1,5 @@
 // WSHDlg.cpp : Implementation of CWSHDlg
-#include "Stdafx.h"
+#include "StdAfx.h"
 #include "VPinMAME_h.h"
 #include "WSHDlg.h"
 
@@ -158,7 +158,7 @@ STDMETHODIMP CWSHDlg::get_Ctrls(IWSHDlgCtrls **ppVal)
 
 INT_PTR _stdcall WSHDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-STDMETHODIMP CWSHDlg::Show(long hParentWnd, VARIANT *RetVal)
+STDMETHODIMP CWSHDlg::Show(LONG_PTR hParentWnd, VARIANT *RetVal)
 {
 	if ( !RetVal )
 		return S_FALSE;
@@ -191,7 +191,7 @@ STDMETHODIMP CWSHDlg::Show(long hParentWnd, VARIANT *RetVal)
 	VariantInit(RetVal);
 	RetVal->vt = VT_I4;
 	RetVal->lVal = DialogBoxIndirectParam(_Module.m_hInst, &Template.DlgTemplate, (HWND) hParentWnd, WSHDlgProc, (LPARAM) this);
-	DWORD dwLastError = GetLastError();
+	/*DWORD dwLastError =*/ GetLastError();
 
 	return S_OK;
 }

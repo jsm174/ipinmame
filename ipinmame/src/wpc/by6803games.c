@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+
 #include "driver.h"
 #include "core.h"
 #include "sndbrd.h"
@@ -122,8 +124,8 @@ BY6803_ROMEND
 CORE_GAMEDEFNV(blackblt,"Black Belt",1986,"Bally",by_mBY6803_TCSS,0)
 
 INITGAME6803(blackbl2,GEN_BY6803,dispBy104,FLIP6803,4,SNDBRD_BY61, BY6803_DISPALPHA)
-BY6803_ROMSTART44(blackbl2,"cpu_u2.cpu",     CRC(b86d16ec) SHA1(2e4601e725261aca67e4d706f310b14eb7578d8b),
-                           "cpu_u3.cpu",     CRC(c63e3e6f) SHA1(cd3f66c3796eaf64c36cabba9d74cc8c690d9d8b))
+BY6803_ROMSTART44(blackbl2,"cpu_u2.cpu", CRC(b86d16ec) SHA1(2e4601e725261aca67e4d706f310b14eb7578d8b),
+                           "cpu_u3.cpu", CRC(c63e3e6f) SHA1(cd3f66c3796eaf64c36cabba9d74cc8c690d9d8b))
 BY61_SOUNDROM0000(         "blb_u2.snd",NO_DUMP,
                            "blb_u3.snd",NO_DUMP,
                            "blb_u4.snd",NO_DUMP,
@@ -157,8 +159,8 @@ BY6803_ROMEND
 #define input_ports_strngsci input_ports_by6803
 CORE_GAMEDEFNV(strngsci,"Strange Science",1986,"Bally",by_mBY6803_TCSS,0)
 
-BY6803_ROMSTART44(strngscg, "cpub_u2.128",  CRC(48ef1052) SHA1(afcb0520ab834c0d6ef4a73f615c48653ccedc24),
-                            "cpub_u3.128",  CRC(da5b4b3b) SHA1(ff9babf2efc6622803db9ba8712dd8b76c8412b8))
+BY6803_ROMSTART44(strngscg, "cpub_u2.128", CRC(48ef1052) SHA1(afcb0520ab834c0d6ef4a73f615c48653ccedc24),
+                            "cpub_u3.128", CRC(da5b4b3b) SHA1(ff9babf2efc6622803db9ba8712dd8b76c8412b8))
 BYTCS_SOUNDROM8(            "sound_u7.256",CRC(bc33901e) SHA1(5231d8f01a107742acee2d13580a461063018a11))
 BY6803_ROMEND
 #define init_strngscg init_strngsci
@@ -236,6 +238,15 @@ BY6803_ROMEND
 #define input_ports_hvymetal input_ports_by6803
 CORE_GAMEDEFNV(hvymetal,"Heavy Metal Meltdown",1987,"Bally",by_mBY6803_SDS,0)
 
+INITGAME6803(hvymetag,GEN_BY6803,dispBy104,FLIP6803,4,SNDBRD_BYSD, BY6803_DISPALPHA)
+BY6803_ROMSTART44(hvymetag,"u2g.rom",CRC(e50b500a) SHA1(c4f3502bf8afaa94610e008ce6b719ab4c4be712),
+                           "u3g.rom",CRC(7d018d0d) SHA1(07ba3bd5c15b96d6fc72e0a1de3b5d8defcc53b9))
+BYSD_SOUNDROM00xx(         "u12.rom",CRC(77933258) SHA1(42a01e97440dbb7d3da92dbfbad2516f4b553a5f),
+                           "u11.rom",CRC(b7e4de7d) SHA1(bcc89e10c368cdbc5137d8f585e109c0be25522d))
+BY6803_ROMEND
+#define input_ports_hvymetag input_ports_hvymetal
+CORE_CLONEDEFNV(hvymetag,hvymetal,"Heavy Metal Meltdown (German)",1987,"Bally",by_mBY6803_SDS,0)
+
 /*------------------------------------
 / Dungeons & Dragons (6803-0H06: 10/87)
 /------------------------------------*/
@@ -304,7 +315,7 @@ CORE_CLONEDEFNV(black10s,black100,"Blackwater 100 (Single Ball Play)",1988,"Ball
 
 //Games below use 6803 MPU & Williams System 11C Sound Hardware
 /*-------------------------------------------------------------
-/ Truck Stop (6803-2001: 12/88) - These are ProtoType ROMS?
+/ Truck Stop (6803-2001: 12/88) - There are only ProtoType ROMS?
 /-------------------------------------------------------------*/
 INITGAME6803(trucksp3,GEN_BY6803A,dispBy104,FLIP6803,4,SNDBRD_S11CS, BY6803_DISPALPHA)
 BY6803_ROMSTART44(trucksp3,"u2_p3.128",   CRC(79b2a5b1) SHA1(d3de91bfadc9684302b2367cfcb30ed0d6faa020),
@@ -314,7 +325,7 @@ S11CS_SOUNDROM888(         "u4sndp1.256", CRC(120a386f) SHA1(51b3b45eb7ea63758b2
                            "u20sndp1.256",CRC(93ac5c33) SHA1(f6dc84eca4678188a58ba3c8ef18975164dd29b0))
 BY6803_ROMEND
 #define input_ports_trucksp3 input_ports_by6803a
-CORE_GAMEDEFNV(trucksp3,"Truck Stop (P-3)",1988,"Bally",by_mBY6803_S11CS,0)
+CORE_GAMEDEFNV(trucksp3,"Truck Stop (P-3 Prototype)",1988,"Bally",by_mBY6803_S11CS,0)
 
 BY6803_ROMSTART44(trucksp2,"u2_p2.128",   CRC(3c397dec) SHA1(2fc86ad39c935ce8615eafd67e571ac94c938cd7),
                            "u3_p2.128",   CRC(d7ac519a) SHA1(612bf9fee0d54e8b1215508bd6c1ea61dcb99951))
@@ -324,7 +335,7 @@ S11CS_SOUNDROM888(         "u4sndp1.256", CRC(120a386f) SHA1(51b3b45eb7ea63758b2
 BY6803_ROMEND
 #define init_trucksp2 init_trucksp3
 #define input_ports_trucksp2 input_ports_trucksp3
-CORE_CLONEDEFNV(trucksp2,trucksp3,"Truck Stop (P-2)",1988,"Bally",by_mBY6803_S11CS,0)
+CORE_CLONEDEFNV(trucksp2,trucksp3,"Truck Stop (P-2 Prototype)",1988,"Bally",by_mBY6803_S11CS,0)
 
 /*-----------------------------------------------------------
 / Atlantis (6803-2006: 03/89)

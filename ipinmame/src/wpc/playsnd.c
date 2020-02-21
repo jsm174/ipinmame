@@ -115,17 +115,37 @@ static WRITE_HANDLER(play2s_man_w) {
 }
 
 static void play3s_init(struct sndbrdData *brdData) {
-  play2s_init(brdData);
+  memset(&sndlocals, 0, sizeof sndlocals);
   tms5220_reset();
-  tms5220_set_variant(TMS5220_IS_5220);
+  tms5220_set_variant(TMS5220_IS_5200);
   cpu_set_irq_line(PLAYMATIC_SCPU, CDP1802_INPUT_LINE_INT, CLEAR_LINE);
   sndlocals.ef[3] = sndlocals.ef[4] = 1;
 }
 
-static WRITE_HANDLER(play3s_ctrl_w) {
+static WRITE_HANDLER(play3s_data_w) {
   sndlocals.sndCmd = data;
-  sndlocals.ef[2] = (sndlocals.sndCmd & 0x70) ? 0 : 1;
-  play2s_ctrl_w(0, data);
+  sndlocals.ef[2] = 0;
+}
+
+static void delay(int x) {
+  int i;
+  for (i = 0; i < x; i++)
+    run_one_timeslice();
+}
+
+static WRITE_HANDLER(play3s_man_w) {
+  if (!_strnicmp(Machine->gamedrv->name, "cerberus", 8)) {
+    cpu_boost_interleave(TIME_IN_USEC(40), TIME_IN_USEC(1000));
+    play3s_data_w(offset, data >> 4);
+    delay(3);
+    play3s_data_w(offset, 0);
+    delay(3);
+    play3s_data_w(offset, data & 0x0f);
+    delay(12);
+    play3s_data_w(offset, 0);
+  } else {
+    play3s_data_w(offset, data);
+  }
 }
 
 static void play4s_timer_callback(int n) {
@@ -154,55 +174,6 @@ static WRITE_HANDLER(play4s_man_w) {
   play4s_ctrl_w(0, 0);
 }
 
-static void ctc_interrupt(int state) {
-  logerror("ctc_irq: %x\n", state);
-}
-
-static WRITE_HANDLER(zc0_0_w) {
-  logerror("zc0_0_w: %02x\n", data);
-}
-
-static WRITE_HANDLER(zc1_0_w) {
-  logerror("zc1_0_w: %02x\n", data);
-}
-
-static WRITE_HANDLER(zc2_0_w) {
-  logerror("zc2_0_w: %02x\n", data);
-}
-
-static WRITE_HANDLER(zc0_1_w) {
-  logerror("zc0_1_w: %02x\n", data);
-}
-
-static WRITE_HANDLER(zc1_1_w) {
-  logerror("zc1_1_w: %02x\n", data);
-}
-
-static WRITE_HANDLER(zc2_1_w) {
-  logerror("zc2_1_w: %02x\n", data);
-}
-
-static z80ctc_interface ctc_intf = {
-	2,								/* 2 chips */
-	{ 4000000, 4000000 },							/* clock */
-	{ 0, 0 },		/* timer disables */
-	{ ctc_interrupt, ctc_interrupt },				/* interrupt handler */
-	{ zc0_0_w, zc0_1_w },							/* ZC/TO0 callback */
-	{ zc1_0_w, zc1_1_w },							/* ZC/TO1 callback */
-	{ zc2_0_w, zc2_1_w }							/* ZC/TO2 callback */
-};
-
-static void play5s_init(struct sndbrdData *brdData) {
-  memset(&sndlocals, 0, sizeof sndlocals);
-  z80ctc_init(&ctc_intf);
-}
-
-static WRITE_HANDLER(play5s_data_w) {
-//  printf("snd data: %02x\n", data);
-  sndlocals.sndCmd = data;
-  cpu_set_irq_line(PLAYMATIC_SCPU, 0, PULSE_LINE);
-}
-
 /*-------------------
 / exported interfaces
 /--------------------*/
@@ -213,13 +184,10 @@ const struct sndbrdIntf play2sIntf = {
   "PLAY2", play2s_init, NULL, NULL, play2s_man_w, play2s_data_w, NULL, play2s_ctrl_w, NULL, SNDBRD_NODATASYNC|SNDBRD_NOCTRLSYNC
 };
 const struct sndbrdIntf play3sIntf = {
-  "PLAY3", play3s_init, NULL, NULL, play3s_ctrl_w, play2s_data_w, NULL, play3s_ctrl_w, NULL, SNDBRD_NODATASYNC|SNDBRD_NOCTRLSYNC
+  "PLAY3", play3s_init, NULL, NULL, play3s_man_w, play3s_data_w, NULL, NULL, NULL, SNDBRD_NODATASYNC|SNDBRD_NOCTRLSYNC
 };
 const struct sndbrdIntf play4sIntf = {
   "PLAY4", play4s_init, NULL, NULL, play4s_man_w, play4s_data_w, NULL, play4s_ctrl_w, NULL, SNDBRD_NODATASYNC|SNDBRD_NOCTRLSYNC
-};
-const struct sndbrdIntf play5sIntf = {
-  "PLAY5", play5s_init, NULL, NULL, play5s_data_w, play5s_data_w, NULL, NULL, NULL, SNDBRD_NODATASYNC|SNDBRD_NOCTRLSYNC
 };
 
 static UINT8 snd_mode(void) { return CDP1802_MODE_RUN; }
@@ -261,47 +229,29 @@ MACHINE_DRIVER_START(PLAYMATICS2)
   MDRV_SOUND_ADD(CUSTOM, play2s_custInt)
 MACHINE_DRIVER_END
 
-static void play_5220Irq(int state) {
-  cpu_set_irq_line(PLAYMATIC_SCPU, CDP1802_INPUT_LINE_INT, state ? CLEAR_LINE : ASSERT_LINE);
-//printf(" I%x ", state);
-}
-static void play_5220Rdy(int state) {
-  sndlocals.ef[1] = state;
-//printf(" R%x ", state);
-}
-static struct TMS5220interface play3s_5220Int = {
-  640000,
-  75,
-  play_5220Irq,
-  play_5220Rdy
-};
 
-static READ_HANDLER(in_snd_3) {
-  return (sndlocals.sndCmd >> 4) & 0x07;
-}
-
-static int q;
-static WRITE_HANDLER(out_snd_3) {
-  if (!q) tms5220_data_w(0, data);
-//printf("o");
-}
+/* E.F.O. Sound-3, used by Cerberus and Spain 82 */
 
 static UINT8 snd_ef3(void) {
+  UINT8 val;
+  val = tms5220_status_r(0);
   sndlocals.ef[1] = !tms5220_ready_r();
+  sndlocals.ef[3] = ((val & 0x40) >> 6);
+  sndlocals.ef[4] = ((val & 0x80) >> 7);
   return sndlocals.ef[1] | (sndlocals.ef[2] << 1) | (sndlocals.ef[3] << 2) | (sndlocals.ef[4] << 3);
 }
 
 static void snd_q(int data) {
-  q = data;
-  if (data) {
-    UINT8 val = tms5220_status_r(0);
-    sndlocals.ef[3] = !((val & 0x40) >> 6);
-    sndlocals.ef[4] = ((val & 0x80) >> 7);
-//printf("i");
-  } else {
-    sndlocals.ef[3] = sndlocals.ef[4] = 1;
-//printf("-");
-  }
+  // sound enable maybe? but seems unused...
+}
+
+static READ_HANDLER(in_snd_3) {
+  sndlocals.ef[2] = 1;
+  return sndlocals.sndCmd;
+}
+
+static WRITE_HANDLER(out_snd_3) {
+  tms5220_data_w(0, data);
 }
 
 static CDP1802_CONFIG playsound_config3 =
@@ -331,15 +281,26 @@ static PORT_WRITE_START(playsound_writeport3)
   {0x01, 0x01, out_snd_3},
 MEMORY_END
 
+static void play_5220Irq(int state) {
+  cpu_set_irq_line(PLAYMATIC_SCPU, CDP1802_INPUT_LINE_INT, state ? CLEAR_LINE : ASSERT_LINE);
+}
+static struct TMS5220interface play3s_5220Int = {
+  640000,
+  100,
+  play_5220Irq
+};
+
 MACHINE_DRIVER_START(PLAYMATICS3)
   MDRV_CPU_ADD_TAG("scpu", CDP1802, 2950000)
   MDRV_CPU_FLAGS(CPU_AUDIO_CPU)
   MDRV_CPU_CONFIG(playsound_config3)
   MDRV_CPU_MEMORY(playsound_readmem3, playsound_writemem3)
   MDRV_CPU_PORTS(playsound_readport3, playsound_writeport3)
-  MDRV_SOUND_ADD(CUSTOM, play2s_custInt)
   MDRV_SOUND_ADD(TMS5220, play3s_5220Int)
 MACHINE_DRIVER_END
+
+
+/* E.F.O. Sound IV board */
 
 static WRITE_HANDLER(ay8910_0_porta_w)	{
   int volume = 100 - 25 * (data >> 6);
@@ -433,80 +394,6 @@ MACHINE_DRIVER_START(PLAYMATICS4)
 MACHINE_DRIVER_END
 
 
-static READ_HANDLER(snd_r) {
-  return sndlocals.sndCmd;
-}
-
-static MEMORY_READ_START(playsound_readmem5)
-  {0x0000,0x6fff, MRA_ROM},
-  {0x7000,0x7000, snd_r},
-  {0x7000,0x77ff, MRA_RAM},
-MEMORY_END
-
-static MEMORY_WRITE_START(playsound_writemem5)
-  {0x7000,0x77ff, MWA_RAM},
-MEMORY_END
-
-static PORT_READ_START(playsound_readport5)
-  {0x14,0x14, z80ctc_0_r},
-MEMORY_END
-
-static PORT_WRITE_START(playsound_writeport5)
-  {0x00,0x03, z80ctc_0_w},
-  {0x04,0x07, z80ctc_1_w},
-  {0x0c,0x0d, ay0_w},
-  {0x10,0x11, ay1_w},
-MEMORY_END
-
-static void play5s_msmIrq(int data) {
-	MSM5205_reset_w(0, 0);
-  MSM5205_data_w(0, data & 0x0f);
-}
-
-static struct MSM5205interface play5s_msm5205Int = {
-	1,					//# of chips
-	384000,				//384Khz Clock Frequency?
-	{play5s_msmIrq},	//VCLK Int. Callback
-	{MSM5205_S48_4B},	//Sample Mode
-	{100}				//Volume
-};
-
-static WRITE_HANDLER(ay8910_0_a_w)	{
-  UINT8 control = data & 0x7f;
-  logerror("snd_ctrl: %02x\n", control);
-}
-
-static WRITE_HANDLER(ay8910_1_a_w)	{
-  logerror("AY1: %02x\n", data);
-}
-
-struct AY8910interface play5s_8910Int = {
-	2,			/* 2 chips */
-	2000000,	/* 2 MHz */
-	{ MIXER(50,MIXER_PAN_LEFT), MIXER(50,MIXER_PAN_RIGHT) },	/* Volume */
-	{ 0, 0 },
-	{ 0, 0 },
-	{ ay8910_0_a_w, ay8910_1_a_w }
-};
-
-static Z80_DaisyChain play5s_DaisyChain[] = {
-  {z80ctc_reset, z80ctc_interrupt, z80ctc_reti, 0},
-  {z80ctc_reset, z80ctc_interrupt, z80ctc_reti, 0},
-  {0,0,0,-1}
-};
-
-MACHINE_DRIVER_START(PLAYMATICS5)
-  MDRV_CPU_ADD_TAG("scpu", Z80, 4000000)
-  MDRV_CPU_FLAGS(CPU_AUDIO_CPU)
-  MDRV_CPU_MEMORY(playsound_readmem5, playsound_writemem5)
-  MDRV_CPU_PORTS(playsound_readport5, playsound_writeport5)
-  MDRV_CPU_CONFIG(play5s_DaisyChain)
-  MDRV_SOUND_ADD(AY8910, play5s_8910Int)
-  MDRV_SOUND_ADD(MSM5205, play5s_msm5205Int)
-  MDRV_SOUND_ATTRIBUTES(SOUND_SUPPORTS_STEREO)
-MACHINE_DRIVER_END
-
-
 /* Zira sound board */
 
 static READ_HANDLER(in_snd_z) {
@@ -521,7 +408,7 @@ static WRITE_HANDLER(ay_ctrl_w) {
   sndlocals.ayctrl = data & 3;
   switch (sndlocals.ayctrl) {
     case 1: AY8910_write_port_0_w(0, sndlocals.aydata); break;
-    case 2: sndlocals.aydata = AY8910Read(0);
+    case 2: sndlocals.aydata = AY8910Read(0); break;
     case 3: AY8910_control_port_0_w(0, sndlocals.aydata); break;
   }
 }

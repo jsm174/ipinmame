@@ -344,6 +344,11 @@
 		C168030223FEC10B00EA85B3 /* boomerang.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802FF23FEC10B00EA85B3 /* boomerang.c */; };
 		C168030323FEC10B00EA85B3 /* spiritof76.c in Sources */ = {isa = PBXBuildFile; fileRef = C168030023FEC10B00EA85B3 /* spiritof76.c */; };
 		C168030723FEC5B600EA85B3 /* mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = C168030623FEC5B500EA85B3 /* mixer.c */; };
+		C1FA05EA23FF7E06003A251C /* saa1099.c in Sources */ = {isa = PBXBuildFile; fileRef = C1FA05E823FF7E06003A251C /* saa1099.c */; };
+		C1FA05EB23FF7E06003A251C /* mc3417.c in Sources */ = {isa = PBXBuildFile; fileRef = C1FA05E923FF7E06003A251C /* mc3417.c */; };
+		C1FA05EF23FF7EAC003A251C /* efosnd.c in Sources */ = {isa = PBXBuildFile; fileRef = C1FA05EC23FF7EAB003A251C /* efosnd.c */; };
+		C1FA05F023FF7EAC003A251C /* efo.c in Sources */ = {isa = PBXBuildFile; fileRef = C1FA05ED23FF7EAC003A251C /* efo.c */; };
+		C1FA05F123FF7EAC003A251C /* luckydraw.c in Sources */ = {isa = PBXBuildFile; fileRef = C1FA05EE23FF7EAC003A251C /* luckydraw.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -859,6 +864,13 @@
 		C168030023FEC10B00EA85B3 /* spiritof76.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = spiritof76.c; sourceTree = "<group>"; };
 		C168030523FEC5B500EA85B3 /* mixer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mixer.h; sourceTree = "<group>"; };
 		C168030623FEC5B500EA85B3 /* mixer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mixer.c; sourceTree = "<group>"; };
+		C1FA05E623FF7E06003A251C /* mc3417.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mc3417.h; sourceTree = "<group>"; };
+		C1FA05E723FF7E06003A251C /* saa1099.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = saa1099.h; sourceTree = "<group>"; };
+		C1FA05E823FF7E06003A251C /* saa1099.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = saa1099.c; sourceTree = "<group>"; };
+		C1FA05E923FF7E06003A251C /* mc3417.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mc3417.c; sourceTree = "<group>"; };
+		C1FA05EC23FF7EAB003A251C /* efosnd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = efosnd.c; sourceTree = "<group>"; };
+		C1FA05ED23FF7EAC003A251C /* efo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = efo.c; sourceTree = "<group>"; };
+		C1FA05EE23FF7EAC003A251C /* luckydraw.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = luckydraw.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1389,6 +1401,8 @@
 				8893342D14BE62530095D115 /* hc55516.h */,
 				8893342E14BE62530095D115 /* m114s.c */,
 				8893342F14BE62530095D115 /* m114s.h */,
+				C1FA05E923FF7E06003A251C /* mc3417.c */,
+				C1FA05E623FF7E06003A251C /* mc3417.h */,
 				C16802F923FE358700EA85B3 /* mea8000.c */,
 				C16802F823FE358700EA85B3 /* mea8000.h */,
 				C168030623FEC5B500EA85B3 /* mixer.c */,
@@ -1397,6 +1411,8 @@
 				8893343314BE62530095D115 /* msm5205.h */,
 				8893343414BE62530095D115 /* s14001a.c */,
 				8893343514BE62530095D115 /* s14001a.h */,
+				C1FA05E823FF7E06003A251C /* saa1099.c */,
+				C1FA05E723FF7E06003A251C /* saa1099.h */,
 				8893343614BE62530095D115 /* samples.c */,
 				8893343714BE62530095D115 /* samples.h */,
 				8893343814BE62530095D115 /* sn76477.c */,
@@ -1491,6 +1507,8 @@
 				889334B114BE62FE0095D115 /* desound.c */,
 				889334B214BE62FE0095D115 /* desound.h */,
 				889334B314BE62FE0095D115 /* driver.c */,
+				C1FA05ED23FF7EAC003A251C /* efo.c */,
+				C1FA05EC23FF7EAB003A251C /* efosnd.c */,
 				889334B414BE62FE0095D115 /* flicker.c */,
 				889334B514BE62FE0095D115 /* gen.h */,
 				889334B614BE62FE0095D115 /* gp.c */,
@@ -1531,6 +1549,7 @@
 				889334D514BE62FE0095D115 /* ltd.c */,
 				889334D614BE62FE0095D115 /* ltd.h */,
 				889334D714BE62FE0095D115 /* ltdgames.c */,
+				C1FA05EE23FF7EAC003A251C /* luckydraw.c */,
 				C16802BA23FCA7DD00EA85B3 /* mac.c */,
 				889334D814BE62FE0095D115 /* mech.c */,
 				889334D914BE62FE0095D115 /* mech.h */,
@@ -1943,6 +1962,7 @@
 				889333A114BE60060095D115 /* 1802dasm.c in Sources */,
 				889333A214BE60060095D115 /* cdp1802.c in Sources */,
 				889333A314BE60060095D115 /* i86.c in Sources */,
+				C1FA05F123FF7EAC003A251C /* luckydraw.c in Sources */,
 				889333A514BE60060095D115 /* i86dasm.c in Sources */,
 				889333AA14BE60060095D115 /* 4004dasm.c in Sources */,
 				889333AB14BE60060095D115 /* i4004.c in Sources */,
@@ -2011,6 +2031,7 @@
 				8893346514BE62530095D115 /* m114s.c in Sources */,
 				8893346714BE62530095D115 /* msm5205.c in Sources */,
 				8893346814BE62530095D115 /* s14001a.c in Sources */,
+				C1FA05EB23FF7E06003A251C /* mc3417.c in Sources */,
 				C16802FD23FE362800EA85B3 /* stargame.c in Sources */,
 				8893346914BE62530095D115 /* samples.c in Sources */,
 				8893346A14BE62530095D115 /* sn76477.c in Sources */,
@@ -2018,6 +2039,7 @@
 				8893346C14BE62530095D115 /* sp0250.c in Sources */,
 				C16802A423FC44F000EA85B3 /* sp0256.c in Sources */,
 				C16802ED23FCF59000EA85B3 /* 262intf.c in Sources */,
+				C1FA05EF23FF7EAC003A251C /* efosnd.c in Sources */,
 				8893346D14BE62530095D115 /* streams.c in Sources */,
 				8893346E14BE62530095D115 /* tms320av120.c in Sources */,
 				8893346F14BE62530095D115 /* tms5110.c in Sources */,
@@ -2051,6 +2073,7 @@
 				8893357814BE62FE0095D115 /* byvidgames.c in Sources */,
 				8893357914BE62FE0095D115 /* byvidpin.c in Sources */,
 				8893357A14BE62FE0095D115 /* capcom.c in Sources */,
+				C1FA05EA23FF7E06003A251C /* saa1099.c in Sources */,
 				8893357B14BE62FE0095D115 /* capcoms.c in Sources */,
 				8893357C14BE62FE0095D115 /* capgames.c in Sources */,
 				8893357D14BE62FE0095D115 /* core.c in Sources */,
@@ -2154,6 +2177,7 @@
 				889335DC14BE62FE0095D115 /* cv.c in Sources */,
 				C16802FE23FE362800EA85B3 /* slalom.c in Sources */,
 				889335DD14BE62FE0095D115 /* dh.c in Sources */,
+				C1FA05F023FF7EAC003A251C /* efo.c in Sources */,
 				889335DE14BE62FE0095D115 /* dm.c in Sources */,
 				889335DF14BE62FE0095D115 /* dw.c in Sources */,
 				889335E014BE62FE0095D115 /* fs.c in Sources */,

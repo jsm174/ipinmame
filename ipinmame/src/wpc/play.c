@@ -21,7 +21,7 @@
 
  Sound started out with 4 simple tones (with fading option), and evolved through a CPU-driven
  oscillator circuit on to complete sound boards with another 1802 CPU,
- and also a completely new sound board design for their latest two games!
+ and they also used the E.F.O. ZSU sound board for their latest two games.
 
  Hardware:
  ---------
@@ -33,7 +33,7 @@
            ZIRA:  like gen.2, plus an additional COP402 @ 2 MHz with 1 x AY8910 sound chip
            gen.3: like gen.2, plus an additional CDP1802 @ 2.95 MHz with 1 x TMS5220 speech chip
            gen.4: CDP1802 @ NTSC clock with 2 x AY8910 @ NTSC/2
-           gen.5: Z80 @ 4 MHz clock with 2 x CTC chip, 2 x AY8910, MSM5205
+           gen.5: E.F.O. ZSU sound board
 
 MAME INFO:
 The IOS board common to all games provides sound effects through the CDP1863.
@@ -63,7 +63,6 @@ enum { DISPCOL=1, DISPLAY, SOUND, SWITCH, DIAG, LAMPCOL, LAMP };
 static struct {
   int    vblankCount;
   UINT32 solenoids;
-  UINT8  sndCmd;
   int    enRl; // Out 3 Bit 4
   int    enDy; // Out 3 Bit 5
   int    enSn; // Out 3 Bit 6
@@ -143,7 +142,19 @@ static SWITCH_UPDATE(PLAYMATIC2) {
   locals.resetDone = 1;
 }
 
+static UINT8 conv(UINT8 data) {
+  return ((data & 0x01) << 7) // 80
+    | ((data & 0x02) << 4)    // 20
+    | ((data & 0x04) >> 1)    // 02
+    | ((data & 0x08) << 3)    // 40
+    | ((data & 0x10) >> 2)    // 04
+    | ((data & 0x20) >> 5)    // 01
+    | ((data & 0x40) >> 3)    // 08
+    | ((data & 0x80) >> 3);   // 10
+}
+
 static WRITE_HANDLER(disp_w) {
+  if (core_gameData->hw.gameSpecific1) data = conv(data);
   coreGlobals.segments[offset].w = data & 0x7f;
   coreGlobals.segments[48 + offset / 8].w = data & 0x80 ? core_bcd2seg7[0] : 0;
 }
@@ -259,17 +270,19 @@ static WRITE_HANDLER(out2_n) {
           coreGlobals.solenoids = locals.solenoids;
         }
       }
-      if (core_gameData->hw.soundBoard == SNDBRD_PLAY3 || core_gameData->hw.soundBoard == SNDBRD_PLAYZ) {
-//if (locals.sndCmd != (data & 0x70)) printf("\nc:%02x\n", data & 0x70);
-        locals.sndCmd = data & 0x70;
-        sndbrd_0_ctrl_w(0, locals.sndCmd);
+      if (core_gameData->hw.soundBoard == SNDBRD_PLAYZ) {
+        sndbrd_0_ctrl_w(0, data & 0x70);
+      } else if (core_gameData->hw.soundBoard == SNDBRD_PLAY3) {
+        if (locals.cpuType < 2) {
+          if (!enable) sndbrd_0_data_w(0, (data & 0x70) >> 4);
+        } else { // ENSN is never triggered on spain82, only why not? m8020_w used to fix sound for now
+          if (locals.enSn) sndbrd_0_data_w(0, locals.lampCol);
+        }
       } else if (core_gameData->hw.soundBoard == SNDBRD_PLAY4 && !locals.enSn) {
-        locals.sndCmd = locals.lampCol;
-        sndbrd_0_data_w(0, locals.sndCmd);
+        sndbrd_0_data_w(0, locals.lampCol);
         sndbrd_0_ctrl_w(0, locals.enSn);
-      } else if (core_gameData->hw.soundBoard == SNDBRD_PLAY5 && !locals.enSn) {
-        locals.sndCmd = locals.lampCol;
-        sndbrd_0_data_w(0, locals.sndCmd);
+      } else if (core_gameData->hw.soundBoard == SNDBRD_ZSU && !locals.enSn) {
+        sndbrd_0_data_w(0, locals.lampCol);
       }
       cpu_set_irq_line(PLAYMATIC_CPU, CDP1802_INPUT_LINE_INT, CLEAR_LINE);
       locals.ef[2] = 1;
@@ -341,8 +354,16 @@ static MACHINE_INIT(PLAYMATIC2) {
   init_common(1);
 }
 
+// HACK to make sound work on Spain 82!
+static WRITE_HANDLER(m8020_w) {
+  sndbrd_0_data_w(0, data);
+}
+
 static MACHINE_INIT(PLAYMATIC3) {
   init_common(2);
+  if (!_strnicmp(Machine->gamedrv->name, "spain82", 7)) {
+    install_mem_write_handler(0, 0x8020, 0x8020, m8020_w);
+  }
 }
 
 static MACHINE_INIT(PLAYMATIC4) {
@@ -497,12 +518,13 @@ MACHINE_DRIVER_START(PLAYMATIC4)
   MDRV_IMPORT_FROM(PLAYMATICS4)
 MACHINE_DRIVER_END
 
-MACHINE_DRIVER_START(PLAYMATIC4S5)
+extern MACHINE_DRIVER_EXTERN(ZSU);
+MACHINE_DRIVER_START(PLAYMATIC4SZSU)
   MDRV_IMPORT_FROM(PLAYMATIC3)
   MDRV_CORE_INIT_RESET_STOP(PLAYMATIC4,NULL,PLAYMATIC)
   MDRV_CPU_REPLACE("mcpu", CDP1802, 3579545)
   MDRV_CPU_PERIODIC_INT(PLAYMATIC_irq2, 3579545/8192)
-  MDRV_IMPORT_FROM(PLAYMATICS5)
+  MDRV_IMPORT_FROM(ZSU)
 MACHINE_DRIVER_END
 
 

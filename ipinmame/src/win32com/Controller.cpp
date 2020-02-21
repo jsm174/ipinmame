@@ -12,7 +12,7 @@
 
 // Controller.cpp : Implementation of Controller and DLL registration.
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "VPinMAME_h.h"
 #include "VPinMAMEAboutDlg.h"
 #include "VPinMAMEConfig.h"
@@ -44,6 +44,7 @@ extern UINT32 g_needs_DMD_update;
 extern int g_cpu_affinity_mask;
 
 extern char g_fShowWinDMD;
+extern char g_szGameName[256];
 
 // from ticker.c
 extern void uSleep(const UINT64 u);
@@ -52,7 +53,7 @@ extern void uSleep(const UINT64 u);
  extern void alt_sound_pause(BOOL pause);
 #endif
 }
-#include "alias.h"
+#include "Alias.h"
 
 extern int fAllowWriteAccess;
 extern int synclevel;
@@ -157,7 +158,7 @@ CController::CController() {
 	m_hEmuIsRunning = CreateEvent(NULL, TRUE, FALSE, NULL);
 	m_hEventWnd = 0;
 
-	lstrcpy(m_szROM,"");
+	m_szROM[0] = '\0';
 	m_nGameNo = -1;
 
 	LoadGlobalSettings();
@@ -172,7 +173,8 @@ CController::CController() {
 		m_pGames->AddRef();
 
 	// get a pointer to the settings object for the "default" game
-	m_pGames->get_Item(&CComVariant(m_szROM), &m_pGame);
+	CComVariant szROM(m_szROM);
+	m_pGames->get_Item(&szROM, &m_pGame);
 	m_pGame->get_Settings((IGameSettings**) &m_pGameSettings);
 
 	// these value are not stored to the registry
@@ -213,10 +215,10 @@ CController::~CController() {
 /*****************************************
  * IController.Run method: start emulation
  *****************************************/
-STDMETHODIMP CController::Run(/*[in]*/ long hParentWnd, /*[in,defaultvalue(100)]*/ int nMinVersion)
+STDMETHODIMP CController::Run(/*[in]*/ LONG_PTR hParentWnd, /*[in,defaultvalue(100)]*/ int nMinVersion)
 {
 	/*Make sure GameName Specified!*/
-	if (!m_szROM)
+	if (m_szROM[0] == '\0')
 		return Error(TEXT("Game name not specified!"));
 
 	int nVersionNo0, nVersionNo1;
@@ -258,7 +260,7 @@ STDMETHODIMP CController::Run(/*[in]*/ long hParentWnd, /*[in,defaultvalue(100)]
 
 	int iCheckVal = IDOK;
 
-	m_pGame->ShowInfoDlg(0x8000|CHECKOPTIONS_SHOWRESULTSIFFAIL|((vValue.boolVal==VARIANT_TRUE)?0x0000:CHECKOPTIONS_IGNORESOUNDROMS), (long) m_hParentWnd, &iCheckVal);
+	m_pGame->ShowInfoDlg(0x8000|CHECKOPTIONS_SHOWRESULTSIFFAIL|((vValue.boolVal==VARIANT_TRUE)?0x0000:CHECKOPTIONS_IGNORESOUNDROMS), (LONG_PTR) m_hParentWnd, &iCheckVal);
 	if ( iCheckVal==IDCANCEL ) {
 		sprintf(szTemp, "Game ROMs for '%s' (%s) invalid!", m_szROM, drivers[m_nGameNo]->description);
 		return Error(TEXT(szTemp));
@@ -419,10 +421,12 @@ STDMETHODIMP CController::get_Solenoid(int nSolenoid, VARIANT_BOOL *pVal)
  ************************************************************************/
 STDMETHODIMP CController::get_Switch(int nSwitchNo, VARIANT_BOOL *pVal) {
   if (pVal)
+  {
     if (WaitForSingleObject(m_hEmuIsRunning, 0) == WAIT_TIMEOUT)
       *pVal = false;
     else 
       *pVal = vp_getSwitch(nSwitchNo)?VARIANT_TRUE:VARIANT_FALSE;
+  }
   return S_OK;
 }
 
@@ -1121,7 +1125,7 @@ STDMETHODIMP CController::put_Switches(VARIANT newVal)
  ******************************************************/
 STDMETHODIMP CController::get_GameName(BSTR *pVal)
 {
-	CComBSTR Val(m_szROM);
+	CComBSTR Val(g_szGameName);
 	*pVal = Val.Detach();
 	return S_OK;
 }
@@ -1133,9 +1137,8 @@ STDMETHODIMP CController::put_GameName(BSTR newVal)
 			return Error(TEXT("Setting the game name is not allowed for a running game!"));
 	}
 
-	char szTemp[256];
-	WideCharToMultiByte(CP_ACP, 0, newVal, -1, szTemp, sizeof szTemp, NULL, NULL);
-    const char* gameName = checkGameAlias(szTemp);
+	WideCharToMultiByte(CP_ACP, 0, newVal, -1, g_szGameName, sizeof g_szGameName, NULL, NULL);
+	const char* gameName = checkGameAlias(g_szGameName);
 	// don't let the game name set to an invalid value
 	int nGameNo = -1;
 	if ( gameName[0] && ((nGameNo=GetGameNumFromString(const_cast<char*>(gameName)))<0) )
@@ -1156,7 +1159,8 @@ STDMETHODIMP CController::put_GameName(BSTR newVal)
 	m_nGameNo = nGameNo;
 
 	// get a pointer to the settings object
-	m_pGames->get_Item(&CComVariant(m_szROM), &m_pGame);
+	CComVariant szROM(m_szROM);
+	m_pGames->get_Item(&szROM, &m_pGame);
 	m_pGame->get_Settings((IGameSettings**) &m_pGameSettings);
 
 	return S_OK;
@@ -1396,16 +1400,16 @@ STDMETHODIMP CController::get_ChangedLEDsState(int nHigh, int nLow, int nnHigh, 
 /******************************************************
  * IController.ShowAboutDialog: shows the About dialog
  ******************************************************/
-STDMETHODIMP CController::ShowAboutDialog(long hParentWnd)
+STDMETHODIMP CController::ShowAboutDialog(LONG_PTR hParentWnd)
 {
 	switch ( hParentWnd ) {
 	case 0:
 		break;
 
 	case 1:
-		hParentWnd = (long) ::GetActiveWindow();
+		hParentWnd = (LONG_PTR) ::GetActiveWindow();
 		if ( !hParentWnd )
-			hParentWnd = (long) GetForegroundWindow();
+			hParentWnd = (LONG_PTR) GetForegroundWindow();
 		break;
 
 	default:
@@ -1908,7 +1912,7 @@ STDMETHODIMP CController::get_InstallDir(BSTR *pVal)
  *   Controller.Games("name").Settings.SetDisplayPosition(x,y,hwnd)
  * instead
  ***************************************************************/
-STDMETHODIMP CController::SetDisplayPosition(int x, int y, long hParentWindow)
+STDMETHODIMP CController::SetDisplayPosition(int x, int y, LONG_PTR hParentWindow)
 {
 	if ( IsWindow((HWND) hParentWindow)) {
 		RECT rect;
@@ -2041,7 +2045,7 @@ STDMETHODIMP CController::put_ImgDir(BSTR newVal)
  * Deprecated:
  * use Controller.Games("name").Settings.ShowSettingsDlg instead
  *****************************************************************/
-STDMETHODIMP CController::ShowOptsDialog(long hParentWnd)
+STDMETHODIMP CController::ShowOptsDialog(LONG_PTR hParentWnd)
 {
 	return m_pGameSettings->ShowSettingsDlg(hParentWnd);
 }
@@ -2089,7 +2093,7 @@ STDMETHODIMP CController::get_UseSamples(VARIANT_BOOL *pVal)
 	HRESULT hr = m_pGameSettings->get_Value(CComBSTR("samples"), &vValue);
 	*pVal = vValue.boolVal;
 
-	return S_OK;
+	return hr;
 }
 
 STDMETHODIMP CController::put_UseSamples(VARIANT_BOOL newVal)
@@ -2230,7 +2234,7 @@ STDMETHODIMP CController::put_Antialias(VARIANT_BOOL newVal)
  * Deprecated:
  * use Controller.Games("name").ShowInfoDlg instead
  *********************************************************************/
-STDMETHODIMP CController::CheckROMS(/*[in,defaultvalue(0)]*/ int nShowOptions, /*[in,defaultvalue(0)]*/ long hParentWnd, /*[out, retval]*/ VARIANT_BOOL *pVal)
+STDMETHODIMP CController::CheckROMS(/*[in,defaultvalue(0)]*/ int nShowOptions, /*[in,defaultvalue(0)]*/ LONG_PTR hParentWnd, /*[out, retval]*/ VARIANT_BOOL *pVal)
 {
 	if ( !pVal )
 		return S_FALSE;
@@ -2249,16 +2253,16 @@ STDMETHODIMP CController::CheckROMS(/*[in,defaultvalue(0)]*/ int nShowOptions, /
  * Deprecated:
  * use Controller.Settings.ShowSettingsDlg instead
  ****************************************************************************/
-STDMETHODIMP CController::ShowPathesDialog(long hParentWnd)
+STDMETHODIMP CController::ShowPathesDialog(LONG_PTR hParentWnd)
 {
 	switch ( hParentWnd ) {
 	case 0:
 		break;
 
 	case 1:
-		hParentWnd = (long) ::GetActiveWindow();
+		hParentWnd = (LONG_PTR) ::GetActiveWindow();
 		if ( !hParentWnd )
-			hParentWnd = (long) GetForegroundWindow();
+			hParentWnd = (LONG_PTR) GetForegroundWindow();
 		break;
 
 	default:
@@ -2332,7 +2336,7 @@ STDMETHODIMP CController::put_MechSamples(VARIANT_BOOL newVal)
  * function GetWindowRect. Returns the rctangle in the from of a safearray
  * with for entries: left, top, right, bottom
  ****************************************************************************/
-STDMETHODIMP CController::GetWindowRect(long hWnd, VARIANT *pVal)
+STDMETHODIMP CController::GetWindowRect(LONG_PTR hWnd, VARIANT *pVal)
 {
 	RECT rect;
 	if ( IsWindow((HWND) hWnd)) 
@@ -2368,7 +2372,7 @@ STDMETHODIMP CController::GetWindowRect(long hWnd, VARIANT *pVal)
  * coordinates. Returns the rctangle in the from of a safearray
  * with for entries: left, top, right, bottom
  ****************************************************************************/
-STDMETHODIMP CController::GetClientRect(long hWnd, VARIANT *pVal)
+STDMETHODIMP CController::GetClientRect(LONG_PTR hWnd, VARIANT *pVal)
 {
 	RECT rect;
 	if ( IsWindow((HWND) hWnd)) {

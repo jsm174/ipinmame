@@ -48,7 +48,7 @@ tp1 = phi clock (tied to f2q rom access)
 #endif
 #include "math.h"
 
-typedef unsigned char byte;	/* do not use windows.h to keep source OS independent */
+typedef unsigned char byte;
 
 #define VERBOSE 0
 
@@ -662,10 +662,10 @@ void build_standard_filter(double *a, double *b,
 	double k2 = c4 * c2b / (votraxsc01_locals.cclock * votraxsc01_locals.cclock * c1b * c3);
 
 	// Estimate the filter cutoff frequency
-	double fpeak = sqrt(fabs(k0*k1 - k2))/((2*M_PI)*k2);
+	double fpeak = sqrt(fabs(k0*k1 - k2))/((2.*M_PI)*k2);
 
 	// Turn that into a warp multiplier
-	double zc = (2*M_PI)*fpeak/tan(M_PI*fpeak / votraxsc01_locals.sclock);
+	double zc = (2.*M_PI)*fpeak/tan(M_PI*fpeak / votraxsc01_locals.sclock);
 
 	// Finally compute the result of the z-transform
 	double m0 = zc*k0;
@@ -708,10 +708,10 @@ void build_lowpass_filter(double *a, double *b,
 	double k = c1b / (votraxsc01_locals.cclock * c1t);
 
 	// Compute the filter cutoff frequency
-	double fpeak = 1/((2*M_PI)*k);
+	double fpeak = 1./((2.*M_PI)*k);
 
 	// Turn that into a warp multiplier
-	double zc = (2*M_PI)*fpeak/tan(M_PI*fpeak / votraxsc01_locals.sclock);
+	double zc = (2.*M_PI)*fpeak/tan(M_PI*fpeak / votraxsc01_locals.sclock);
 
 	// Finally compute the result of the z-transform
 	double m = zc*k;
@@ -763,10 +763,10 @@ void build_noise_shaper_filter(double *a, double *b,
 	double k2 = c1*c2t*c3/(votraxsc01_locals.cclock * c4);
 
 	// Estimate the filter cutoff frequency
-	double fpeak = sqrt(1/k2)/(2*M_PI);
+	double fpeak = sqrt(1./k2)/(2.*M_PI);
 
 	// Turn that into a warp multiplier
-	double zc = (2*M_PI)*fpeak/tan(M_PI*fpeak / votraxsc01_locals.sclock);
+	double zc = (2.*M_PI)*fpeak/tan(M_PI*fpeak / votraxsc01_locals.sclock);
 
 	// Finally compute the result of the z-transform
 	double m0 = zc*k0;
@@ -1154,6 +1154,7 @@ void PrepareVoiceData(int nextPhoneme, int nextIntonation)
 					default:
 						break;
 				}
+				break;
 
 			case PT_VS:
 			case PT_FS:
@@ -1201,7 +1202,7 @@ void PrepareVoiceData(int nextPhoneme, int nextIntonation)
 			double dFadeOut = 1.0;
 
 			if ( !doMix )
-				dFadeOut = 1.0-sin((1.0*iFadeOutPos/iFadeOutSamples)*(M_PI/2));
+				dFadeOut = 1.0-sin((double)iFadeOutPos/(double)iFadeOutSamples * (M_PI/2.));
 
 			if ( !votraxsc01_locals.iRemainingSamples ) {
 				votraxsc01_locals.iRemainingSamples = PhonemeData[votraxsc01_locals.actPhoneme].iLength[votraxsc01_locals.actIntonation];
@@ -1220,7 +1221,7 @@ void PrepareVoiceData(int nextPhoneme, int nextIntonation)
 			double dFadeIn = 1.0;
 
 			if ( iFadeInPos<iFadeInSamples ) {
-				dFadeIn = sin((1.0*iFadeInPos/iFadeInSamples)*(3.1415926535897932384626433832795/2));
+				dFadeIn = sin((double)iFadeInPos/(double)iFadeInSamples * (M_PI/2.));
 				iFadeInPos++;
 			}
 
@@ -1465,6 +1466,7 @@ static void Votrax_Update(int num, INT16 *buffer, int length)
 #endif
 }
 
+#if !defined(OLD_VOTRAX) && !defined(REAL_DEVICE)
 static void VOTRAXSC01_sh_start_timeout(int which)
 {
 #ifdef REAL_DEVICE
@@ -1505,6 +1507,7 @@ static void VOTRAXSC01_sh_start_timeout(int which)
 		(*votraxsc01_locals.intf->BusyCallback[0])(!votraxsc01_locals.ar_state); //!! inverted behavior from MAME
 #endif
 }
+#endif
 
 int VOTRAXSC01_sh_start(const struct MachineSound *msound)
 {

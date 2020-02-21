@@ -245,7 +245,7 @@ static void cv_drawStatic(BMTYPE **line) {
 
 static mech_tInitData cv_ringMech = {
   22, 43, MECH_LINEAR|MECH_REVERSE|MECH_ONEDIRSOL, 128, 128,
-  {{42, 0, 4},{43, 33, 38},{44,123,127}}
+  {{42, 0, 4},{43, 33, 38},{44,123,127}},0
 };
 
 static void cv_handleMech(int mech) {
@@ -372,5 +372,6 @@ static core_tGameData cvGameData = {
 static void init_cv(void) {
   core_gameData = &cvGameData;
   mech_add(0, &cv_ringMech);
+  wpc_set_fastflip_addr(0x80);
 }
 

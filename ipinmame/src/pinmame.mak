@@ -83,6 +83,8 @@ DRVLIBS += $(PINOBJ)/stargame.o
 DRVLIBS += $(PINOBJ)/slalom.o
 DRVLIBS += $(PINOBJ)/boomerang.o
 DRVLIBS += $(PINOBJ)/spiritof76.o
+DRVLIBS += $(PINOBJ)/luckydraw.o
+DRVLIBS += $(PINOBJ)/efo.o $(PINOBJ)/efosnd.o
 #
 # Games
 #
@@ -218,6 +220,7 @@ ifdef ISVER6100
 SOUNDS += YM2610@ #to avoid compile errors
 endif
 SOUNDS += HC55516@
+SOUNDS += MC3417@
 SOUNDS += SAMPLES@
 SOUNDS += TMS5220@
 SOUNDS += AY8910@
@@ -243,6 +246,7 @@ SOUNDS += Y8950@
 SOUNDS += ASTROCADE@
 SOUNDS += YMF262@
 SOUNDS += MEA8000@
+SOUNDS += SAA1099@
 
 OBJDIRS += $(PINOBJ)
 OBJDIRS += $(PINOBJ)/sims

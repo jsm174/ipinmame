@@ -468,6 +468,11 @@ static void (*blit16_core_rgb[4][4])(void) =
 //	win_perform_blit
 //============================================================
 
+static inline UINT32 sqri(const UINT32 x)
+{
+	return x*x;
+}
+
 int win_perform_blit(const struct win_blit_params *blit, int update)
 {
 	int srcdepth = (blit->srcdepth + 7) / 8;
@@ -559,26 +564,25 @@ int win_perform_blit(const struct win_blit_params *blit, int update)
 	{
 #if 0 // only works 'correctly' if compact display disabled, and still has this nasty black border on the bottom due to its hacky nature
 		int c, c2, s,sy;
-		const UINT8 * src = asmblit_srcdata;
-		UINT8* dst = asmblit_dstdata;
+		const UINT8 * __restrict src = asmblit_srcdata;
+		UINT8* __restrict dst = asmblit_dstdata;
 		const UINT32 r = blit->dstyscale + blit->dstxscale;
 
 		for (c = 0; c < asmblit_srcheight; c+=2)
 		{
-			UINT8* dstc2 = dst;
-			for (c2 = 0; c2 < blit->srcwidth; c2 += 2, dstc2 += blit->dstxscale * (2*sizeof(UINT16)))
+			UINT8* __restrict dstc2 = dst;
+			for (c2 = 0; c2 < blit->srcwidth; c2 += 2, dstc2 += blit->dstxscale * (int)(2*sizeof(UINT16)))
 			{
-				UINT8* dstsy = dstc2;
+				UINT16* __restrict dstsy = (UINT16*)dstc2;
 				const UINT16 col = blit->srclookup[((UINT16*)src)[c2]];
-				for (sy = 0; sy < blit->dstyscale * 2; ++sy, dstsy += blit->dstpitch)
+				for (sy = 0; sy < blit->dstyscale * 2; ++sy, dstsy += blit->dstpitch/2)
 				{
-					UINT32 rcy = sy - blit->dstyscale;
-					rcy *= rcy;
-					for (s = 0; s < blit->dstxscale * 2; ++s)
+					const int xs = blit->dstxscale;
+					const UINT32 rcy = sqri(sy - blit->dstyscale);
+					for (s = 0; s < xs * 2; ++s)
 					{
-						UINT32 rc = s - blit->dstxscale;
-						rc = rc*rc + rcy;
-						((UINT16*)dstsy)[s] = ((rc < r) ? col : 0); //(rc < r - 2) ? (rc < r - 4) ? col : (col & (30 | (30 << 5) | (30 << 10))) >> 1 : (col & (28 | (28 << 5) | (28 << 10))) >> 2 : 0);
+						const UINT32 rc = sqri(s - xs) + rcy;
+						dstsy[s] = ((rc < r) ? col : 0); //(rc < r - 2) ? (rc < r - 4) ? col : (col & (30 | (30 << 5) | (30 << 10))) >> 1 : (col & (28 | (28 << 5) | (28 << 10))) >> 2 : 0);
 					}
 				}
 			}
@@ -739,6 +743,7 @@ static int snippet_length(void *snippet)
 //	emit_snippet_pair
 //============================================================
 
+#ifndef _WIN64
 static void emit_snippet(void *snippet, UINT8 **dest)
 {
 	// emit a snippet as-is
@@ -746,7 +751,7 @@ static void emit_snippet(void *snippet, UINT8 **dest)
 	memcpy(*dest, snippet, length);
 	*dest += length;
 }
-
+#endif
 
 
 //============================================================
@@ -1272,11 +1277,14 @@ static void check_for_mmx(void)
 //	expand_blitter
 //============================================================
 
+#ifndef _WIN64
 static void expand_blitter(int which, const struct win_blit_params *blit, UINT8 **dest, int update)
 {
+#ifndef _WIN64
 	int srcdepth_index = (blit->srcdepth + 7) / 8 - 1;
 	int dstdepth_index = (blit->dstdepth + 7) / 8 - 1;
 	int xscale_index = blit->dstxscale - 1;
+#endif
 	UINT8 *blitter = NULL;
 	int i;
 
@@ -1421,7 +1429,7 @@ static void expand_blitter(int which, const struct win_blit_params *blit, UINT8 
 			*(*dest)++ = *blitter++;
 	}
 }
-
+#endif
 
 
 //============================================================

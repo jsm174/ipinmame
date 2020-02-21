@@ -50,7 +50,7 @@ void mech_emuExit(void) {
 int mech_getPos(int mechNo)   { return locals.mechData[mechNo].pos; }
 int mech_getSpeed(int mechNo) { return locals.mechData[mechNo].speed / locals.mechData[mechNo].ret; }
 
-void mech_addLong(int mechNo, int sol1, int sol2, int type, int length, int steps, mech_tSwData sw[]) {
+void mech_addLong(int mechNo, int sol1, int sol2, int type, int length, int steps, mech_tSwData sw[], int initialpos) {
   if ((locals.mechTimer == NULL) && locals.emuRunning) {
     locals.mechTimer = timer_alloc(mech_updateAll);
     timer_adjust(locals.mechTimer,0,0, TIME_IN_HZ(60*MECH_FASTPULSES));
@@ -77,10 +77,12 @@ void mech_addLong(int mechNo, int sol1, int sol2, int type, int length, int step
       }
     } while (sw[ii++].swNo);
     md->pos = -1; /* not initialized */
+	if (initialpos > 0)
+		md->anglePos = initialpos-1;
   }
 }
 void mech_add(int mechNo, mech_ptInitData id) {
-  mech_addLong(mechNo, id->sol1, id->sol2, id->type, id->length, id->steps, &id->sw[0]);
+  mech_addLong(mechNo, id->sol1, id->sol2, id->type, id->length, id->steps, &id->sw[0], id->initialpos);
 }
 
 static void mech_updateAll(int param) {
@@ -113,15 +115,38 @@ static void mech_update(int mechNo) {
   int currPos, ii;
 
   { /*-- check power direction -1, 0, 1 --*/
-    int sol = ((core_getPulsedSol(md->sol1) != 0) +
-              (md->sol2 ? 2*(core_getPulsedSol(md->sol2) != 0) : 0)) ^ md->solinv;
-    if (md->type & MECH_TWOSTEPSOL)
-      dir = (sol != md->last);
-    else if (md->type & MECH_TWODIRSOL)
-      dir = (sol == 1) - (sol == 2);
-    else /* MECH_ONEDIRSOL | MECH_ONESOL */
-      dir = (sol == 1) - (sol == 3);
-    md->last = sol;
+     if ((md->type & 0x70) == MECH_FOURSTEPSOL)
+     {
+        int sol = 0;
+        for (ii = 0; ii < 4; ii++)
+        {
+           sol = (sol << 1) | (core_getPulsedSol(md->sol1 + ii) != 0) ^ md->solinv;
+        }
+
+        if (sol)
+        {
+           int lsol = (sol << 1 & 0x0F) | (sol & 0x08) >> 3;
+           int rsol = (sol >> 1) | (sol & 0x1) << 3;
+
+           if (md->last == rsol)
+              dir = 1;
+           else if (md->last == lsol)
+              dir = -1;
+           md->last = sol;
+        }
+     } 
+     else
+     {
+        int sol = ((core_getPulsedSol(md->sol1) != 0) +
+           (md->sol2 ? 2 * (core_getPulsedSol(md->sol2) != 0) : 0)) ^ md->solinv;
+        if (md->type & MECH_TWOSTEPSOL)
+           dir = (sol != md->last);
+        else if (md->type & MECH_TWODIRSOL)
+           dir = (sol == 1) - (sol == 2);
+        else /* MECH_ONEDIRSOL | MECH_ONESOL */
+           dir = (sol == 1) - (sol == 3);
+        md->last = sol;
+     }
   }
   { /*-- update speed --*/
     if (dir == 0) {
@@ -172,12 +197,19 @@ static void mech_update(int mechNo) {
 void mech_nv(void *file, int write) {
   int ii;
   for (ii = 0; ii < MECH_MAXMECH; ii++) {
-    if (write)     mame_fwrite(file, &locals.mechData[ii].anglePos, sizeof(int)); /* Save */
-    else if (file) mame_fread (file, &locals.mechData[ii].anglePos, sizeof(int)); /* Load */
-    else locals.mechData[ii].anglePos = 0; /* First time */
-
-    if (write && file && ((mame_file*)file)->type == RAM_FILE) // if writing out nvram to ram file then do nothing to pos
-      continue;
+	if (write)
+	{
+		mame_fwrite(file, &locals.mechData[ii].anglePos, sizeof(int)); /* Save */
+		if (file && ((mame_file*)file)->type == RAM_FILE) // if writing out nvram to ram file then do nothing to pos
+			continue;
+	}
+	else
+	{
+		if (file)
+			mame_fread(file, &locals.mechData[ii].anglePos, sizeof(int)); /* Load */
+		else
+			locals.mechData[ii].anglePos = 0; /* First time */
+	}
 
     locals.mechData[ii].pos = -1;
   }

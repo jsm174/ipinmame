@@ -396,7 +396,7 @@ DE_DMD32ROM8x("lisdspa.101",CRC(a8bfa71f) SHA1(45886ae8edcfd26a2225914aaf96eb960
 LIS_SND
 SE_ROMEND
 #define input_ports_lostspc1 input_ports_lostspc
-CORE_CLONEDEFNV(lostspc1,lostspc,"Lost in Space (1.01)",1998,"Sega",de_mSES1,0)
+CORE_CLONEDEFNV(lostspc1,lostspc,"Lost in Space (1.01, Display 1.01)",1998,"Sega",de_mSES1,0)
 
 /*-------------------------------------------------------------------
 / Golden Cue
@@ -449,7 +449,7 @@ DE2S_SOUNDROM14444("gdzu7.090" ,CRC(076401a9) SHA1(17aa63c2b26e6fc4849a5101ff970
                   "gdzu37.090",CRC(1410ae6b) SHA1(28d025403fd60b1bb132cffcc14be21be48d808c))
 SE_ROMEND
 #define input_ports_godz_090 input_ports_se
-CORE_CLONEDEFNV(godz_090, godzilla,"Godzilla (0.90)", 1998, "Sega", de_mSES1, 0)
+CORE_CLONEDEFNV(godz_090, godzilla,"Godzilla (0.90 Prototype)", 1998, "Sega", de_mSES1, 0)
 
 /********************* SEGA GAMES DISTRIBUTED BY STERN  **********************/
 
@@ -476,7 +476,7 @@ DE2S_SOUNDROM18888("spku7.090",CRC(19937fbd) SHA1(ebd7c8f1604accbeb7c00066ecf811
                   "spku36.090",CRC(727d4624) SHA1(9019014e6057d279a37cc3ce269a1c68baeb9673),
                   "spku37.090",CRC(0c01b0c7) SHA1(76b5af50514d110b49721e6916dd16b3e3a2f5fa))
 SE_ROMEND
-CORE_CLONEDEF(sprk,096,103,"South Park (0.96)",1999,"Sega",de_mSES1,0)
+CORE_CLONEDEF(sprk,096,103,"South Park (0.96 Prototype)",1999,"Sega",de_mSES1,0)
 
 SE128_ROMSTART(sprk_090,"spkcpu.090",CRC(bc3f8531) SHA1(5408e008c4f545bb4f82308b118d15525f8a263a))
 DE_DMD32ROM8x(    "spdspa.090",CRC(c333dd48) SHA1(fe2be9274c06b2f39fa2e14e0d44ce7213282f3b))
@@ -486,9 +486,9 @@ DE2S_SOUNDROM18888("spku7.090",CRC(19937fbd) SHA1(ebd7c8f1604accbeb7c00066ecf811
                   "spku36.090",CRC(727d4624) SHA1(9019014e6057d279a37cc3ce269a1c68baeb9673),
                   "spku37.090",CRC(0c01b0c7) SHA1(76b5af50514d110b49721e6916dd16b3e3a2f5fa))
 SE_ROMEND
-CORE_CLONEDEF(sprk,090,103,"South Park (0.90)",1999,"Sega",de_mSES1,0)
+CORE_CLONEDEF(sprk,090,103,"South Park (0.90 Prototype)",1999,"Sega",de_mSES1,0)
 
-// Harley Davidson moved to its own sim file (bds)
+// Harley Davidson moved to its own sim file (harley)
 
 /*-------------------------------------------------------------------
 / Striker Extreme
@@ -762,7 +762,7 @@ SE_ROMEND
 #define init_aust201 init_austin
 CORE_CLONEDEFNV(aust201,austin,"Austin Powers (2.01)",2001,"Stern",de_mSES2,0)
 
-// Monopoly moved to its own sim file (gv)
+// Monopoly moved to its own sim file (monopoly)
 
 /*-------------------------------------------------------------------
 / NFL
@@ -1752,7 +1752,7 @@ LOTR_SND
 SE_ROMEND
 #define input_ports_lotr41 input_ports_lotr
 #define init_lotr41 init_lotr
-CORE_CLONEDEFNV(lotr41,lotr,"Lord of the Rings, The (4.10)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(lotr41,lotr,"Lord of the Rings, The (4.10)",2003,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(lotr_g41, "lotrcpu.410", CRC(458af09a) SHA1(2680f16d7f33ffc70b64bfb7d35cccf6989c70e2))
 DE_DMD32ROM8x(          "lotrdspg.404", CRC(b78975e5) SHA1(33d9f4d29a83ce0f68e654c15973dfdeee4d224d))
@@ -1760,7 +1760,7 @@ LOTR_SND
 SE_ROMEND
 #define input_ports_lotr_g41 input_ports_lotr
 #define init_lotr_g41 init_lotr
-CORE_CLONEDEFNV(lotr_g41,lotr,"Lord of the Rings, The (4.10 German)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(lotr_g41,lotr,"Lord of the Rings, The (4.10 German)",2003,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(lotr_f41, "lotrcpu.410", CRC(458af09a) SHA1(2680f16d7f33ffc70b64bfb7d35cccf6989c70e2))
 DE_DMD32ROM8x(          "lotrdspf.404", CRC(ebf4bb43) SHA1(5e392c3363db3d56b2ec66fcc43a59b5e8cdf944))
@@ -1768,7 +1768,7 @@ LOTR_SND
 SE_ROMEND
 #define input_ports_lotr_f41 input_ports_lotr
 #define init_lotr_f41 init_lotr
-CORE_CLONEDEFNV(lotr_f41,lotr,"Lord of the Rings, The (4.10 French)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(lotr_f41,lotr,"Lord of the Rings, The (4.10 French)",2003,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(lotr_i41, "lotrcpu.410", CRC(458af09a) SHA1(2680f16d7f33ffc70b64bfb7d35cccf6989c70e2))
 DE_DMD32ROM8x(          "lotrdspi.404", CRC(05db2615) SHA1(0146abd3681d351ef6c1160b85be8bed2886fb27))
@@ -1776,7 +1776,7 @@ LOTR_SND
 SE_ROMEND
 #define input_ports_lotr_i41 input_ports_lotr
 #define init_lotr_i41 init_lotr
-CORE_CLONEDEFNV(lotr_i41,lotr,"Lord of the Rings, The (4.10 Italian)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(lotr_i41,lotr,"Lord of the Rings, The (4.10 Italian)",2003,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(lotr4, "lotrcpu.401", CRC(b69cdecc) SHA1(40f7c2d25a1028255be8fe25e3aa6d11976edd25))
 DE_DMD32ROM8x(          "lotrdspa.403", CRC(2630cef1) SHA1(1dfd929e7eb57983f2fd9184d471f2e919359de0))
@@ -1784,7 +1784,7 @@ LOTR_SND
 SE_ROMEND
 #define input_ports_lotr4 input_ports_lotr
 #define init_lotr4 init_lotr
-CORE_CLONEDEFNV(lotr4,lotr,"Lord of the Rings, The (4.01)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(lotr4,lotr,"Lord of the Rings, The (4.01)",2003,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(lotr_sp4, "lotrcpul.401", CRC(a9571728) SHA1(f21dd77003f42fafd9293fab3a077c5abf6d572a))
 DE_DMD32ROM8x(          "lotrdspl.403", CRC(6d4075c9) SHA1(7944ba597cb476c33060cead4feaf6dcad4f4b16))
@@ -1800,7 +1800,7 @@ LOTR_SND
 SE_ROMEND
 #define input_ports_lotr_gr4 input_ports_lotr
 #define init_lotr_gr4 init_lotr
-CORE_CLONEDEFNV(lotr_gr4,lotr,"Lord of the Rings, The (4.01 German)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(lotr_gr4,lotr,"Lord of the Rings, The (4.01 German)",2003,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(lotr_fr4, "lotrcpu.401", CRC(b69cdecc) SHA1(40f7c2d25a1028255be8fe25e3aa6d11976edd25))
 DE_DMD32ROM8x(          "lotrdspf.403", CRC(d02a77cf) SHA1(8cf4312a04ad486714de5c0041cacb1eb475478f))
@@ -1808,7 +1808,7 @@ LOTR_SND
 SE_ROMEND
 #define input_ports_lotr_fr4 input_ports_lotr
 #define init_lotr_fr4 init_lotr
-CORE_CLONEDEFNV(lotr_fr4,lotr,"Lord of the Rings, The (4.01 French)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(lotr_fr4,lotr,"Lord of the Rings, The (4.01 French)",2003,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(lotr_it4, "lotrcpu.401", CRC(b69cdecc) SHA1(40f7c2d25a1028255be8fe25e3aa6d11976edd25))
 DE_DMD32ROM8x(          "lotrdspi.403", CRC(5922ce10) SHA1(c57f2de4e3344f16056405d71510c0c0b60ef86d))
@@ -1816,7 +1816,7 @@ LOTR_SND
 SE_ROMEND
 #define input_ports_lotr_it4 input_ports_lotr
 #define init_lotr_it4 init_lotr
-CORE_CLONEDEFNV(lotr_it4,lotr,"Lord of the Rings, The (4.01 Italian)",2004,"Stern",de_mSES3,0)
+CORE_CLONEDEFNV(lotr_it4,lotr,"Lord of the Rings, The (4.01 Italian)",2003,"Stern",de_mSES3,0)
 
 SE128_ROMSTART(lotr_le, "lotrcpua.a02", CRC(f732aeb1) SHA1(8c28e91d37525b3e356bddf2cf1be42ea44f3629))
 DE_DMD32ROM8x(      "lotrdspa.a00", CRC(99634603) SHA1(c40d1480e5df10a491bcd471c6a3a118a9120bcb))
@@ -1825,6 +1825,14 @@ SE_ROMEND
 #define input_ports_lotr_le input_ports_lotr
 #define init_lotr_le init_lotr
 CORE_CLONEDEFNV(lotr_le,lotr,"Lord of the Rings, The (10.02 Limited Edition)",2008,"Stern",de_mSES3,0)
+
+SE128_ROMSTART(lotr3, "lotrcpu.300", CRC(fdc5351d) SHA1(92d58bcdd21026d278b5534d1a6ab299f6fffc60))
+DE_DMD32ROM8x(          "lotrdspa.300", CRC(522e3e33) SHA1(11987872604e2a3e2c9567f8f9313c36e6c08cc7))
+LOTR_SND
+SE_ROMEND
+#define input_ports_lotr3 input_ports_lotr
+#define init_lotr3 init_lotr
+CORE_CLONEDEFNV(lotr3,lotr,"Lord of the Rings, The (3.00)",2003,"Stern",de_mSES3,0)
 
 /*-------------------------------------------------------------------
 / Ripley's Believe It or Not!
@@ -2070,7 +2078,7 @@ SE_ROMEND
 #define init_rip300l init_ripleys
 CORE_CLONEDEFNV(rip300l,ripleys,"Ripley's Believe It or Not! (3.00 Spanish)",2004,"Stern",de_mSES3,0)
 
-// Elvis moved to its own sim file (gv)
+// Elvis moved to its own sim file (elvis)
 
 /*-------------------------------------------------------------------
 / The Sopranos
@@ -2199,15 +2207,15 @@ SE_ROMEND
 CORE_CLONEDEFNV(sopr300,sopranos, "Sopranos, The (3.00)",2005,"Stern",de_mSES3,0)
 
 /*-------------------------------------------------------------------
-/ The Sopranos (3.00) alternative sound
+/ The Sopranos (3.00) alternative sound feat a unique U7
 /-------------------------------------------------------------------*/
 SE128_ROMSTART(soprano3, "sopcpua.300", CRC(cca0e551) SHA1(ef109b871605879b55abb966d6736d7deeca404f))
 DE_DMD32ROM8x(      "sopdspa.300", CRC(aa6306ac) SHA1(80737bd2b93bfc64490d07d2cd482350ed3303b3))
 DE3SC_SOUNDROM18888("sopsnd3.u7",  CRC(b22ba5aa) SHA1(8f69932e3b115ae7a6bcb9a15a8b5bf6579e94e0),
                     "sopsnda.u17", CRC(21e0cfd2) SHA1(d2ff1242f1f4a206e0b2884c079ef2be5df143ac),
-                    "sopsnd3.u21", CRC(257ab09d) SHA1(1d18e279139b1658ce02160d9a37b4bf043393f0),
-                    "sopsnd3.u36", CRC(db33b45c) SHA1(d3285008a3c770371389be470c1ec5ca49c1e568),
-                    "sopsnd3.u37", CRC(06a2a6e1) SHA1(fdbe622223724ac2b4c5183c43d3e635654864bf))
+                    "sopsnd1.u21", CRC(257ab09d) SHA1(1d18e279139b1658ce02160d9a37b4bf043393f0),
+                    "sopsnd1.u36", CRC(db33b45c) SHA1(d3285008a3c770371389be470c1ec5ca49c1e568),
+                    "sopsnd1.u37", CRC(06a2a6e1) SHA1(fdbe622223724ac2b4c5183c43d3e635654864bf))
 SE_ROMEND
 #define input_ports_soprano3 input_ports_sopranos
 #define init_soprano3 init_sopranos

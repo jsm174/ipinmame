@@ -237,7 +237,7 @@ CORE_GAMEDEF(play,a24,"Playboy 35th Anniversary (2.4)",1989,"Data East",de_mDEAS
 / Monday Night Football - CPU Rev 2 /Alpha Type 3 16/32K Roms - 32/64K Sound Roms
 /----------------------------------------------------------------------------------*/
 INITGAMES11(mnfb,GEN_DE, de_dispAlpha3, FLIP1516, SNDBRD_DE1S, S11_LOWALPHA, 0)
-DE_ROMSTART48(mnfb_c29,"mnfb2-9.b5",CRC(2d6805d1) SHA1(f222cbf30d07975279eea210738f7d4f73b3fcf4) BAD_DUMP,
+DE_ROMSTART48(mnfb_c29,"mnfb2-9.b5",CRC(2d6805d1) SHA1(f222cbf30d07975279eea210738f7d4f73b3fcf4) BAD_DUMP, // checksum needed to be patched on that one, so maybe bad dump
                    "mnfb2-9.c5",  CRC(98d50cf5) SHA1(59d3b16f8195ab95cece71a12dab3349dfeb2c2b))
 DE1S_SOUNDROM244(  "mnf-f7.256",  CRC(fbc2d6f6) SHA1(33173c081de776d32e926481e94b265ec48d770b),     //F7 on schem (sound)
                    "mnf-f5-6.512",CRC(0c6ea963) SHA1(8c88fa588222ef8a6c872b8c5b49639b108384d4),     //F6 on schem (voice1)
@@ -267,6 +267,14 @@ DE_ROMEND
 #define input_ports_robo input_ports_des11
 CORE_GAMEDEF(robo,a34,"Robocop (3.4)",1989,"Data East",de_mDEAS1,0)
 
+DE_ROMSTART88(robo_a29,"robob5.a29",CRC(72497d0b) SHA1(8a970c879cd0aaef5970a77778f71c0f3d6da049),
+                   "roboc5.a29",CRC(b251b0b6) SHA1(3d340070494b102703e282ae3a7970f6f8aaede9))
+DE1S_SOUNDROM244(  "robof7.rom",CRC(fa0891bd) SHA1(332d03c7802989abf717564230993b54819ebc0d),       //F7 on schem (sound)
+                   "robof6.rom",CRC(9246e107) SHA1(e8e72c0d099b17ea9e59ea7794011bad4c072c5e),       //F6 on schem (voice1)
+                   "robof4.rom",CRC(27d31df3) SHA1(1611a508ce74eb62a07296d69782ea4fa14503fc))       //F4 on schem (voice2)
+DE_ROMEND
+CORE_CLONEDEF(robo,a29,a34,"Robocop (2.9)",1989,"Data East",de_mDEAS1,0)
+
 DE_ROMSTART88(robo_a30,"b5.256",CRC(6870f3ae) SHA1(f02cace5f1d1922aed52c84efe60a46e5297865c),
                    "c5.256",CRC(f2de58cf) SHA1(0b5dd14761b4c64c1b01faad923ab671573499c5))
 DE1S_SOUNDROM244(  "robof7.rom",CRC(fa0891bd) SHA1(332d03c7802989abf717564230993b54819ebc0d),       //F7 on schem (sound)
@@ -287,6 +295,14 @@ DE1S_SOUNDROM244(  "potof7.rom",CRC(2e60b2e3) SHA1(0be89fc9b2c6548392febb35c1ace
 DE_ROMEND
 #define input_ports_poto input_ports_des11
 CORE_GAMEDEF(poto,a32,"Phantom of the Opera, The (3.2)",1990,"Data East",de_mDEAS1,0)
+
+DE_ROMSTART48(poto_a31,"potob5.3-1",CRC(b7be6fa8) SHA1(3ef77daafaf31e2388ac207275aa060f854bd4b9),
+                   "potoc5.3-1",CRC(4ce1d254) SHA1(4d24a230ae3a37674cc25ab5ae40c57acbdf5f04))
+DE1S_SOUNDROM244(  "potof7.rom",CRC(2e60b2e3) SHA1(0be89fc9b2c6548392febb35c1ace0eb912fc73f),       //7f
+                   "potof6.rom",CRC(62b8f74b) SHA1(f82c706b88f49341bab9014bd83371259eb53b47),       //6f
+                   "potof5.rom",CRC(5a0537a8) SHA1(26724441d7e2edd7725337b262d95448499151ad))       //4f
+DE_ROMEND
+CORE_CLONEDEF(poto,a31,a32,"Phantom of the Opera, The (3.1)",1990,"Data East",de_mDEAS1,0)
 
 DE_ROMSTART48(poto_a29,"potob5.2-9",CRC(f01b5510) SHA1(90c632ee74a2dbf877cfe013a69067b1771f1d67),
                    "potoc5.2-9",CRC(c34975b3) SHA1(c9c57126a5da6d78b4066b1d316ffc840660689d))
@@ -401,7 +417,7 @@ INITGAMES11(tmnt,GEN_DEDMD16, de_128x16DMD, FLIP1516, SNDBRD_DE1S, SNDBRD_DEDMD1
 DE_ROMSTART48(tmnt_104,"tmntb5a.104",CRC(f508eeee) SHA1(5e67fde49f6e7d5d563645df9036d5691be076cf),
                    "tmntc5a.104",CRC(a33d18d4) SHA1(41cf815c1f3d117efe0ddd14ad84076dcb80318a))
 DE_DMD16ROM1(      "tmntdsp.104",CRC(545686b7) SHA1(713df7820d024db3406f5e171f62a53e34474f70))
-DE1S_SOUNDROM288(   "tmntf7.rom",CRC(59ba0153) SHA1(e7b02a656c67a0d866020a60ee90e30bef77f67f),        //7f
+DE1S_SOUNDROM288(  "tmntf7.rom",CRC(59ba0153) SHA1(e7b02a656c67a0d866020a60ee90e30bef77f67f),        //7f
                    "tmntf6.rom",CRC(5668d45a) SHA1(65766cb47791ec0a2243015d487f1156a2819fe6),        //6f
                    "tmntf4.rom",CRC(6c38cd84) SHA1(bbe8797fe1622cb8f0842c4d7159760fed080880))        //4f
 DE_ROMEND
@@ -453,7 +469,16 @@ DE2S_SOUNDROM021(   "batman.u7" ,CRC(b2e88bf5) SHA1(28f814ea73f8eefd1bb5499a599e
 DE_ROMEND
 CORE_CLONEDEF(btmn,101,103,"Batman (1.01)",1991,"Data East",de_mDEDMD16S2A,0)
 
-DE_ROMSTART48(btmn_g13,"batbcpug.103",CRC(6f160581) SHA1(0f2d6c396324fbf116309a872cf95d9a05446cea),
+DE_ROMSTART48(btmn_f13,"batcpub5.103",CRC(6f160581) SHA1(0f2d6c396324fbf116309a872cf95d9a05446cea),
+                    "batccpuf.103",CRC(6f654fb4) SHA1(4901326f92aab1f5a2cdf9032511bef8b197f7e4))
+DE_DMD16ROM2(       "bat_dspf.103",CRC(747be2e6) SHA1(47ac64b91eabc24be57e376035ef8da95259587d))
+DE2S_SOUNDROM021(   "batman.u7" ,CRC(b2e88bf5) SHA1(28f814ea73f8eefd1bb5499a599e67a6850c92c0),
+                    "batman.u17" ,CRC(b84914dd) SHA1(333d88033428705cbd0a40d70d938c0021bb0015),
+                    "batman.u21" ,CRC(42dab6ac) SHA1(facf993db2ce240c9e825ca9a21ac65a0fbba188))
+DE_ROMEND
+CORE_CLONEDEF(btmn,f13,103,"Batman (1.03 French)",1991,"Data East",de_mDEDMD16S2A,0)
+
+DE_ROMSTART48(btmn_g13,"batcpub5.103",CRC(6f160581) SHA1(0f2d6c396324fbf116309a872cf95d9a05446cea),
                     "batccpug.103",CRC(a199ab0f) SHA1(729dab10fee708a18b7be5a2b9b904aa211b233a))
 DE_DMD16ROM2(       "bat_dspg.104",CRC(1581819f) SHA1(88facfad2e74dd44b71fd19df685a4c2378d26de))
 DE2S_SOUNDROM021(   "batman.u7" ,CRC(b2e88bf5) SHA1(28f814ea73f8eefd1bb5499a599e67a6850c92c0),
@@ -562,6 +587,14 @@ DE2S_SOUNDROM022(   "hooksnd.u7" ,CRC(642f45b3) SHA1(a4b2084f32e52a5965473849062
                     "hook-voi.u21" ,CRC(b5c275e2) SHA1(ff51c2007132a1310ac53b5ab2a4af7d0ab15948))
 DE_ROMEND
 CORE_CLONEDEF(hook,500,408,"Hook (5.00 unofficial MOD)",2016,"Data East",de_mDEDMD16S2A,0)
+
+DE_ROMSTARTx0(hook_501,"hokcpua.501",CRC(9aa504a5) SHA1(fa5d09b513916f7f738b88eb83cc1e9e62c7864a))
+DE_DMD16ROM2(       "hokdspa.500",CRC(ed6a134b) SHA1(775975b629312f7f1151d878d40723ad4a79928c))
+DE2S_SOUNDROM022(   "hooksnd.u7" ,CRC(642f45b3) SHA1(a4b2084f32e52a596547384906281d04424332fc),
+                    "hook-voi.u17" ,CRC(6ea9fcd2) SHA1(bffc66df542e06dedddaa403b5513446d9d6fc8c),
+                    "hook-voi.u21" ,CRC(b5c275e2) SHA1(ff51c2007132a1310ac53b5ab2a4af7d0ab15948))
+DE_ROMEND
+CORE_CLONEDEF(hook,501,408,"Hook (5.01 unofficial MOD)",2018,"Data East",de_mDEDMD16S2A,0)
 
 DE_ROMSTARTx0(hook_401p,"hokcpua.401",CRC(20223298) SHA1(a8063765db947b059eadaad6654ed0c5cad9198d))
 DE_DMD16ROM2(       "hokdspa.401",CRC(59a07eb5) SHA1(d1ca41ce417f1772fe4da1eb37077f924b66ad36))
@@ -710,13 +743,22 @@ DE_ROMEND
 CORE_CLONEDEF(stwr,103,104,"Star Wars (1.03, Display 1.05)",1992,"Data East",de_mDEDMD32S2A,0)
 
 DE_ROMSTARTx0(stwr_a14,"starcpua.103",CRC(318085ca) SHA1(7c35bdee52e8093fe05f0624615baabe559a1917))
-DE_DMD32ROM44(     "swrom1.a14",CRC(4d577828) SHA1(8b1f302621fe2ee13a067b9c97e3dc33f4519cea),
-                   "swrom0.a14",CRC(104e5a6b) SHA1(b6a9e32f8aec078665faf2ba9ba4f9f51f68cea8))
+DE_DMD32ROM44(        "swrom1.a14", CRC(4d577828) SHA1(8b1f302621fe2ee13a067b9c97e3dc33f4519cea),
+                      "swrom0.a14", CRC(104e5a6b) SHA1(b6a9e32f8aec078665faf2ba9ba4f9f51f68cea8))
 DE2S_SOUNDROM042(     "s-wars.u7"  ,CRC(cefa19d5) SHA1(7ddf9cc85ab601514305bc46083a07a3d087b286),
                       "s-wars.u17" ,CRC(7950a147) SHA1(f5bcd5cf6b35f9e4f14d62b084495c3a743d92a1),
                       "s-wars.u21" ,CRC(7b08fdf1) SHA1(489d21a10e97e886f948d81dedd7f8de3acecd2b))
 DE_ROMEND
 CORE_CLONEDEF(stwr,a14,104,"Star Wars (1.03, Display 1.04)",1992,"Data East",de_mDEDMD32S2A,0)
+
+DE_ROMSTARTx0(stwr_a046,"starcpua.103",CRC(318085ca) SHA1(7c35bdee52e8093fe05f0624615baabe559a1917))
+DE_DMD32ROM44(        "swrom1.a046",CRC(5ceac219) SHA1(76b7acf378f83bacf6c4adb020d6e544eacbac7a),
+                      "swrom0.a046",CRC(305e45be) SHA1(fbdc90175467a9ee59dc11c5ccbe83130b3644c8))
+DE2S_SOUNDROM042(     "s-wars.u7"  ,CRC(cefa19d5) SHA1(7ddf9cc85ab601514305bc46083a07a3d087b286),
+                      "s-wars.u17" ,CRC(7950a147) SHA1(f5bcd5cf6b35f9e4f14d62b084495c3a743d92a1),
+                      "s-wars.u21" ,CRC(7b08fdf1) SHA1(489d21a10e97e886f948d81dedd7f8de3acecd2b))
+DE_ROMEND
+CORE_CLONEDEF(stwr,a046,104,"Star Wars (1.03, Display A0.46)",1992,"Data East",de_mDEDMD32S2A,0)
 
 /* USA CPU 1.02 (11/20/92) */
 DE_ROMSTARTx0(stwr_102,"starcpua.102",CRC(8b9d90d6) SHA1(2fb7594e6f4aae1dc3a07192546fabd2901acbed))
@@ -830,6 +872,14 @@ DE2S_SOUNDROM142(   "lahsnd.u7"  ,CRC(0279c45b) SHA1(14daf6b711d1936352209e90240
                     "lahsnd.u21" ,CRC(4571dc2e) SHA1(a1068cb080c30dbc07d164eddfc5dfd0afd52d3b))
 DE_ROMEND
 CORE_CLONEDEF(lah,l104,112,"Last Action Hero (1.04 Spanish)",1993,"Data East",de_mDEDMD32S2A,0)
+
+DE_ROMSTARTx0(lah_c106,"lahcpuc.106",CRC(d4be4178) SHA1(ea2d9c780f6636a8768164d3a1bb33b050c3a2a7))
+DE_DMD32ROM8x(      "lahdispa.104",CRC(baf4e7b3) SHA1(78924d992c0e206bfbf4a6fcc62ea7f91e995260))
+DE2S_SOUNDROM142(   "lahsnd.u7"  ,CRC(0279c45b) SHA1(14daf6b711d1936352209e90240f51812ebe76e0),
+                    "lahsnd.u17" ,CRC(d0c15fa6) SHA1(5dcd13b578fa53c82353cda5aa774ca216c5ddfe),
+                    "lahsnd.u21" ,CRC(4571dc2e) SHA1(a1068cb080c30dbc07d164eddfc5dfd0afd52d3b))
+DE_ROMEND
+CORE_CLONEDEF(lah,c106,112,"Last Action Hero (1.06 Canadian)",1993,"Data East",de_mDEDMD32S2A,0)
 
 DE_ROMSTARTx0(lah_l108,"lahcpua.108",CRC(8942794b) SHA1(f023ca040d6d4c6da80b58a162f1d217e571ed81))
 DE_DMD32ROM8x(      "lahdispl.104",CRC(6b1e51a7) SHA1(ad17507b63f2da8aa0651401ccb8d449c15aa46c))
@@ -979,6 +1029,15 @@ DE_ROMEND
 #define input_ports_wwfr input_ports_des11
 CORE_GAMEDEF(wwfr,106,"WWF Royal Rumble (1.06)",1994,"Data East",de_mDEDMD32S2A,0)
 
+DE_ROMSTARTx0(wwfr_103f,"wwfcpuf.103"  ,CRC(0e211494) SHA1(c601a075636f84ad12ec0693772a8759049077d5))
+DE_DMD32ROM8x(          "wwfdspf.101"  ,CRC(4c39bda9) SHA1(2ea61a2020a4a4e3f23853ab8780d6999053e8ae))
+DE2S_SOUNDROM1444(      "wfsndu7.512"  ,CRC(eb01745c) SHA1(7222e39c52ed298b737aadaa5b57d2068d39287e),
+                        "wfsndu17.400" ,CRC(7d9c2ca8) SHA1(5d84559455fe7e27634b28bcab81d54f2676390e),
+                        "wfsndu21.400" ,CRC(242dcdcb) SHA1(af7220e14b0956ef40f75b2749eb1b9d715a1af0),
+                        "wfsndu36.400" ,CRC(39db8d85) SHA1(a55dd88fd4d9154b523dca9160bf96119af1f94d))
+DE_ROMEND
+CORE_CLONEDEF(wwfr,103f,106,"WWF Royal Rumble (1.03 French)",1994,"Data East",de_mDEDMD32S2A,0)
+
 DE_ROMSTARTx0(wwfr_103, "wfcpuc5.512"  ,CRC(7e9ead89) SHA1(6cfd64899128b5f9b4ccc37b7bfdbb0a2a75a3a5))
 DE_DMD32ROM8x(          "wfdisp0.400"  ,CRC(e190b90f) SHA1(a0e73ce0b241a81e935e6790e04ea5e1fccf3742))
 DE2S_SOUNDROM1444(      "wfsndu7.512"  ,CRC(eb01745c) SHA1(7222e39c52ed298b737aadaa5b57d2068d39287e),
@@ -1062,7 +1121,7 @@ DE2S_SOUNDROM144("mavu7.dat"  , CRC(427e6ab9) SHA1(6ad9295097f3d498383c91adf4ca6
                  "mavu21.dat" , CRC(be0c6a6f) SHA1(4fee912d9f0d4b196dbfacf06a4202b2fa3037b1))
 DE_ROMEND
 #define input_ports_mav input_ports_des11
-CORE_GAMEDEF(mav,402,"Maverick (4.04, Display rev. 4.02)",1994,"Sega",de_mDEDMD64S2A,0)
+CORE_GAMEDEF(mav,402,"Maverick (4.04, Display 4.02)",1994,"Sega",de_mDEDMD64S2A,0)
 
 DE_ROMSTARTx0(mav_401, "mavcpua.404",CRC(9f06bd8d) SHA1(3b931af5455ed9c40f2b6c884427a326bba8f75a))
 DE_DMD64ROM88(   "mavdsar0.401",CRC(35b811af) SHA1(1e235a0f16ef0eecca5b6ec7a2234ed1dc4e4440),
@@ -1071,7 +1130,7 @@ DE2S_SOUNDROM144("mavu7.dat"  , CRC(427e6ab9) SHA1(6ad9295097f3d498383c91adf4ca6
                  "mavu17.dat" , CRC(cba377b8) SHA1(b7551b6cb64357cdacf1a96cedfccbabf4bd070a),
                  "mavu21.dat" , CRC(be0c6a6f) SHA1(4fee912d9f0d4b196dbfacf06a4202b2fa3037b1))
 DE_ROMEND
-CORE_CLONEDEF(mav,401,402,"Maverick (4.04, Display rev. 4.01)",1994,"Sega",de_mDEDMD64S2A,0)
+CORE_CLONEDEF(mav,401,402,"Maverick (4.04, Display 4.01)",1994,"Sega",de_mDEDMD64S2A,0)
 
 DE_ROMSTARTx0(mav_400, "mavgc5.400",CRC(e2d0a88b) SHA1(d1571edba47aecc871ac0cfdaabca31774f70fa1))
 DE_DMD64ROM88(   "mavdisp0.400",CRC(b6069484) SHA1(2878d9a0151194bd4a0e12e2f75b02a5d7316b68),
@@ -1132,6 +1191,17 @@ DE2S_SOUNDROM144(       "bayw.u7"  ,   CRC(90d6d8a8) SHA1(482c5643453f21a078257a
 DE_ROMEND
 #define input_ports_baywatch input_ports_des112
 CORE_GAMEDEFNV(baywatch,"Baywatch (4.00)",1995,"Sega",de_mDEDMD64S2A,0)
+
+#define init_bay_401 init_baywatch
+DE_ROMSTARTx0(bay_401,  "baycpua.401", CRC(0c69e71e) SHA1(ccc75dac14e0b0b5e6b8258bab2adbdf284dde4b))
+DE_DMD64ROM88(          "bayrom0a.400",CRC(43d615c6) SHA1(7c843b6d5215305b02a55c9fa1d62375ef0766ea),
+                        "bayrom3a.400",CRC(41bcb66b) SHA1(e6f0a9236e14c2e919881ca1ffe3356aaa121730))
+DE2S_SOUNDROM144(       "bayw.u7"  ,   CRC(90d6d8a8) SHA1(482c5643453f21a078257aa13398845ef19cab3c),
+                        "bayw.u17" ,   CRC(b20fde56) SHA1(2f2db49245e4a6a8251cbe896b2437fcec88d42d),
+                        "bayw.u21" ,   CRC(b7598881) SHA1(19d1dde1cb6634a7c7b5cdb4fa01cd09cc7d7777))
+DE_ROMEND
+#define input_ports_bay_401 input_ports_baywatch
+CORE_CLONEDEFNV(bay_401,baywatch,"Baywatch (4.01 unofficial MOD)",2017,"Sega",de_mDEDMD64S2A,0)
 
 #define init_bay_d400 init_baywatch
 DE_ROMSTARTx0(bay_d400, "baycpud.400", CRC(45019616) SHA1(5a1e04cdfa00f179f010c09fae52d090553cd82e))

@@ -9,7 +9,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "Resource.h"       // main symbols
+#include "resource.h"       // main symbols
 #include "VPinMAMECP.h"
 
 #include "ControllerSettings.h"
@@ -59,8 +59,8 @@ public:
 	CComObject<CGames>				*m_pGames;
 	CComObject<CControllerSettings>	*m_pControllerSettings;
 
-	CController::CController();
-	CController::~CController();
+	CController();
+	~CController();
 
 private:
 	void GetProductVersion(int *nVersionNo0, int *nVersionNo1, int *nVersionNo2, int *nVersionNo3);
@@ -133,16 +133,16 @@ public:
 	STDMETHOD(put_Switch)(/*[in]*/ int nSwitchNo, /*[in]*/ VARIANT_BOOL newVal);
 	STDMETHOD(get_Solenoid)(/*[in]*/ int nSolenoid, /*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(get_Lamp)(/*[in]*/ int nLamp, /*[out, retval]*/ VARIANT_BOOL *pVal);
-	STDMETHOD(ShowAboutDialog)(/*[in]*/ long hParentWnd=0);
+	STDMETHOD(ShowAboutDialog)(/*[in]*/ LONG_PTR hParentWnd=0);
 	STDMETHOD(Stop)();
-	STDMETHOD(Run)(/*[in,defaultvalue(0)]*/ long hParentWnd=0, /*[in,defaultvalue(100)]*/ int nMinVersion=0);
+	STDMETHOD(Run)(/*[in,defaultvalue(0)]*/ LONG_PTR hParentWnd=0, /*[in,defaultvalue(100)]*/ int nMinVersion=0);
 	STDMETHOD(get_Hidden)(/*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(put_Hidden)(/*[in]*/ VARIANT_BOOL newVal);
 	STDMETHOD(get_MechSamples)(/*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(put_MechSamples)(/*[in]*/ VARIANT_BOOL newVal);
 	STDMETHOD(get_Game)(/*[out, retval]*/ IGame * *pVal);
-	STDMETHOD(GetWindowRect)(/*[in,defaultvalue(0)]*/ long hWnd, /*[out, retval]*/ VARIANT *pVal);
-	STDMETHOD(GetClientRect)(/*[in,defaultvalue(0)]*/ long hWnd, /*[out, retval]*/ VARIANT *pVal);
+	STDMETHOD(GetWindowRect)(/*[in,defaultvalue(0)]*/ LONG_PTR hWnd, /*[out, retval]*/ VARIANT *pVal);
+	STDMETHOD(GetClientRect)(/*[in,defaultvalue(0)]*/ LONG_PTR hWnd, /*[out, retval]*/ VARIANT *pVal);
 
 	STDMETHOD(get_NVRAM)(/*[out, retval]*/ VARIANT *pVal);
 	STDMETHOD(get_ChangedNVRAM)(/*[out, retval]*/ VARIANT *pVal);
@@ -180,10 +180,10 @@ public:
 	STDMETHOD(get_NewSoundCommands)(/*[out, retval]*/ VARIANT *pVal);
 	STDMETHOD(get_ImgDir)(/*[out, retval]*/ BSTR *pVal);
 	STDMETHOD(put_ImgDir)(/*[in]*/ BSTR newVal);
-	STDMETHOD(ShowPathesDialog)(/*[in,defaultvalue(0)]*/ long hParentWnd);
+	STDMETHOD(ShowPathesDialog)(/*[in,defaultvalue(0)]*/ LONG_PTR hParentWnd);
 	STDMETHOD(get_Antialias)(/*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(put_Antialias)(/*[in]*/ VARIANT_BOOL newVal);
-	STDMETHOD(SetDisplayPosition)(/*[in]*/ int x, /*[in]*/ int y, /*[in]*/ long hParentWindow);
+	STDMETHOD(SetDisplayPosition)(/*[in]*/ int x, /*[in]*/ int y, /*[in]*/ LONG_PTR hParentWindow);
 	STDMETHOD(get_DoubleSize)(/*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(put_DoubleSize)(/*[in]*/ VARIANT_BOOL newVal);
 	STDMETHOD(get_SampleRate)(/*[out, retval]*/ int *pVal);
@@ -200,7 +200,7 @@ public:
 	STDMETHOD(put_ShowFrame)(/*[in]*/ VARIANT_BOOL newVal);
 	STDMETHOD(get_ShowDMDOnly)(/*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(put_ShowDMDOnly)(/*[in]*/ VARIANT_BOOL newVal);
-	STDMETHOD(CheckROMS)(/*[in,defaultvalue(0)]*/ int nShowOptions, /*[in,defaultvalue(0)]*/ long hParentWnd, /*[out, retval]*/ VARIANT_BOOL *pVal);
+	STDMETHOD(CheckROMS)(/*[in,defaultvalue(0)]*/ int nShowOptions, /*[in,defaultvalue(0)]*/ LONG_PTR hParentWnd, /*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(get_ShowTitle)(/*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(put_ShowTitle)(/*[in]*/ VARIANT_BOOL newpVal);
 	STDMETHOD(get_UseSamples)(/*[out, retval]*/ VARIANT_BOOL *pVal);
@@ -214,7 +214,7 @@ public:
 	STDMETHOD(put_NVRamDir)(/*[in]*/ BSTR newVal);
 	STDMETHOD(get_RomDirs)(/*[out, retval]*/ BSTR *pVal);
 	STDMETHOD(put_RomDirs)(/*[in]*/ BSTR newVal);
-	STDMETHOD(ShowOptsDialog)(/*[in]*/ long hParentWnd=0);
+	STDMETHOD(ShowOptsDialog)(/*[in]*/ LONG_PTR hParentWnd=0);
 	STDMETHOD(get_FastFrames)(/*[out, retval]*/ int *pVal);
 	STDMETHOD(put_FastFrames)(/*[in]*/ int newVal);
 	STDMETHOD(get_IgnoreRomCrc)(/*[out, retval]*/ VARIANT_BOOL *pVal);

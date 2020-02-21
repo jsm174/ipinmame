@@ -1,11 +1,11 @@
 // Settings.cpp : Implementation of CGameSettings
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "VPinMAME_h.h"
 #include "VPinMAMEAboutDlg.h"
 #include "VPinMAMEConfig.h"
 #include "ControllerGameSettings.h"
 
-#include "ControllerRegKeys.h"
+#include "ControllerRegkeys.h"
 #include "ControllerGame.h"
 
 #include <atlwin.h>
@@ -492,7 +492,7 @@ private:
 
 		HKEY hKey;
 		if ( RegOpenKeyEx(HKEY_CURRENT_USER, szKey, 0, KEY_WRITE, &hKey)==ERROR_SUCCESS ) {
-			if ( !m_szROM )
+			if (m_szROM[0] == '\0')
 				RegDeleteKey(hKey, REG_DEFAULT);
 			else
 				RegDeleteKey(hKey, m_szROM);
@@ -641,16 +641,16 @@ void CGameSettings::Init(IGame *pGame)
 		strcat(m_szRegKey, REG_DEFAULT);
 }
 
-STDMETHODIMP CGameSettings::ShowSettingsDlg(long hParentWnd)
+STDMETHODIMP CGameSettings::ShowSettingsDlg(LONG_PTR hParentWnd)
 {
 	switch ( hParentWnd ) {
 	case 0:
 		break;
 
 	case 1:
-		hParentWnd = (long) ::GetActiveWindow();
+		hParentWnd = (LONG_PTR) ::GetActiveWindow();
 		if ( !hParentWnd )
-			hParentWnd = (long) GetForegroundWindow();
+			hParentWnd = (LONG_PTR) GetForegroundWindow();
 		break;
 
 	default:
@@ -709,7 +709,7 @@ STDMETHODIMP CGameSettings::put_Value(BSTR sName, VARIANT newVal)
 	return hr;
 }
 
-STDMETHODIMP CGameSettings::SetDisplayPosition(VARIANT newValX, VARIANT newValY, long hWnd)
+STDMETHODIMP CGameSettings::SetDisplayPosition(VARIANT newValX, VARIANT newValY, LONG_PTR hWnd)
 {
 	VariantChangeType(&newValX, &newValX, 0, VT_I4);
 	VariantChangeType(&newValY, &newValY, 0, VT_I4);

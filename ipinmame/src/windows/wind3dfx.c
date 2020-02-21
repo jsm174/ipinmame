@@ -4,6 +4,8 @@
 //
 //============================================================
 
+#ifndef DISABLE_DX7
+
 // standard windows headers
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -516,8 +518,8 @@ int win_d3d_effects_in_use(void)
 	if (win_d3d_use_auto_effect ||
 		use_effect_preset ||
 		use_scanlines != -1 ||
-		use_feedback ||
-		(use_prescale < -1 && use_prescale > 0x11))
+		use_feedback /*||
+		(use_prescale < -1 && use_prescale > 0x11)*/)
 	{
 		return 1;
 	}
@@ -958,3 +960,5 @@ static void win_ddrawsurf_plot_pixel(const LPDDSURFACEDESC2 surface_desc, int x,
 		}
 	}
 }
+
+#endif

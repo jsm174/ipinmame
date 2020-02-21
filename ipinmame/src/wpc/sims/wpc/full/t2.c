@@ -621,7 +621,7 @@ CORE_CLONEDEF(t2,l81,l8,"Terminator 2: Judgement Day (L-81 Attract Sound patch)"
 CORE_CLONEDEF(t2,l82,l8,"Terminator 2: Judgement Day (L-82 Attract Routines patch)",1991,"Williams",wpc_mDMDS,0)
 CORE_CLONEDEF(t2,l6,l8,"Terminator 2: Judgement Day (L-6)",1991,"Williams",wpc_mDMDS,0)
 CORE_CLONEDEF(t2,d6,l8,"Terminator 2: Judgement Day (D-6 LED Ghost Fix)",1991,"Williams",wpc_mDMDS,0)
-CORE_CLONEDEF(t2,p2f,l8,"Terminator 2: Judgement Day (P-2F Profanity)",1991,"Williams",wpc_mDMDS,0)
+CORE_CLONEDEF(t2,p2f,l8,"Terminator 2: Judgement Day (P-2F Profanity)",1991,"Williams",wpc_mDMDS,0) // Prototype ??
 CORE_CLONEDEF(t2,p2g,l8,"Terminator 2: Judgement Day (P-2G Profanity LED Ghost Fix)",1991,"Williams",wpc_mDMDS,0)
 CORE_CLONEDEF(t2,l4,l8,"Terminator 2: Judgement Day (L-4)",1991,"Williams",wpc_mDMDS,0)
 CORE_CLONEDEF(t2,d4,l8,"Terminator 2: Judgement Day (D-4 LED Ghost Fix)",1991,"Williams",wpc_mDMDS,0)
@@ -674,7 +674,8 @@ static void init_t2(void) {
   static mech_tSwData gunSw[] = {{swGunHome, 0, 3},{swGunMark, 75, 85},{0}};
   core_gameData = &t2GameData;
   mech_addLong(0, sGunMotor, 0, MECH_NONLINEAR|MECH_REVERSE|MECH_ONESOL,
-               200,200, gunSw);
+               200,200, gunSw,0);
+  hc55516_set_sample_clock(0, 22372);
 }
 
 /***************************************************************************************************

@@ -292,12 +292,12 @@ void cop420_set_irq_callback(int (*callback)(int)) {
  ****************************************************************************/
 int cop420_execute(int cycles)
 {
-	unsigned opcode;
-
 	cop420_ICount = cycles;
 
 	do
 	{
+		unsigned opcode;
+
 		prevPC = PC;
 
 		CALL_MAME_DEBUG;

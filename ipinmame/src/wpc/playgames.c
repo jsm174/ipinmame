@@ -21,7 +21,7 @@
 
 #define INITGAME2(name, disptype, balls, sb) \
     PLAYMATIC_INPUT_PORTS_START(name, balls) PLAYMATIC_INPUT_PORTS_END \
-    static core_tGameData name##GameData = {GEN_PLAYMATIC,disptype,{FLIP_SW(FLIP_L),0,0,0,sb,0}}; \
+    static core_tGameData name##GameData = {GEN_PLAYMATIC,disptype,{FLIP_SW(FLIP_L),0,0,0,sb}}; \
     static void init_##name(void) { \
         core_gameData = &name##GameData; \
     }
@@ -33,9 +33,16 @@
     core_gameData = &name##GameData; \
   }
 
+#define INITGAME4FM(name, disptype, balls) \
+  PLAYMATIC4_INPUT_PORTS_START(name, balls) PLAYMATIC_INPUT_PORTS_END \
+  static core_tGameData name##GameData = {GEN_PLAYMATIC,disptype,{FLIP_SW(FLIP_L),0,0,0,SNDBRD_PLAY4,0,1}}; \
+  static void init_##name(void) { \
+    core_gameData = &name##GameData; \
+  }
+
 #define INITGAME5(name, disptype, balls) \
   PLAYMATIC4_INPUT_PORTS_START(name, balls) PLAYMATIC_INPUT_PORTS_END \
-  static core_tGameData name##GameData = {GEN_PLAYMATIC,disptype,{FLIP_SW(FLIP_L),0,0,0,SNDBRD_PLAY5}}; \
+  static core_tGameData name##GameData = {GEN_PLAYMATIC,disptype,{FLIP_SW(FLIP_L),0,0,0,SNDBRD_ZSU}}; \
   static void init_##name(void) { \
     core_gameData = &name##GameData; \
   }
@@ -95,11 +102,11 @@ PLAYMATIC_ROMEND
 CORE_GAMEDEFNV(bigtown,"Big Town",1978,"Playmatic",gl_mPLAYMATIC1,0)
 
 /*-------------------------------------------------------------------
-/ 09/78 Last Lap
+/ 09/78 Last Lap // same ROMs as Big Town
 /-------------------------------------------------------------------*/
 INITGAME1(lastlap, play_dispOld, 1)
-PLAYMATIC_ROMSTART88(lastlap, "lastlapa.bin", CRC(253f1b93) SHA1(7ff5267d0dfe6ae19ec6b0412902f4ce83f23ed1),
-            "lastlapb.bin", CRC(5e2ba9c0) SHA1(abd285aa5702c7fb84257b4341f64ff83c1fc0ce))
+PLAYMATIC_ROMSTART88(lastlap, "bigtowna.bin", CRC(253f1b93) SHA1(7ff5267d0dfe6ae19ec6b0412902f4ce83f23ed1),
+            "bigtownb.bin", CRC(5e2ba9c0) SHA1(abd285aa5702c7fb84257b4341f64ff83c1fc0ce))
 PLAYMATIC_ROMEND
 CORE_GAMEDEFNV(lastlap,"Last Lap",1978,"Playmatic",gl_mPLAYMATIC1,0)
 
@@ -114,11 +121,11 @@ PLAYMATIC_ROMEND
 CORE_GAMEDEFNV(chance,"Chance",1978,"Playmatic",gl_mPLAYMATIC1A,0)
 
 /*-------------------------------------------------------------------
-/ 05/79 Party
+/ 05/79 Party // same ROMs as Big Town
 /-------------------------------------------------------------------*/
 INITGAME1(party, play_dispOld, 1)
-PLAYMATIC_ROMSTART88(party, "party_a.bin", CRC(253f1b93) SHA1(7ff5267d0dfe6ae19ec6b0412902f4ce83f23ed1),
-            "party_b.bin", CRC(5e2ba9c0) SHA1(abd285aa5702c7fb84257b4341f64ff83c1fc0ce))
+PLAYMATIC_ROMSTART88(party, "bigtowna.bin", CRC(253f1b93) SHA1(7ff5267d0dfe6ae19ec6b0412902f4ce83f23ed1),
+            "bigtownb.bin", CRC(5e2ba9c0) SHA1(abd285aa5702c7fb84257b4341f64ff83c1fc0ce))
 PLAYMATIC_ROMEND
 CORE_GAMEDEFNV(party,"Party",1979,"Playmatic",gl_mPLAYMATIC1,0)
 
@@ -197,14 +204,14 @@ PLAYMATIC_ROMSTART000(cerberus, "cerb8.cpu", CRC(021d0452) SHA1(496010e6892311b1
                 "cerb10.cpu", CRC(785602e0) SHA1(f38df3156cd14ab21752dbc849c654802079eb33))
 PLAYMATIC_SOUNDROM64("cerb.snd", CRC(8af53a23) SHA1(a80b57576a1eb1b4544b718b9abba100531e3942))
 PLAYMATIC_ROMEND
-CORE_GAMEDEFNV(cerberus,"Cerberus",1982,"Playmatic",gl_mPLAYMATIC2S3,GAME_STATUS)
+CORE_GAMEDEFNV(cerberus,"Cerberus",1982,"Playmatic",gl_mPLAYMATIC2S3,0)
 
 /*-------------------------------------------------------------------
-/ 10/82 Spain '82
+/ 10/82 Spain 82
 /-------------------------------------------------------------------*/
 INPUT_PORTS_START(spain82)
   CORE_PORTS
-  SIM_PORTS(1)
+  SIM_PORTS(3)
   PLAYMATIC2_COMPORTS
 INPUT_PORTS_END
 static core_tGameData spain82GameData = {GEN_PLAYMATIC,play_disp6,{FLIP_SW(FLIP_L),0,0,0,SNDBRD_PLAY3}};
@@ -215,7 +222,7 @@ PLAYMATIC_ROMSTART320(spain82,  "spaic12.bin", CRC(cd37ecdc) SHA1(ff2d406b6ac150
                 "spaic11.bin", CRC(c86c0801) SHA1(1b52539538dae883f9c8fe5bc6454f9224780d11))
 PLAYMATIC_SOUNDROM64("spasnd.bin", CRC(62412e2e) SHA1(9e48dc3295e78e1024f726906be6e8c3fe3e61b1))
 PLAYMATIC_ROMEND
-CORE_GAMEDEFNV(spain82,"Spain '82",1982,"Playmatic",gl_mPLAYMATIC3S3,GAME_STATUS)
+CORE_GAMEDEFNV(spain82,"Spain 82",1982,"Playmatic",gl_mPLAYMATIC3S3,0)
 
 /*-------------------------------------------------------------------
 / Mad Race
@@ -358,7 +365,7 @@ PLAYMATIC_SOUNDROM256x4("sonido1.bin", CRC(3294611d) SHA1(5f790b41bcb6d87418c80e
             "sonido3.bin", CRC(13d50f39) SHA1(70624de2dd8412c83866183a83f16cc5b8bdccb8),
             "sonido4.bin", CRC(b53f73ed) SHA1(bb928cfee418e8d9698d7bee78a32426f793c6e9))
 PLAYMATIC_ROMEND
-CORE_GAMEDEFNV(phntmshp,"Phantom Ship",1987,"Playmatic",gl_mPLAYMATIC4S5,GAME_STATUS)
+CORE_GAMEDEFNV(phntmshp,"Phantom Ship",1987,"Playmatic",gl_mPLAYMATIC4SZSU,GAME_STATUS)
 
 /*-------------------------------------------------------------------
 / ??/87 Skill Flight
@@ -368,7 +375,7 @@ PLAYMATIC_ROMSTART64_2(sklflite,"skflcpu1.rom", CRC(8f833b55) SHA1(1729203582c22
             "skflcpu2.rom", CRC(ffc497aa) SHA1(3e88539ae1688322b9268f502d8ca41cffb28df3))
 PLAYMATIC_SOUNDROM256("skflsnd.rom", CRC(926a1da9) SHA1(16c762fbfe6a55597f26ff55d380192bb8647ee0))
 PLAYMATIC_ROMEND
-CORE_GAMEDEFNV(sklflite,"Skill Flight (Playmatic)",1987,"Playmatic",gl_mPLAYMATIC4S5,GAME_STATUS)
+CORE_GAMEDEFNV(sklflite,"Skill Flight (Playmatic)",1987,"Playmatic",gl_mPLAYMATIC4SZSU,GAME_STATUS)
 
 /*-------------------------------------------------------------------
 / ??/?? Miss Disco (Bingo machine)
@@ -414,25 +421,75 @@ CORE_GAMEDEFNV(msdisco,"Miss Disco (Bingo)",19??,"Playmatic",gl_mPLAYMATICBINGO,
 // games by other manufacturers below
 
 /*-------------------------------------------------------------------
+/ ??/78 Third World (Sonic) // same ROMs as Big Town
+/-------------------------------------------------------------------*/
+INITGAME1(thrdwrld, play_dispOld, 1)
+PLAYMATIC_ROMSTART88(thrdwrld, "bigtowna.bin", CRC(253f1b93) SHA1(7ff5267d0dfe6ae19ec6b0412902f4ce83f23ed1),
+            "bigtownb.bin", CRC(5e2ba9c0) SHA1(abd285aa5702c7fb84257b4341f64ff83c1fc0ce))
+PLAYMATIC_ROMEND
+CORE_GAMEDEFNV(thrdwrld,"Third World",1978,"Sonic (Spain)",gl_mPLAYMATIC1,0)
+
+/*-------------------------------------------------------------------
+/ ??/79 Night Fever (Sonic) // same ROMs as Big Town
+/-------------------------------------------------------------------*/
+INITGAME1(ngtfever, play_dispOld, 1)
+PLAYMATIC_ROMSTART88(ngtfever, "bigtowna.bin", CRC(253f1b93) SHA1(7ff5267d0dfe6ae19ec6b0412902f4ce83f23ed1),
+            "bigtownb.bin", CRC(5e2ba9c0) SHA1(abd285aa5702c7fb84257b4341f64ff83c1fc0ce))
+PLAYMATIC_ROMEND
+CORE_GAMEDEFNV(ngtfever,"Night Fever",1979,"Sonic (Spain)",gl_mPLAYMATIC1,0)
+
+/*-------------------------------------------------------------------
+/ ??/84 Flashman (Sport Matic)
+/-------------------------------------------------------------------*/
+core_tLCDLayout dispFM[] = {
+  { 0, 0,37,1,CORE_SEG7 }, { 0, 2,32,5,CORE_SEG7 }, { 0,12,52,1,CORE_SEG7 },
+  { 0,18,29,1,CORE_SEG7 }, { 0,20,24,5,CORE_SEG7 }, { 0,30,51,1,CORE_SEG7 },
+  { 3,18,21,1,CORE_SEG7 }, { 3,20,16,5,CORE_SEG7 }, { 3,30,50,1,CORE_SEG7 },
+  { 6,18,13,1,CORE_SEG7 }, { 6,20, 8,5,CORE_SEG7 }, { 6,30,49,1,CORE_SEG7 },
+  {10, 0, 5,1,CORE_SEG7 }, {10, 2, 0,1,CORE_SEG7 }, {10, 5, 1,1,CORE_SEG7 }, {10, 8, 2,1,CORE_SEG7 }, {10,11, 3,2,CORE_SEG7 },
+  {0}
+};
+INITGAME4FM(flashman, dispFM, 1)
+PLAYMATIC_ROMSTART64(flashman,"pf7-1a0.u9", CRC(2cd16521) SHA1(bf9aa293e2ded3f5b1e61a10e6a8ebb8b4e9d4e1))
+PLAYMATIC_SOUNDROM6416("mfm-1a0.u3", CRC(456fd555) SHA1(e91d6df15fdfc330ee9edb691ff925ad24afea35),
+            "mfm-1b0.u4", CRC(90256257) SHA1(c7f2554e500c4e512999b4edc54c86f3335a2b30))
+PLAYMATIC_ROMEND
+CORE_GAMEDEFNV(flashman,"Flashman",1984,"Sport Matic",gl_mPLAYMATIC4,0)
+
+/*-------------------------------------------------------------------
 / ??/86 Rider's Surf (JocMatic)
 /-------------------------------------------------------------------*/
 INITGAME4(ridersrf, play_disp7, 1)
-ROM_START(ridersrf)
-  NORMALREGION(0x10000, REGION_CPU1)
-    ROM_LOAD("cpu.bin", 0x0000, 0x2000, CRC(4941938e) SHA1(01e44054e65166d68602d6a38217eda7ea669761))
-  NORMALREGION(0x10000, REGION_CPU2)
-    ROM_LOAD("sound.bin", 0x0000, 0x2000, CRC(2db2ecb2) SHA1(365fcac208607acc3e134affeababd6c89dbc74d))
-ROM_END
+PLAYMATIC_ROMSTART64(ridersrf,"cpu.bin", CRC(4941938e) SHA1(01e44054e65166d68602d6a38217eda7ea669761))
+PLAYMATIC_SOUNDROM64("sound.bin", CRC(2db2ecb2) SHA1(365fcac208607acc3e134affeababd6c89dbc74d))
+PLAYMATIC_ROMEND
 CORE_GAMEDEFNV(ridersrf,"Rider's Surf",1986,"JocMatic",gl_mPLAYMATIC4,0)
 
 /*-------------------------------------------------------------------
 / ??/87 Iron Balls (Stargame)
 /-------------------------------------------------------------------*/
 INITGAME4(ironball, play_disp7, 1)
-ROM_START(ironball)
-  NORMALREGION(0x10000, REGION_CPU1)
-    ROM_LOAD("video.bin", 0x0000, 0x2000, CRC(1867ebff) SHA1(485e46c742d914febcbdd58cb5a886f1d773282a))
-  NORMALREGION(0x10000, REGION_CPU2)
-    ROM_LOAD("sound.bin", 0x0000, 0x2000, CRC(83165483) SHA1(5076e5e836105d69c4ba606d8b995ecb16f88504))
-ROM_END
+PLAYMATIC_ROMSTART64(ironball,"video.bin", CRC(1867ebff) SHA1(485e46c742d914febcbdd58cb5a886f1d773282a))
+PLAYMATIC_SOUNDROM64("sound.bin", CRC(83165483) SHA1(5076e5e836105d69c4ba606d8b995ecb16f88504))
+PLAYMATIC_ROMEND
 CORE_GAMEDEFNV(ironball,"Iron Balls",1987,"Stargame",gl_mPLAYMATIC4,0)
+
+/*-------------------------------------------------------------------
+/ ??/87 Terrific Lake (Sport Matic)
+/-------------------------------------------------------------------*/
+core_tLCDLayout dispSM[] = {
+  { 0, 0,37,1,CORE_SEG7 }, { 0, 2,32,5,CORE_SEG7 }, { 0,12,52,1,CORE_SEG7 },
+  { 3, 0,29,1,CORE_SEG7 }, { 3, 2,24,5,CORE_SEG7 }, { 3,12,51,1,CORE_SEG7 },
+  { 6, 0,21,1,CORE_SEG7 }, { 6, 2,16,5,CORE_SEG7 }, { 6,12,50,1,CORE_SEG7 },
+  { 3,20,13,1,CORE_SEG7 }, { 3,22, 8,5,CORE_SEG7 }, { 3,32,49,1,CORE_SEG7 },
+  {10, 0, 5,1,CORE_SEG7 }, {10, 2, 0,1,CORE_SEG7 }, {10, 5, 1,1,CORE_SEG7 }, {10, 8, 2,1,CORE_SEG7 }, {10,11, 3,2,CORE_SEG7 },
+  {0}
+};
+INITGAME5(terrlake, dispSM, 1)
+PLAYMATIC_ROMSTART64(terrlake,"jtl_2a3.u9", CRC(f6d3cedd) SHA1(31e0daac1e9215ad0e1557d31d520745ead0f396))
+SOUNDREGION(0x10000, REGION_CPU2)
+  ROM_LOAD("stl_1a0.u3", 0x0000, 0x8000, CRC(b5afdc39) SHA1(fb74de453dfc66b87f3d64508802b3de46d14631))
+SOUNDREGION(0x20000, REGION_USER1)
+  ROM_LOAD("stl_1b0.u4", 0x00000, 0x8000, CRC(3bbdd791) SHA1(68cd86cb96a278538d18ca0a77b372309829edf4))
+PLAYMATIC_ROMEND
+CORE_GAMEDEFNV(terrlake,"Terrific Lake",1987,"Sport Matic",gl_mPLAYMATIC4SZSU,GAME_STATUS)

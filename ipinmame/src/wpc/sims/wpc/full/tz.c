@@ -435,6 +435,7 @@ WPCS_SOUNDROM882("tzu18_l2.rom", CRC(66575ec2) SHA1(deceb56324ee9785946f5771f8cf
                  "tzu15_l2.rom", CRC(389d2442) SHA1(58a4bc7cc7a28b47c75d5c9bbf14abf34bd7a9e3), \
                  "tzu14_l2.rom", CRC(5a67bd56) SHA1(98669fbfdc5793bcf09fe72c231e2b4fa2524cc5))
 
+WPC_ROMSTART(tz,la9, "tzone9_0.rom",0x80000,CRC(2984ea1e) SHA1(98c2b2d08dd4fa50ba42993db9368a1b7f4202d0)) TZ_SOUND WPC_ROMEND
 WPC_ROMSTART(tz,92,  "tzone9_2.rom",0x80000,CRC(ec3e61c8) SHA1(378c33add72c934aa2ee32e71830297ad1f08ce5)) TZ_SOUND WPC_ROMEND
 WPC_ROMSTART(tz,93,  "tzone9_3.rom",0x80000,CRC(41c19d70) SHA1(88b5b54dd9f34a15e3853f003b5f996cf3cdb690)) TZ_SOUND WPC_ROMEND
 WPC_ROMSTART(tz,94h, "tz_94h.rom",  0x80000,CRC(5032e8c6) SHA1(d7481612b1c3040823e1f7b9e53ebbaa83de0532)) TZ_SOUND WPC_ROMEND
@@ -481,25 +482,25 @@ WPCS_SOUNDROM888("u18-sp1.040", CRC(1632951e) SHA1(041396411dc5343fe7e5147d26e03
 WPC_ROMEND
 
 WPC_ROMSTART(tz,p3,"tz_p3.bin", 0x80000,CRC(f3b1fd9f) SHA1(aa551fc6638e79edf10fbe89127c55372cc3cb58))
-WPCS_SOUNDROM888("tzu18_p3.rom",CRC(1f750672) SHA1(033c6e261201a17667110069b7570fe90490286b),
-                 "u15-sp1.040", CRC(0f17c9e9) SHA1(fcaa6f87ebd03222e3a40be08eb5aa6a5e002a8b),
-                 "u14-sp1.040", CRC(ad7cb98b) SHA1(a84bf157cb535acaf811e93ad22a505e1dd08dad))
+WPCS_SOUNDROM882("tzu18_p3.rom",CRC(1f750672) SHA1(033c6e261201a17667110069b7570fe90490286b),
+                 "tzu15_l2.rom", CRC(389d2442) SHA1(58a4bc7cc7a28b47c75d5c9bbf14abf34bd7a9e3),
+                 "tzu14_l2.rom", CRC(5a67bd56) SHA1(98669fbfdc5793bcf09fe72c231e2b4fa2524cc5))
 WPC_ROMEND
 WPC_ROMSTART(tz,p3d,"tz_p3d.bin", 0x80000,CRC(705bde23) SHA1(4f3fbc7d81d6bb9f3787c6e4ceca82e2778f9deb))
-WPCS_SOUNDROM888("tzu18_p3.rom",CRC(1f750672) SHA1(033c6e261201a17667110069b7570fe90490286b),
-                 "u15-sp1.040", CRC(0f17c9e9) SHA1(fcaa6f87ebd03222e3a40be08eb5aa6a5e002a8b),
-                 "u14-sp1.040", CRC(ad7cb98b) SHA1(a84bf157cb535acaf811e93ad22a505e1dd08dad))
+WPCS_SOUNDROM882("tzu18_p3.rom",CRC(1f750672) SHA1(033c6e261201a17667110069b7570fe90490286b),
+                 "tzu15_l2.rom", CRC(389d2442) SHA1(58a4bc7cc7a28b47c75d5c9bbf14abf34bd7a9e3),
+                 "tzu14_l2.rom", CRC(5a67bd56) SHA1(98669fbfdc5793bcf09fe72c231e2b4fa2524cc5))
 WPC_ROMEND
 
 WPC_ROMSTART(tz,p4,"tz_p4.rom", 0x80000,CRC(5a662df5) SHA1(0f609ff59549225d56b913c3bf928b58f7bf1ca5))
-WPCS_SOUNDROM888("tzu18_p3.rom",CRC(1f750672) SHA1(033c6e261201a17667110069b7570fe90490286b),
-                 "u15-sp1.040", CRC(0f17c9e9) SHA1(fcaa6f87ebd03222e3a40be08eb5aa6a5e002a8b),
-                 "u14-sp1.040", CRC(ad7cb98b) SHA1(a84bf157cb535acaf811e93ad22a505e1dd08dad))
+WPCS_SOUNDROM882("tzu18_p3.rom",CRC(1f750672) SHA1(033c6e261201a17667110069b7570fe90490286b),
+                 "tzu15_l2.rom", CRC(389d2442) SHA1(58a4bc7cc7a28b47c75d5c9bbf14abf34bd7a9e3),
+                 "tzu14_l2.rom", CRC(5a67bd56) SHA1(98669fbfdc5793bcf09fe72c231e2b4fa2524cc5))
 WPC_ROMEND
 WPC_ROMSTART(tz,p5,"tz_p5.rom", 0x80000,CRC(e63cec7b) SHA1(d3a370a3b5b71673af90fdf8bb52b96bd1ee8536))
-WPCS_SOUNDROM888("tzu18_p3.rom",CRC(1f750672) SHA1(033c6e261201a17667110069b7570fe90490286b),
-                 "u15-sp1.040", CRC(0f17c9e9) SHA1(fcaa6f87ebd03222e3a40be08eb5aa6a5e002a8b),
-                 "u14-sp1.040", CRC(ad7cb98b) SHA1(a84bf157cb535acaf811e93ad22a505e1dd08dad))
+WPCS_SOUNDROM882("tzu18_p3.rom",CRC(1f750672) SHA1(033c6e261201a17667110069b7570fe90490286b),
+                 "tzu15_l2.rom", CRC(389d2442) SHA1(58a4bc7cc7a28b47c75d5c9bbf14abf34bd7a9e3),
+                 "tzu14_l2.rom", CRC(5a67bd56) SHA1(98669fbfdc5793bcf09fe72c231e2b4fa2524cc5))
 WPC_ROMEND
 
 /*--------------
@@ -509,11 +510,11 @@ CORE_GAMEDEF (tz,92,     "Twilight Zone (9.2)", 1995,"Bally",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,93,  92,"Twilight Zone (9.3 LED Ghost Fix)",1998,"Bally",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,94h, 92,"Twilight Zone (9.4H)",1998,"Bally",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,94ch,92,"Twilight Zone (9.4CH Coin Play)",1998,"Bally",wpc_mFliptronS,0)
-CORE_CLONEDEF(tz,pa1, 92,"Twilight Zone (PA-1)",1993,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF(tz,pa1, 92,"Twilight Zone (PA-1 Prototype)",1993,"Bally",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,pa2, 92,"Twilight Zone (PA-2 LED Ghost Fix)",1993,"Bally",wpc_mFliptronS,0)
-CORE_CLONEDEF(tz,p3,  92,"Twilight Zone (P-3)", 1993,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF(tz,p3,  92,"Twilight Zone (P-3 Prototype)", 1993,"Bally",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,p3d, 92,"Twilight Zone (P-3 LED Ghost Fix)", 1993,"Bally",wpc_mFliptronS,0)
-CORE_CLONEDEF(tz,p4,  92,"Twilight Zone (P-4)", 1993,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF(tz,p4,  92,"Twilight Zone (P-4 Prototype)", 1993,"Bally",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,p5,  92,"Twilight Zone (P-5 LED Ghost Fix)", 1993,"Bally",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,l1,  92,"Twilight Zone (L-1)", 1993,"Bally",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,d1,  92,"Twilight Zone (D-1 LED Ghost Fix)", 1993,"Bally",wpc_mFliptronS,0)
@@ -529,6 +530,7 @@ CORE_CLONEDEF(tz,h7,  92,"Twilight Zone (H-7)", 1994,"Bally",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,i7,  92,"Twilight Zone (I-7 LED Ghost Fix)", 1994,"Bally",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,h8,  92,"Twilight Zone (H-8)", 1994,"Bally",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,i8,  92,"Twilight Zone (I-8 LED Ghost Fix)", 1994,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF(tz,la9, 92,"Twilight Zone (LA-9 PAPA Tournament Version 9.0)", 1995,"Bally",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,f10, 92,"Twilight Zone (FreeWPC 0.10)", 2006,"FreeWPC",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,f19, 92,"Twilight Zone (FreeWPC 0.19)", 20??,"FreeWPC",wpc_mFliptronS,0)
 CORE_CLONEDEF(tz,f50, 92,"Twilight Zone (FreeWPC 0.50)", 20??,"FreeWPC",wpc_mFliptronS,0)
@@ -601,7 +603,8 @@ static mech_tInitData mechClock = {
    {swClockM0,  0,  2,60}, //  0 min
    {swClockM15,15, 17,60}, // 15 min
    {swClockM30,30, 32,60}, // 30 min
-   {swClockM45,45, 47,60}} // 45 min
+   {swClockM45,45, 47,60}}, // 45 min
+   0
 };
 
 static void init_tz(void) {
@@ -609,6 +612,7 @@ static void init_tz(void) {
   install_mem_read_handler(WPC_CPUNO, WPC_SWROWREAD+WPC_BASE, WPC_SWROWREAD+WPC_BASE,
                            tz_swRowRead);
   wpc_set_modsol_aux_board(1);
+  hc55516_set_sample_clock(0, 22372);
   mech_add(0,&mechClock);
 }
 

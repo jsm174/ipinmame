@@ -270,11 +270,11 @@ static int wcs_getSol(int solNo) {
 }
 
 static mech_tInitData wcs_goalieMech = {
-  sGoalieMot, 0, MECH_LINEAR|MECH_REVERSE|MECH_ONESOL, WCS_GOALIETIME, WCS_GOALIETIME, {{0}}
+  sGoalieMot, 0, MECH_LINEAR|MECH_REVERSE|MECH_ONESOL, WCS_GOALIETIME, WCS_GOALIETIME, {{0}}, 0
 };
 
 static mech_tInitData wcs_ballMech = {
-  sBallCW, sBallCCW, MECH_LINEAR|MECH_CIRCLE|MECH_TWODIRSOL|MECH_ACC(120)|MECH_RET(2), 4, 4, {{0}}
+  sBallCW, sBallCCW, MECH_LINEAR|MECH_CIRCLE|MECH_TWODIRSOL|MECH_ACC(120)|MECH_RET(2), 4, 4, {{0}}, 0
 };
 
 static void wcs_handleMech(int mech) {
@@ -493,9 +493,9 @@ CORE_GAMEDEF(wcs,l2,"World Cup Soccer (LX-2)",1994,"Bally",wpc_mSecurityS,0)
 CORE_CLONEDEF(wcs,l3c,l2,"World Cup Soccer (LX-3C Competition MOD)",2016,"Bally",wpc_mSecurityS,0)
 CORE_CLONEDEF(wcs,la2,l2,"World Cup Soccer (LA-2)",1994,"Bally",wpc_mSecurityS,0)
 CORE_CLONEDEF(wcs,d2,l2,"World Cup Soccer (DX-2 LED Ghost Fix)",1994,"Bally",wpc_mSecurityS,0)
-CORE_CLONEDEF(wcs,p2,l2,"World Cup Soccer (PA-2)",1994,"Bally",wpc_mSecurityS,0)
+CORE_CLONEDEF(wcs,p2,l2,"World Cup Soccer (PA-2 Prototype)",1994,"Bally",wpc_mSecurityS,0)
 CORE_CLONEDEF(wcs,p5,l2,"World Cup Soccer (PA-5 LED Ghost Fix)",1994,"Bally",wpc_mSecurityS,0)
-CORE_CLONEDEF(wcs,p3,l2,"World Cup Soccer (PX-3)",1994,"Bally",wpc_mSecurityS,0)
+CORE_CLONEDEF(wcs,p3,l2,"World Cup Soccer (PX-3 Prototype)",1994,"Bally",wpc_mSecurityS,0)
 CORE_CLONEDEF(wcs,p6,l2,"World Cup Soccer (PX-6 LED Ghost Fix)",1994,"Bally",wpc_mSecurityS,0)
 CORE_CLONEDEF(wcs,f10,l2,"World Cup Soccer (FreeWPC 0.10)",1994,"FreeWPC",wpc_mSecurityS,0)
 CORE_CLONEDEF(wcs,f50,l2,"World Cup Soccer (FreeWPC 0.50)",1994,"FreeWPC",wpc_mSecurityS,0)

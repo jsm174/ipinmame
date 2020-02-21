@@ -156,7 +156,7 @@ static void timer_trigger_event(int timer_num);
 #define TC_OVRFL_IRQ_ENABLED(x)		(at91.tc_clock[(x)].tc_irq_mask & 1)
 #define TC_WAVEMODE(x)				(at91.tc_clock[(x)].tc_chan_mode & 0x8000)		//bit 15 of Channel Mode = 1 for Wave Mode
 #define TC_RC_TRIGGER(x)			(at91.tc_clock[(x)].tc_chan_mode & 0x4000)		//bit 14 of Channel Mode = 1 for RC Compare Trigger
-#define AT91_USART_IRQ(x)			(2+(1-x))
+#define AT91_USART_IRQ(x)			(2+(1-(x)))
 /* Private Data */
 
 typedef struct
@@ -1205,7 +1205,6 @@ INLINE void internal_write (int addr, data32_t data)
 //READ FROM  - Atmel AT91 CPU On Chip Periperhals
 INLINE data32_t internal_read (int addr)
 {
-	int i;
 	data32_t data = 0;
 	int offset2 = (addr & 0xFF000) >> 12;
 
@@ -1390,9 +1389,10 @@ INLINE data32_t internal_read (int addr)
 			switch(offset3)
 			{
 				//IRQ Based on current IRQ source 0-31, returns value of Source Vector
-				case 0x100:  // IVR
+				case 0x100: { // IVR
 					// Find the highest ranked vector that's set in irqpending
 
+					int i;
 					for (i = 0; i < 31; i++)
 					{
 						if (( at91.aic_irqpending & at91.aic_irqmask) & (1 << at91_priority_map[i]))
@@ -1416,6 +1416,7 @@ INLINE data32_t internal_read (int addr)
 					}
 					ARM7.pendingIrq = 0;
 //					arm7_core_set_irq_line(ARM7_IRQ_LINE, 0);
+					}
 					break;
 
 				//FIQ - Has it's own register address
@@ -1514,9 +1515,8 @@ INLINE data32_t at91_cpu_read32( int addr )
 	if(addr >= 0xFFC00000)
 		result = internal_read(addr);
 	else
-
 	//Handle through normal 32 bit handler
-	result = cpu_readmem32ledw_dword(addr);
+		result = cpu_readmem32ledw_dword(addr);
 
 	/* Unaligned reads rotate the word, they never combine words */
 	if (addr&3) {

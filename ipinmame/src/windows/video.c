@@ -150,7 +150,7 @@ static const int skiptable[FRAMESKIP_LEVELS][FRAMESKIP_LEVELS] =
 	{ 0,1,1,1,1,1,1,1,1,1,1,1 }
 };
 
-static const int waittable[FRAMESKIP_LEVELS][FRAMESKIP_LEVELS] =
+/*static const int waittable[FRAMESKIP_LEVELS][FRAMESKIP_LEVELS] =
 {
 	{ 1,1,1,1,1,1,1,1,1,1,1,1 },
 	{ 2,1,1,1,1,1,1,1,1,1,1,0 },
@@ -164,7 +164,7 @@ static const int waittable[FRAMESKIP_LEVELS][FRAMESKIP_LEVELS] =
 	{ 4,0,0,0,4,0,0,0,4,0,0,0 },
 	{ 6,0,0,0,0,0,6,0,0,0,0,0 },
 	{12,0,0,0,0,0,0,0,0,0,0,0 }
-};
+};*/
 
 
 
@@ -197,7 +197,7 @@ struct rc_option video_opts[] =
 #ifdef VPINMAME
 	// default window mode for VPM is run inside a window
 	{ "window", "w", rc_bool, &win_window_mode, "1", 0, 0, NULL, "run in a window/run on full screen" },
-	{ "ddraw", "dd", rc_bool, &win_use_ddraw, "1", 0, 0, NULL, "use DirectDraw for rendering" },
+	{ "ddraw", "dd", rc_bool, &win_use_ddraw, "0", 0, 0, NULL, "use DirectDraw for rendering" },
 #else
 	// default window mode for PinMAME is full screen
 	{ "window", "w", rc_bool, &win_window_mode, "0", 0, 0, NULL, "run in a window/run on full screen" },
@@ -225,7 +225,9 @@ struct rc_option video_opts[] =
 	{ "sleep", NULL, rc_bool, &allow_sleep, "1", 0, 0, NULL, "allow " APPNAME " to give back time to the system when it's not needed" },
 	{ "rdtsc", NULL, rc_bool, &win_force_rdtsc, "0", 0, 0, NULL, "prefer RDTSC over QueryPerformanceCounter for timing" },
 	{ "high_priority", NULL, rc_bool, &win_high_priority, "0", 0, 0, NULL, "increase thread priority" },
+#ifndef DISABLE_DX7
 	{ NULL, NULL, rc_link, win_d3d_opts, NULL, 0, 0, NULL, NULL },
+#endif
 	{ NULL,	NULL, rc_end, NULL, NULL, 0, 0,	NULL, NULL }
 };
 
@@ -448,10 +450,12 @@ static BOOL WINAPI devices_enum_callback(GUID *lpGUID, LPSTR lpDriverDescription
 }
 #endif
 
-
 //============================================================
 //	osd_create_display
 //============================================================
+#ifdef VPINMAME
+extern char g_fShowWinDMD;
+#endif
 
 int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_components)
 {
@@ -487,6 +491,10 @@ int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_compo
 	// proper screen
 
 	screen_guid_ptr = NULL;
+#ifdef VPINMAME
+	if (g_fShowWinDMD == 0)
+		win_use_ddraw = 0;
+#endif 
 #ifndef DISABLE_DX7
  	if (win_use_ddraw)
 		DirectDrawEnumerateEx(devices_enum_callback, NULL, DDENUM_ATTACHEDSECONDARYDEVICES | DDENUM_DETACHEDSECONDARYDEVICES);
