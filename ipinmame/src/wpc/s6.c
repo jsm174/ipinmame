@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+
 #include "driver.h"
 #include "cpu/m6800/m6800.h"
 #include "machine/6821pia.h"
@@ -334,7 +336,7 @@ MEMORY_END
 MACHINE_DRIVER_START(s6)
   MDRV_IMPORT_FROM(PinMAME)
   MDRV_CORE_INIT_RESET_STOP(s6,s6,s6)
-  MDRV_CPU_ADD(M6808, 3580000/4)
+  MDRV_CPU_ADD(M6808, 3579545/4)
   MDRV_CPU_MEMORY(s6_readmem, s6_writemem)
   MDRV_CPU_VBLANK_INT(s6_vblank, 1)
   MDRV_CPU_PERIODIC_INT(s6_irq, S6_IRQFREQ)

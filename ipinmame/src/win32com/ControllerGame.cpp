@@ -1,5 +1,5 @@
 // ControllerGame.cpp : Implementation of CGame
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "VPinMAME_h.h"
 #include "ControllerGame.h"
 #include "ControllerGameSettings.h"
@@ -12,7 +12,7 @@ extern "C" {
 #include "audit.h"
 }
 
-#include "alias.h"
+#include "Alias.h"
 #include <atlwin.h>
 
 
@@ -93,7 +93,7 @@ private:
 		fMaybeOK = true;
 
 		while ( SUCCEEDED(pEnumRoms->Next(1, &vRom, &uFetched)) && uFetched ) {
-			HRESULT hr = vRom.pdispVal->QueryInterface(__uuidof(IRom), (void**) &pRom);
+			/*HRESULT hr =*/ vRom.pdispVal->QueryInterface(__uuidof(IRom), (void**) &pRom);
 			VariantClear(&vRom);
 
 			CComBSTR sName;
@@ -173,8 +173,22 @@ private:
 				strcpy(szLine, "ROM set is good; VPinMAME is able to use it");
 				fROMSetOK = true;
 			}
-			else if ( fMaybeOK )
+			else if ( fMaybeOK ) {
+				IGameSettings *pGameSettings;		// ignore patched/localization/sound/message rom patches
+				VARIANT vValue;				
+				VariantInit(&vValue);
+
+				pGame->get_Settings((IGameSettings**) &pGameSettings);				
+				
+				pGameSettings->get_Value(CComBSTR("ignore_rom_crc"), &vValue);
+				pGameSettings->Release();
+
+				if(vValue.lVal != NULL) {
+					fROMSetOK = fOK = true;
+				}
+
 				strcpy(szLine, "There are CRC and/or length errors! VPinMAME may or may not successfully be able to use the ROM set.\r\nIf sound roms are missing, sound will be disabled.");
+			}
 			else
 				strcpy(szLine, "ROM set is bad: VPinMAME can't use it.");
 			break;
@@ -369,7 +383,7 @@ STDMETHODIMP CGame::get_Settings(IGameSettings **pVal)
 /* some helper functions */
 
 /* Determine Game # from Given GameName String */
-int GetGameNumFromString(char *name)
+int GetGameNumFromString(const char * const name)
 {
 	int gamenum = 0;
 	while (drivers[gamenum]) {
@@ -383,7 +397,7 @@ int GetGameNumFromString(char *name)
 		return gamenum;
 }
 
-char* GetGameRegistryKey(char *pszRegistryKey, char* pszROMName)
+char* GetGameRegistryKey(char *pszRegistryKey, const char* const pszROMName)
 {
 	if ( !pszRegistryKey )
 		return NULL;
@@ -402,7 +416,7 @@ char* GetGameRegistryKey(char *pszRegistryKey, char* pszROMName)
 	return pszRegistryKey;
 }
 
-BOOL GameUsedTheFirstTime(char* pszROMName)
+BOOL GameUsedTheFirstTime(const char* const pszROMName)
 {
 	char szKey[MAX_PATH];
 	GetGameRegistryKey(szKey, pszROMName);
@@ -443,7 +457,7 @@ void SetGameWasStarted(char* pszROMName)
 	WriteRegistry(szKey, "", 1);
 }
 
-STDMETHODIMP CGame::ShowInfoDlg(int nShowOptions, long hParentWnd, int *pVal)
+STDMETHODIMP CGame::ShowInfoDlg(int nShowOptions, LONG_PTR hParentWnd, int *pVal)
 {
 	if ( !pVal )
 		return S_FALSE;

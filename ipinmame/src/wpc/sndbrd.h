@@ -1,8 +1,5 @@
 #ifndef INC_SNDBRD
 #define INC_SNDBRD
-#if !defined(__GNUC__) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4) || (__GNUC__ >= 4)	// GCC supports "pragma once" correctly since 3.4
-#pragma once
-#endif
 
 extern void sndbrd_sync_w(WRITE_HANDLER((*handler)),int offset, int data);
 /*-- core interface --*/
@@ -18,6 +15,7 @@ extern void sndbrd_ctrl_w(int board, int data);
 extern int sndbrd_ctrl_r(int board);
 extern void sndbrd_ctrl_cb(int board, int data);
 extern void sndbrd_data_cb(int board, int data);
+void sndbrd_setManCmd(int board, WRITE_HANDLER((*manCmd)));
 void sndbrd_manCmd(int board, int cmd);
 extern void sndbrd_0_init(int brdType, int cpuNo, UINT8 *romRegion,
                           WRITE_HANDLER((*data_cb)),WRITE_HANDLER((*ctrl_cb)));
@@ -74,15 +72,20 @@ struct sndbrdIntf {
 #define SNDBRD_BY50    SNDBRD_BY32
 #define SNDBRD_BY51    SNDBRD_TYPE( 5,0)
 #define SNDBRD_BY56    SNDBRD_TYPE( 5,1)
+#define SNDBRD_BY51N   SNDBRD_TYPE( 5,2)
 #define SNDBRD_BY61    SNDBRD_TYPE( 7,0)
 #define SNDBRD_BY61B   SNDBRD_TYPE( 7,1)
-#define SNDBRD_BY81    SNDBRD_TYPE( 7,2)
+//#define SNDBRD_BY81    SNDBRD_TYPE( 7,2) // 'Say It Again' sound board for Centaur (II), is done differently
 #define SNDBRD_BY45    SNDBRD_TYPE( 8,0)
 #define SNDBRD_BY45BP  SNDBRD_TYPE( 8,1)
 #define SNDBRD_BYTCS   SNDBRD_TYPE( 9,0)
 #define SNDBRD_BYSD    SNDBRD_TYPE(10,0)
 #define SNDBRD_S67S    SNDBRD_TYPE(11,0)
 #define SNDBRD_S7S_ND  SNDBRD_TYPE(11,1)
+#define SNDBRD_S3S     SNDBRD_TYPE(11,2)
+#define SNDBRD_S3DFPS  SNDBRD_TYPE(11,(4|2))
+#define SNDBRD_S3WCS   SNDBRD_TYPE(11,(8|4|2))
+#define SNDBRD_S3DFS   SNDBRD_TYPE(11,(16|4|2))
 #define SNDBRD_S9S     SNDBRD_TYPE(12,0)
 #define SNDBRD_S9PF    SNDBRD_TYPE(12,8)
 #define SNDBRD_S11S    SNDBRD_TYPE(12,4)
@@ -138,6 +141,16 @@ struct sndbrdIntf {
 #define SNDBRD_NUOVA   SNDBRD_TYPE(46,0)
 #define SNDBRD_GRAND   SNDBRD_TYPE(47,0)
 #define SNDBRD_JVH     SNDBRD_TYPE(48,0)
+#define SNDBRD_JVH2    SNDBRD_TYPE(48,1)
 #define SNDBRD_TABART  SNDBRD_TYPE(49,0)
 #define SNDBRD_JEUTEL  SNDBRD_TYPE(50,0)
+#define SNDBRD_PLAY1   SNDBRD_TYPE(51,0)
+#define SNDBRD_PLAY2   SNDBRD_TYPE(52,0)
+#define SNDBRD_PLAY3   SNDBRD_TYPE(53,0)
+#define SNDBRD_PLAY4   SNDBRD_TYPE(54,0)
+#define SNDBRD_ZSU     SNDBRD_TYPE(55,0)
+#define SNDBRD_PLAYZ   SNDBRD_TYPE(56,0)
+#define SNDBRD_TECNOPLAY SNDBRD_TYPE(57,0)
+#define SNDBRD_JOCTRONIC SNDBRD_TYPE(58,0)
+#define SNDBRD_BARNI   SNDBRD_TYPE(59,0)
 #endif /* INC_SNDBRD */

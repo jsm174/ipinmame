@@ -285,11 +285,11 @@ WPC_ROMSTART(nbaf,23,"g11-23.rom",0x80000,CRC(a6ceb6de) SHA1(055387ee7da57e1a8fb
 /*--------------
 /  Game drivers
 /---------------*/
-CORE_GAMEDEF(nbaf,31,"NBA Fastbreak (3.1 - S3.0)",1997,"Bally",wpc_m95S,0)
-CORE_CLONEDEF(nbaf,31a,31,"NBA Fastbreak (3.1 - S1.0)",1997,"Bally",wpc_m95S,0)
-CORE_CLONEDEF(nbaf,11s,31,"NBA Fastbreak (1.1 - S0.4)",1997,"Bally",wpc_m95S,0)
+CORE_GAMEDEF(nbaf,31,"NBA Fastbreak (3.1, Sound S3.0)",1997,"Bally",wpc_m95S,0)
+CORE_CLONEDEF(nbaf,31a,31,"NBA Fastbreak (3.1, Sound S1.0)",1997,"Bally",wpc_m95S,0)
+CORE_CLONEDEF(nbaf,11s,31,"NBA Fastbreak (1.1, Sound S0.4)",1997,"Bally",wpc_m95S,0)
 CORE_CLONEDEF(nbaf,11,31,"NBA Fastbreak (1.1)",1997,"Bally",wpc_m95S,0)
-CORE_CLONEDEF(nbaf,11a,31,"NBA Fastbreak (1.1 - S2.0)",1997,"Bally",wpc_m95S,0)
+CORE_CLONEDEF(nbaf,11a,31,"NBA Fastbreak (1.1, Sound S2.0)",1997,"Bally",wpc_m95S,0)
 CORE_CLONEDEF(nbaf,115,31,"NBA Fastbreak (1.15)",1997,"Bally",wpc_m95S,0)
 CORE_CLONEDEF(nbaf,21,31,"NBA Fastbreak (2.1)",1997,"Bally",wpc_m95S,0)
 CORE_CLONEDEF(nbaf,22,31,"NBA Fastbreak (2.2)",1997,"Bally",wpc_m95S,0)
@@ -316,7 +316,8 @@ static PINMAME_VIDEO_UPDATE(led_update) {
 }
 static struct core_dispLayout nbaf_dispDMD[] = {
   {0,0,32,128,CORE_DMD,(genf *)wpcdmd_update,NULL},
-  {7,0, 0,  2,CORE_SEG7,(genf *)led_update,NULL},
+  {7,0, 0,  2,CORE_SEG7 | CORE_NODISP,(genf *)led_update,NULL},
+  {0}
 };
 
 /*----------------------
@@ -367,4 +368,5 @@ static WRITE_HANDLER(nbaf_wpc_w) {
 static void init_nbaf(void) {
   core_gameData = &nbafGameData;
   install_mem_write_handler(0, 0x3fb0, 0x3fff, nbaf_wpc_w);
+  wpc_set_fastflip_addr(0x7b);
 }

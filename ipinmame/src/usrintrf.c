@@ -20,6 +20,14 @@
 #include "mesintrf.h"
 #endif
 
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+#include "p-roc/p-roc.h"
+#endif /* PINMAME && PROC_SUPPORT */
+#if defined(LISY_SUPPORT)
+ #include "lisy/hw_lib.h"
+ #include "lisy/lisy.h"
+#endif /* LISY_SUPPORT */
+
 
 
 /***************************************************************************
@@ -596,7 +604,7 @@ static unsigned multiline_extract(const char **pbegin, const char *end, unsigned
 			}
 
 			/* advance to the end of this word */
-			numchars += word_end - begin;
+			numchars += (unsigned)(word_end - begin);
 			begin = word_end;
 		}
 
@@ -1521,7 +1529,7 @@ static void showcharset(struct mame_bitmap *bitmap)
 
 	schedule_full_refresh();
 }
-#endif
+#endif /* PINMAME */
 
 
 static int switchmenu(struct mame_bitmap *bitmap, int selected, UINT32 switch_name, UINT32 switch_setting)
@@ -1531,9 +1539,9 @@ static int switchmenu(struct mame_bitmap *bitmap, int selected, UINT32 switch_na
 	struct InputPort *entry[128];
 #ifdef PINMAME
 	char flag[60];
-#else
+#else /* PINMAME */
 	char flag[40];
-#endif //PINMAME
+#endif /* PINMAME */
 	int i,sel;
 	struct InputPort *in;
 	int total;
@@ -2036,15 +2044,15 @@ static int settraksettings(struct mame_bitmap *bitmap,int selected)
 {
 	const char *menu_item[40];
 	const char *menu_subitem[40];
+	char label[30][40];
+	char setting[30][40];
 	struct InputPort *entry[40];
 	int i,sel;
 	struct InputPort *in;
 	int total,total2;
 	int arrowize;
 
-
 	sel = selected - 1;
-
 
 	if (Machine->input_ports == 0)
 		return 0;
@@ -2081,8 +2089,6 @@ static int settraksettings(struct mame_bitmap *bitmap,int selected)
 	{
 		if (i < total2 - 1)
 		{
-			char label[30][40];
-			char setting[30][40];
 			int sensitivity,delta;
 			int reverse;
 
@@ -2298,6 +2304,11 @@ static int mame_stats(struct mame_bitmap *bitmap,int selected)
 int showcopyright(struct mame_bitmap *bitmap)
 {
 	int done;
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+	int displayed=0;
+	char top_text[17];
+	char bottom_text[17];
+#endif /* PINMAME && PROC_SUPPORT */
 	char buf[1000];
 	char buf2[256];
 
@@ -2310,6 +2321,12 @@ int showcopyright(struct mame_bitmap *bitmap)
 
 	setup_selected = -1;////
 	done = 0;
+
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+	sprintf(top_text," PRESS   LFT FLP");
+	sprintf(bottom_text,"                ");
+	procDisplayText(top_text, bottom_text);
+#endif /* PINMAME && PROC_SUPPORT */
 
 	do
 	{
@@ -2324,10 +2341,24 @@ int showcopyright(struct mame_bitmap *bitmap)
 			return 1;
 		}
 		if (keyboard_pressed_memory(KEYCODE_O) ||
-				input_ui_pressed(IPT_UI_LEFT))
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+		    code_pressed(PROC_FLIPPER_L) ||
+#endif /* PINMAME && PROC_SUPPORT */
+		    input_ui_pressed(IPT_UI_LEFT))
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+			if (!displayed) {
+				sprintf(top_text, " PRESS   RGT FLP");
+				sprintf(bottom_text,"                ");
+				procDisplayText(top_text, bottom_text);
+				displayed = 1;
+			}
+#endif /* PINMAME && PROC_SUPPORT */
 			done = 1;
 		if (done == 1 && (keyboard_pressed_memory(KEYCODE_K) ||
-				input_ui_pressed(IPT_UI_RIGHT)))
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+		    code_pressed(PROC_FLIPPER_R) ||
+#endif /* PINMAME && PROC_SUPPORT */
+		    input_ui_pressed(IPT_UI_RIGHT)))
 			done = 2;
 	} while (done < 2);
 
@@ -2344,6 +2375,11 @@ static int displaygameinfo(struct mame_bitmap *bitmap,int selected)
 	char buf[2048];
 	char buf2[32];
 	int sel;
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+	int displayed=0;
+	char top_text[17];
+	char bottom_text[17];
+#endif /* PINMAME && PROC_SUPPORT */
 
 
 	sel = selected - 1;
@@ -2456,7 +2492,16 @@ static int displaygameinfo(struct mame_bitmap *bitmap,int selected)
 
 	if (sel == -1)
 	{
+#if defined(PINMAME) && defined(PROC_SUPPORT)
 		/* startup info, print MAME version and ask for any key */
+		if (!displayed) {
+                        sprintf(top_text," PRESS   ANY KEY ");
+			sprintf(bottom_text,"                ");
+			
+                        procDisplayText(top_text, bottom_text);
+			displayed=1;
+		}
+#endif /* PINMAME && PROC_SUPPORT */
 
 		sprintf (buf2, "\n\t%s ", ui_getstring (UI_mame));	/* \t means that the line will be centered */
 		strcat(buf, buf2);
@@ -2468,8 +2513,12 @@ static int displaygameinfo(struct mame_bitmap *bitmap,int selected)
 		ui_displaymessagewindow(bitmap,buf);
 
 		sel = 0;
-		if (code_read_async() != CODE_NONE)
+		if (code_read_async() != CODE_NONE) {
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+			procClearDMD();
+#endif /* PINMAME && PROC_SUPPORT */
 			sel = -1;
+		}
 	}
 	else
 	{
@@ -3416,6 +3465,8 @@ static void onscrd_discrete(struct mame_bitmap *bitmap,int increment,int arg)
 			logval+=loginc;
 			adjuster.value=pow(10,logval);
 
+			ourval=(int) (100.0*((logval-logmin)/logspan));
+
 			/* Keep within sensible bounds */
 			if(adjuster.value > adjuster.max)
 			{
@@ -3428,7 +3479,6 @@ static void onscrd_discrete(struct mame_bitmap *bitmap,int increment,int arg)
 				ourval=0;
 			}
 
-			ourval=(int) (100.0*((logval-logmin)/logspan));
 			initial=(int) (100.0*((loginit-logmin)/logspan));
 		}
 		else
@@ -3573,8 +3623,8 @@ static void onscrd_brightness(struct mame_bitmap *bitmap,int increment,int arg)
 	}
 	brightness = palette_get_global_brightness();
 
-	sprintf(buf,"%s %3d%%", ui_getstring (UI_brightness), (int)(brightness * 100));
-	displayosd(bitmap,buf,brightness*100,100);
+	sprintf(buf,"%s %3d%%", ui_getstring (UI_brightness), (int)(brightness * 100.));
+	displayosd(bitmap,buf,(int)(brightness*100.),100);
 }
 
 static void onscrd_gamma(struct mame_bitmap *bitmap,int increment,int arg)
@@ -3631,16 +3681,16 @@ static void onscrd_vector_intensity(struct mame_bitmap *bitmap,int increment,int
 	{
 		intensity_correction = vector_get_intensity();
 
-		intensity_correction += 0.05 * increment;
-		if (intensity_correction < 0.5) intensity_correction = 0.5;
-		if (intensity_correction > 3.0) intensity_correction = 3.0;
+		intensity_correction += (float)(0.05 * increment);
+		if (intensity_correction < 0.5f) intensity_correction = 0.5f;
+		if (intensity_correction > 3.0f) intensity_correction = 3.0f;
 
 		vector_set_intensity(intensity_correction);
 	}
 	intensity_correction = vector_get_intensity();
 
 	sprintf(buf,"%s %1.2f", ui_getstring (UI_vectorintensity), intensity_correction);
-	displayosd(bitmap,buf,100*(intensity_correction-0.5)/(3.0-0.5),100*(1.5-0.5)/(3.0-0.5));
+	displayosd(bitmap,buf,(int)(100.f*(intensity_correction-0.5f)/(float)(3.0-0.5)),(int)(100.*(1.5-0.5)/(3.0-0.5)));
 }
 
 
@@ -4017,8 +4067,25 @@ int handle_user_interface(struct mame_bitmap *bitmap)
 
 	/* if the user pressed ESC, stop the emulation */
 	/* but don't quit if the setup menu is on screen */
-	if (setup_selected == 0 && input_ui_pressed(IPT_UI_CANCEL))
+	if (setup_selected == 0 && (input_ui_pressed(IPT_UI_CANCEL)
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+	    || code_pressed(PROC_ESC_SEQ)
+#endif /* PINMAME && PROC_SUPPORT */
+#if defined(LISY_SUPPORT)
+        //check in lisy for SIGUSR1
+        //and quit if we received it
+        || lisy_time_to_quit()
+#endif /* LISY_SUPPORT */
+	   )) {
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+		procClearDMD();
+#endif /* PINMAME && PROC_SUPPORT */
+#if defined(LISY_SUPPORT)
+        //make sure all coils are switches off
+        lisy_shutdown();
+#endif /* LISY_SUPPORT */
 		return 1;
+	}
 
 	if (setup_selected == 0 && input_ui_pressed(IPT_UI_CONFIGURE))
 	{
@@ -4103,33 +4170,39 @@ int handle_user_interface(struct mame_bitmap *bitmap)
 	if (input_ui_pressed(IPT_UI_LOAD_STATE))
 		do_loadsave(bitmap, LOADSAVE_LOAD);
 
-#ifdef VPINMAME
+#if defined(VPINMAME) || defined(PINMAME_DLL)
 { extern int g_fPause;
+  extern int g_fDumpFrames;
+  
   int fPause;
   if (single_step || input_ui_pressed(IPT_UI_PAUSE))
     g_fPause = 1;
 
+  /* Dump Frames */
+  if (input_ui_pressed(IPT_UI_DUMPFRAME))
+    g_fDumpFrames = !g_fDumpFrames;
+
   fPause = g_fPause;
   if (fPause) /* pause the game */
-#else
+#else /* VPINMAME */
 	if (single_step || input_ui_pressed(IPT_UI_PAUSE)) /* pause the game */
-#endif
+#endif /* VPINMAME */
 	{
 /*		osd_selected = 0;	   disable on screen display, since we are going   */
 							/* to change parameters affected by it */
 
 		if (single_step == 0)
 			mame_pause(1);
-#ifdef VPINMAME
+#if defined(VPINMAME) || defined(PINMAME_DLL)
       if ( input_ui_pressed(IPT_UI_PAUSE))
 		  g_fPause = 0;
 		while (g_fPause) {
         if (input_ui_pressed(IPT_UI_PAUSE))
           g_fPause = 0;
-#else
+#else /* VPINMAME */
 		while (!input_ui_pressed(IPT_UI_PAUSE))
 		{
-#endif
+#endif /* VPINMAME */
 #ifdef MAME_NET
 			osd_net_sync();
 #endif /* MAME_NET */
@@ -4156,7 +4229,7 @@ int handle_user_interface(struct mame_bitmap *bitmap)
 			/* if the user pressed F4, show the character set */
 			if (input_ui_pressed(IPT_UI_SHOW_GFX))
 				showcharset(bitmap);
-#endif
+#endif /* PINMAME */
 
 			if (setup_selected == 0 && input_ui_pressed(IPT_UI_CANCEL))
 				return 1;
@@ -4208,7 +4281,7 @@ int handle_user_interface(struct mame_bitmap *bitmap)
 
 		schedule_full_refresh();
 	}
-#ifdef VPINMAME
+#if defined(VPINMAME) || defined(PINMAME_DLL)
   }
 #endif /* VPINMAME */
 
@@ -4251,7 +4324,7 @@ int handle_user_interface(struct mame_bitmap *bitmap)
 
 		osd_sound_enable(1);
 	}
-#endif
+#endif /* PINMAME */
 
 	/* if the user pressed F1 and this is a lightgun game, toggle the crosshair */
 	if (input_ui_pressed(IPT_UI_TOGGLE_CROSSHAIR))

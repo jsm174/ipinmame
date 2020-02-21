@@ -31,7 +31,7 @@ static UINT8 is_raw[TRANSPARENCY_MODES];
 
 INLINE UINT32 read_dword(void *address)
 {
-	if ((long)address & 3)
+	if ((size_t)address & 3)
 	{
   		return	(*((UINT8 *)address  ) << SHIFT0) +
 				(*((UINT8 *)address+1) << SHIFT1) +
@@ -45,7 +45,7 @@ INLINE UINT32 read_dword(void *address)
 
 INLINE void write_dword(void *address, UINT32 data)
 {
-  	if ((long)address & 3)
+  	if ((size_t)address & 3)
 	{
 		*((UINT8 *)address)   = (data>>SHIFT0);
 		*((UINT8 *)address+1) = (data>>SHIFT1);
@@ -289,9 +289,7 @@ INLINE void blockmove_NtoN_transpen_noremap8(
 		UINT8 *dstdata,int dstmodulo,
 		int transpen)
 {
-	UINT8 *end;
 	int trans4;
-	UINT32 *sd4;
 
 	srcmodulo -= srcwidth;
 	dstmodulo -= srcwidth;
@@ -300,8 +298,9 @@ INLINE void blockmove_NtoN_transpen_noremap8(
 
 	while (srcheight)
 	{
-		end = dstdata + srcwidth;
-		while (((long)srcdata & 3) && dstdata < end)	/* longword align */
+		UINT32 *sd4;
+		UINT8 *end = dstdata + srcwidth;
+		while (((size_t)srcdata & 3) && dstdata < end)	/* longword align */
 		{
 			int col;
 
@@ -355,9 +354,7 @@ INLINE void blockmove_NtoN_transpen_noremap_flipx8(
 		UINT8 *dstdata,int dstmodulo,
 		int transpen)
 {
-	UINT8 *end;
 	int trans4;
-	UINT32 *sd4;
 
 	srcmodulo += srcwidth;
 	dstmodulo -= srcwidth;
@@ -368,8 +365,9 @@ INLINE void blockmove_NtoN_transpen_noremap_flipx8(
 
 	while (srcheight)
 	{
-		end = dstdata + srcwidth;
-		while (((long)srcdata & 3) && dstdata < end)	/* longword align */
+		UINT32 *sd4;
+		UINT8 *end = dstdata + srcwidth;
+		while (((size_t)srcdata & 3) && dstdata < end)	/* longword align */
 		{
 			int col;
 
@@ -418,14 +416,12 @@ INLINE void blockmove_NtoN_transpen_noremap16(
 		UINT16 *dstdata,int dstmodulo,
 		int transpen)
 {
-	UINT16 *end;
-
 	srcmodulo -= srcwidth;
 	dstmodulo -= srcwidth;
 
 	while (srcheight)
 	{
-		end = dstdata + srcwidth;
+		UINT16 *end = dstdata + srcwidth;
 		while (dstdata < end)
 		{
 			int col;
@@ -446,15 +442,13 @@ INLINE void blockmove_NtoN_transpen_noremap_flipx16(
 		UINT16 *dstdata,int dstmodulo,
 		int transpen)
 {
-	UINT16 *end;
-
 	srcmodulo += srcwidth;
 	dstmodulo -= srcwidth;
 	//srcdata += srcwidth-1;
 
 	while (srcheight)
 	{
-		end = dstdata + srcwidth;
+		UINT16 *end = dstdata + srcwidth;
 		while (dstdata < end)
 		{
 			int col;
@@ -475,14 +469,12 @@ INLINE void blockmove_NtoN_transpen_noremap32(
 		UINT32 *dstdata,int dstmodulo,
 		int transpen)
 {
-	UINT32 *end;
-
 	srcmodulo -= srcwidth;
 	dstmodulo -= srcwidth;
 
 	while (srcheight)
 	{
-		end = dstdata + srcwidth;
+		UINT32 *end = dstdata + srcwidth;
 		while (dstdata < end)
 		{
 			int col;
@@ -503,15 +495,13 @@ INLINE void blockmove_NtoN_transpen_noremap_flipx32(
 		UINT32 *dstdata,int dstmodulo,
 		int transpen)
 {
-	UINT32 *end;
-
 	srcmodulo += srcwidth;
 	dstmodulo -= srcwidth;
 	//srcdata += srcwidth-1;
 
 	while (srcheight)
 	{
-		end = dstdata + srcwidth;
+		UINT32 *end = dstdata + srcwidth;
 		while (dstdata < end)
 		{
 			int col;
@@ -3529,13 +3519,13 @@ void drawgfx_toggle_crosshair(void)
 
 void draw_crosshair(struct mame_bitmap *bitmap,int x,int y,const struct rectangle *clip)
 {
-	unsigned short black,white;
+	unsigned short /*black,*/white;
 	int i;
 
 	if (!crosshair_enable)
 		return;
 
-	black = Machine->uifont->colortable[0];
+	//black = Machine->uifont->colortable[0];
 	white = Machine->uifont->colortable[1];
 
 	for (i = 1;i < 6;i++)
@@ -3612,11 +3602,9 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_opaque,(COMMON_ARGS,
 
 	if (flipx)
 	{
-		DATA_TYPE *end;
-
 		while (dstheight)
 		{
-			end = dstdata - dstwidth*HMODULO;
+			DATA_TYPE *end = dstdata - dstwidth*HMODULO;
 			while (dstdata >= end + 8*HMODULO)
 			{
 				INCREMENT_DST(-8*HMODULO)
@@ -3683,11 +3671,9 @@ DECLARE_SWAP_RAW_PRI(blockmove_4toN_opaque,(COMMON_ARGS,
 
 	if (flipx)
 	{
-		DATA_TYPE *end;
-
 		while (dstheight)
 		{
-			end = dstdata - dstwidth*HMODULO;
+			DATA_TYPE *end = dstdata - dstwidth*HMODULO;
 			if (leftskip)
 			{
 				SETPIXELCOLOR(0,LOOKUP(*srcdata>>4))
@@ -3776,16 +3762,13 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_transpen,(COMMON_ARGS,
 
 	if (flipx)
 	{
-		DATA_TYPE *end;
-		int trans4;
-		UINT32 *sd4;
-
-		trans4 = transpen * 0x01010101;
+		int trans4 = transpen * 0x01010101;
 
 		while (dstheight)
 		{
-			end = dstdata - dstwidth*HMODULO;
-			while (((long)srcdata & 3) && dstdata > end)	/* longword align */
+			UINT32 *sd4;
+			DATA_TYPE *end = dstdata - dstwidth*HMODULO;
+			while (((size_t)srcdata & 3) && dstdata > end)	/* longword align */
 			{
 				int col;
 
@@ -3836,7 +3819,7 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_transpen,(COMMON_ARGS,
 		while (dstheight)
 		{
 			end = dstdata + dstwidth*HMODULO;
-			while (((long)srcdata & 3) && dstdata < end)	/* longword align */
+			while (((size_t)srcdata & 3) && dstdata < end)	/* longword align */
 			{
 				int col;
 
@@ -3885,13 +3868,11 @@ DECLARE_SWAP_RAW_PRI(blockmove_4toN_transpen,(COMMON_ARGS,
 
 	if (flipx)
 	{
-		DATA_TYPE *end;
-
 		while (dstheight)
 		{
 			int col;
 
-			end = dstdata - dstwidth*HMODULO;
+			DATA_TYPE *end = dstdata - dstwidth*HMODULO;
 			if (leftskip)
 			{
 				col = *(srcdata++)>>4;
@@ -3958,16 +3939,13 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_transblend,(COMMON_ARGS,
 
 	if (flipx)
 	{
-		DATA_TYPE *end;
-		int trans4;
-		UINT32 *sd4;
-
-		trans4 = transpen * 0x01010101;
+		int trans4 = transpen * 0x01010101;
 
 		while (dstheight)
 		{
-			end = dstdata - dstwidth*HMODULO;
-			while (((long)srcdata & 3) && dstdata > end)	/* longword align */
+			UINT32 *sd4;
+			DATA_TYPE *end = dstdata - dstwidth*HMODULO;
+			while (((size_t)srcdata & 3) && dstdata > end)	/* longword align */
 			{
 				int col;
 
@@ -4018,7 +3996,7 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_transblend,(COMMON_ARGS,
 		while (dstheight)
 		{
 			end = dstdata + dstwidth*HMODULO;
-			while (((long)srcdata & 3) && dstdata < end)	/* longword align */
+			while (((size_t)srcdata & 3) && dstdata < end)	/* longword align */
 			{
 				int col;
 
@@ -4070,13 +4048,11 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_transmask,(COMMON_ARGS,
 
 	if (flipx)
 	{
-		DATA_TYPE *end;
-		UINT32 *sd4;
-
 		while (dstheight)
 		{
-			end = dstdata - dstwidth*HMODULO;
-			while (((long)srcdata & 3) && dstdata > end)	/* longword align */
+			UINT32 *sd4;
+			DATA_TYPE *end = dstdata - dstwidth*HMODULO;
+			while (((size_t)srcdata & 3) && dstdata > end)	/* longword align */
 			{
 				int col;
 
@@ -4124,7 +4100,7 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_transmask,(COMMON_ARGS,
 		while (dstheight)
 		{
 			end = dstdata + dstwidth*HMODULO;
-			while (((long)srcdata & 3) && dstdata < end)	/* longword align */
+			while (((size_t)srcdata & 3) && dstdata < end)	/* longword align */
 			{
 				int col;
 
@@ -4192,11 +4168,9 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_transcolor,(COMMON_ARGS,
 	}
 	else
 	{
-		DATA_TYPE *end;
-
 		while (dstheight)
 		{
-			end = dstdata + dstwidth*HMODULO;
+			DATA_TYPE *end = dstdata + dstwidth*HMODULO;
 			while (dstdata < end)
 			{
 				if (colortable[*srcdata] != transcolor) SETPIXELCOLOR(0,LOOKUP(*srcdata))
@@ -4218,13 +4192,11 @@ DECLARE_SWAP_RAW_PRI(blockmove_4toN_transcolor,(COMMON_ARGS,
 
 	if (flipx)
 	{
-		DATA_TYPE *end;
-
 		while (dstheight)
 		{
 			int col;
 
-			end = dstdata - dstwidth*HMODULO;
+			DATA_TYPE *end = dstdata - dstwidth*HMODULO;
 			if (leftskip)
 			{
 				col = *(srcdata++)>>4;
@@ -4292,11 +4264,9 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_pen_table,(COMMON_ARGS,
 
 	if (flipx)
 	{
-		DATA_TYPE *end;
-
 		while (dstheight)
 		{
-			end = dstdata - dstwidth*HMODULO;
+			DATA_TYPE *end = dstdata - dstwidth*HMODULO;
 			while (dstdata > end)
 			{
 				int col;
@@ -4369,11 +4339,9 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_pen_table,(COMMON_ARGS,
 
 	if (flipx)
 	{
-		DATA_TYPE *end;
-
 		while (dstheight)
 		{
-			end = dstdata - dstwidth*HMODULO;
+			DATA_TYPE *end = dstdata - dstwidth*HMODULO;
 			while (dstdata > end)
 			{
 				int col;
@@ -4446,17 +4414,16 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_alphaone,(COMMON_ARGS,
 
 	if (flipx)
 	{
-		DATA_TYPE *end;
 		int trans4;
-		UINT32 *sd4;
 		UINT32 alphacolor = LOOKUP(alphapen);
 
 		trans4 = transpen * 0x01010101;
 
 		while (dstheight)
 		{
-			end = dstdata - dstwidth*HMODULO;
-			while (((long)srcdata & 3) && dstdata > end)	/* longword align */
+			UINT32 *sd4;
+			DATA_TYPE *end = dstdata - dstwidth*HMODULO;
+			while (((size_t)srcdata & 3) && dstdata > end)	/* longword align */
 			{
 				int col;
 
@@ -4544,7 +4511,7 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_alphaone,(COMMON_ARGS,
 		while (dstheight)
 		{
 			end = dstdata + dstwidth*HMODULO;
-			while (((long)srcdata & 3) && dstdata < end)	/* longword align */
+			while (((size_t)srcdata & 3) && dstdata < end)	/* longword align */
 			{
 				int col;
 
@@ -4629,16 +4596,13 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_alpha,(COMMON_ARGS,
 
 	if (flipx)
 	{
-		DATA_TYPE *end;
-		int trans4;
-		UINT32 *sd4;
-
-		trans4 = transpen * 0x01010101;
+		int trans4 = transpen * 0x01010101;
 
 		while (dstheight)
 		{
-			end = dstdata - dstwidth*HMODULO;
-			while (((long)srcdata & 3) && dstdata > end)	/* longword align */
+			UINT32 *sd4;
+			DATA_TYPE *end = dstdata - dstwidth*HMODULO;
+			while (((size_t)srcdata & 3) && dstdata > end)	/* longword align */
 			{
 				int col;
 
@@ -4689,7 +4653,7 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_alpha,(COMMON_ARGS,
 		while (dstheight)
 		{
 			end = dstdata + dstwidth*HMODULO;
-			while (((long)srcdata & 3) && dstdata < end)	/* longword align */
+			while (((size_t)srcdata & 3) && dstdata < end)	/* longword align */
 			{
 				int col;
 
@@ -4766,11 +4730,9 @@ DECLARE_SWAP_RAW_PRI(blockmove_8toN_alpharange,(COMMON_ARGS,
 	}
 	else
 	{
-		DATA_TYPE *end;
-
 		while (dstheight)
 		{
-			end = dstdata + dstwidth*HMODULO;
+			DATA_TYPE *end = dstdata + dstwidth*HMODULO;
 			while (dstdata < end)
 			{
 				int col;
@@ -4823,15 +4785,13 @@ DECLARE(blockmove_NtoN_opaque_noremap_flipx,(
 		const DATA_TYPE *srcdata,int srcwidth,int srcheight,int srcmodulo,
 		DATA_TYPE *dstdata,int dstmodulo),
 {
-	DATA_TYPE *end;
-
 	srcmodulo += srcwidth;
 	dstmodulo -= srcwidth;
 	//srcdata += srcwidth-1;
 
 	while (srcheight)
 	{
-		end = dstdata + srcwidth;
+		DATA_TYPE *end = dstdata + srcwidth;
 		while (dstdata <= end - 8)
 		{
 			srcdata -= 8;
@@ -4859,14 +4819,12 @@ DECLARE(blockmove_NtoN_opaque_remap,(
 		DATA_TYPE *dstdata,int dstmodulo,
 		const pen_t *paldata),
 {
-	DATA_TYPE *end;
-
 	srcmodulo -= srcwidth;
 	dstmodulo -= srcwidth;
 
 	while (srcheight)
 	{
-		end = dstdata + srcwidth;
+		DATA_TYPE *end = dstdata + srcwidth;
 		while (dstdata <= end - 8)
 		{
 			dstdata[0] = paldata[srcdata[0]];
@@ -4894,15 +4852,13 @@ DECLARE(blockmove_NtoN_opaque_remap_flipx,(
 		DATA_TYPE *dstdata,int dstmodulo,
 		const pen_t *paldata),
 {
-	DATA_TYPE *end;
-
 	srcmodulo += srcwidth;
 	dstmodulo -= srcwidth;
 	//srcdata += srcwidth-1;
 
 	while (srcheight)
 	{
-		end = dstdata + srcwidth;
+		DATA_TYPE *end = dstdata + srcwidth;
 		while (dstdata <= end - 8)
 		{
 			srcdata -= 8;
@@ -4931,14 +4887,12 @@ DECLARE(blockmove_NtoN_blend_noremap,(
 		DATA_TYPE *dstdata,int dstmodulo,
 		int srcshift),
 {
-	DATA_TYPE *end;
-
 	srcmodulo -= srcwidth;
 	dstmodulo -= srcwidth;
 
 	while (srcheight)
 	{
-		end = dstdata + srcwidth;
+		DATA_TYPE *end = dstdata + srcwidth;
 		while (dstdata <= end - 8)
 		{
 			dstdata[0] |= srcdata[0] << srcshift;
@@ -4966,15 +4920,13 @@ DECLARE(blockmove_NtoN_blend_noremap_flipx,(
 		DATA_TYPE *dstdata,int dstmodulo,
 		int srcshift),
 {
-	DATA_TYPE *end;
-
 	srcmodulo += srcwidth;
 	dstmodulo -= srcwidth;
 	//srcdata += srcwidth-1;
 
 	while (srcheight)
 	{
-		end = dstdata + srcwidth;
+		DATA_TYPE *end = dstdata + srcwidth;
 		while (dstdata <= end - 8)
 		{
 			srcdata -= 8;
@@ -5002,14 +4954,12 @@ DECLARE(blockmove_NtoN_blend_remap,(
 		DATA_TYPE *dstdata,int dstmodulo,
 		const pen_t *paldata,int srcshift),
 {
-	DATA_TYPE *end;
-
 	srcmodulo -= srcwidth;
 	dstmodulo -= srcwidth;
 
 	while (srcheight)
 	{
-		end = dstdata + srcwidth;
+		DATA_TYPE *end = dstdata + srcwidth;
 		while (dstdata <= end - 8)
 		{
 			dstdata[0] = paldata[dstdata[0] | (srcdata[0] << srcshift)];
@@ -5040,15 +4990,13 @@ DECLARE(blockmove_NtoN_blend_remap_flipx,(
 		DATA_TYPE *dstdata,int dstmodulo,
 		const pen_t *paldata,int srcshift),
 {
-	DATA_TYPE *end;
-
 	srcmodulo += srcwidth;
 	dstmodulo -= srcwidth;
 	//srcdata += srcwidth-1;
 
 	while (srcheight)
 	{
-		end = dstdata + srcwidth;
+		DATA_TYPE *end = dstdata + srcwidth;
 		while (dstdata <= end - 8)
 		{
 			srcdata -= 8;

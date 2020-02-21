@@ -199,6 +199,10 @@ struct ipd inputport_defaults[] =
 	{ IPT_UI_THROTTLE,          "Throttle",				SEQ_DEF_1(KEYCODE_F10) },
 	{ IPT_UI_SHOW_FPS,          "Show FPS",				SEQ_DEF_5(KEYCODE_F11, CODE_NOT, KEYCODE_LCONTROL, CODE_NOT, KEYCODE_LSHIFT) },
 	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
+
+	/* pinDMD dump frame */
+	{ IPT_UI_DUMPFRAME,			"Dump Frames to TXT",	SEQ_DEF_1(KEYCODE_F6) },
+
 #ifdef MESS
 	{ IPT_UI_TOGGLE_UI,         "UI Toggle",			SEQ_DEF_1(KEYCODE_SCRLOCK) },
 #endif
@@ -1501,7 +1505,7 @@ int num_ik = sizeof(input_keywords)/sizeof(struct ik);
 /***************************************************************************/
 /* Generic IO */
 
-#ifndef PINMAME_NO_UNUSED	// currently unused function (GCC 3.4)
+#ifndef PINMAME_NO_UNUSED	/* currently unused function (GCC 3.4) */
 static int readint(mame_file *f,UINT32 *num)
 {
 	unsigned i;
@@ -1520,9 +1524,9 @@ static int readint(mame_file *f,UINT32 *num)
 
 	return 0;
 }
-#endif
+#endif /* PINMAME_NO_UNUSED */
 
-#ifndef PINMAME_NO_UNUSED	// currently unused function (GCC 3.4)
+#ifndef PINMAME_NO_UNUSED	/* currently unused function (GCC 3.4) */
 static void writeint(mame_file *f,UINT32 num)
 {
 	unsigned i;
@@ -1537,7 +1541,7 @@ static void writeint(mame_file *f,UINT32 num)
 		num <<= 8;
 	}
 }
-#endif
+#endif /* PINMAME_NO_UNUSED */
 
 static int readword(mame_file *f,UINT16 *num)
 {
@@ -2078,7 +2082,7 @@ void update_analog_port(int port)
 
 	current = input_analog_current_value[port];
 
-	delta = 0;
+	//delta = 0;
 
 	player = IP_GET_PLAYER(in);
 
@@ -2180,26 +2184,26 @@ void update_analog_port(int port)
 			{
 				if (new > 0)
 				{
-					current = (pow(new / 32768.0, 100.0 / sensitivity) * (max-in->default_value)
-							+ in->default_value) * 100 / sensitivity;
+					current = (int)((pow(new / 32768.0, 100.0 / sensitivity) * (max-in->default_value)
+							+ in->default_value) * 100 / sensitivity);
 				}
 				else
 				{
-					current = (pow(-new / 32768.0, 100.0 / sensitivity) * (min-in->default_value)
-							+ in->default_value) * 100 / sensitivity;
+					current = (int)((pow(-new / 32768.0, 100.0 / sensitivity) * (min-in->default_value)
+							+ in->default_value) * 100 / sensitivity);
 				}
 			}
 			else
 			{
 				if (new > 0)
 				{
-					current = (pow(new / 128.0, 100.0 / sensitivity) * (max-in->default_value)
-							+ in->default_value) * 100 / sensitivity;
+					current = (int)((pow(new / 128.0, 100.0 / sensitivity) * (max-in->default_value)
+							+ in->default_value) * 100 / sensitivity);
 				}
 				else
 				{
-					current = (pow(-new / 128.0, 100.0 / sensitivity) * (min-in->default_value)
-							+ in->default_value) * 100 / sensitivity;
+					current = (int)((pow(-new / 128.0, 100.0 / sensitivity) * (min-in->default_value)
+							+ in->default_value) * 100 / sensitivity);
 				}
 			}
 		}
@@ -2936,7 +2940,6 @@ void seq_set_string(InputSeq* a, const char *buf)
 	char *arg = NULL;
 	int j;
 	struct ik *pik;
-	int found;
 
 	// create a locale buffer to be parsed by strtok
 	lbuf = malloc (strlen(buf)+1);
@@ -2951,7 +2954,7 @@ void seq_set_string(InputSeq* a, const char *buf)
 	j = 0;
 	while( arg != NULL )
 	{
-		found = 0;
+		int found = 0;
 
 		pik = input_keywords;
 
@@ -2997,6 +3000,14 @@ void seq_set_string(InputSeq* a, const char *buf)
 							j++;
 							found = 1;
 						break;
+
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+						case IKT_OSD_PROC:
+							(*a)[j] = procoscode_to_code(pik->val);
+							j++;
+							found = 1;
+						break;
+#endif /* PINMAME && PROC_SUPPORT */
 					}
 				}
 				pik++;

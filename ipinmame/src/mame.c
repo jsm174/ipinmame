@@ -117,7 +117,14 @@
 #include "vidhrdw/vector.h"
 #include "palette.h"
 #include "harddisk.h"
-
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+#include "p-roc/p-roc.h"
+#endif /* PINMAME && PROC_SUPPORT */
+#if defined(PINMAME) && defined(LISY_SUPPORT)
+ #include "lisy/lisy80.h"
+ #include "lisy/lisy1.h"
+ #include "lisy/utils.h"
+#endif /* PINMAME && LISY_SUPPORT */
 
 /***************************************************************************
 
@@ -155,6 +162,7 @@ struct GameOptions options;
 /* the active video display */
 static struct mame_display current_display;
 static UINT8 visible_area_changed;
+struct mame_display *current_display_ptr = &current_display;
 
 /* video updating */
 static UINT8 full_refresh_pending;
@@ -284,7 +292,7 @@ int run_game(int game)
 #endif
 
 	/* first give the machine a good cleaning */
-	memset(Machine, 0, sizeof(Machine));
+	memset(Machine, 0, sizeof(*Machine));
 
 	/* initialize the driver-related variables in the Machine */
 	Machine->gamedrv = gamedrv = drivers[game];
@@ -343,6 +351,10 @@ int run_game(int game)
 
 static int init_machine(void)
 {
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+	char * yaml_filename = pmoptions.p_roc;
+#endif /* PINMAME && PROC_SUPPORT */
+
 	/* load the localization file */
 	if (uistring_init(options.language_file) != 0)
 	{
@@ -356,6 +368,13 @@ static int init_machine(void)
 		logerror("code_init failed\n");
 		goto cant_init_input;
 	}
+
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+	procInitialize(yaml_filename);
+#endif /* PINMAME && PROC_SUPPORT */
+#if defined(PINMAME) && defined(LISY_SUPPORT)
+	lisy_init();
+#endif /* PINMAME && LISY_SUPPORT */
 
 	/* if we have inputs, process them now */
 	if (gamedrv->input_ports)
@@ -384,6 +403,9 @@ static int init_machine(void)
 	if (gamedrv->rom && rom_load(gamedrv->rom) != 0)
 	{
 		logerror("readroms failed\n");
+#if defined(PINMAME) && defined(LISY_SUPPORT)
+		lisy80_error(10);
+#endif /* PINMAME && LISY_SUPPORT */
 		goto cant_load_roms;
 	}
 
@@ -481,7 +503,7 @@ static int run_machine(void)
 				for (region = 0; region < MAX_MEMORY_REGIONS; region++)
 					if (Machine->memory_region[region].flags & ROMREGION_DISPOSE)
 					{
-						int i;
+						size_t i;
 
 						/* invalidate contents to avoid subtle bugs */
 						for (i = 0; i < memory_region_length(region); i++)
@@ -1774,6 +1796,7 @@ static int validitychecks(void)
 					const char *hash;
 
 					last_name = c = ROM_GETNAME(romp);
+#ifndef PINMAME
 					while (*c)
 					{
 						if (tolower(*c) != *c)
@@ -1783,7 +1806,7 @@ static int validitychecks(void)
 						}
 						c++;
 					}
-
+#endif
 					c = ROM_GETNAME(romp);
 					pre = 0;
 					post = 0;
@@ -1797,12 +1820,13 @@ static int validitychecks(void)
 						post++;
 						c++;
 					}
+#ifndef PINMAME
 					if (pre > 8 || post > 4)
 					{
 						printf("%s: %s has >8.3 ROM name %s\n",drivers[i]->source_file,drivers[i]->name,ROM_GETNAME(romp));
 						error = 1;
 					}
-
+#endif
 					hash = ROM_GETHASHDATA(romp);
 					if (!hash_verify_string(hash))
 					{
@@ -1998,7 +2022,6 @@ static int validitychecks(void)
 									printf("%s: %s wrong port read handler start = %08x, end = %08x ALIGN = %d\n",drivers[i]->source_file,drivers[i]->name,pra->start,pra->end,alignunit);
 									error = 1;
 								}
-							
 							}
 							pra++;
 						}
@@ -2054,7 +2077,6 @@ static int validitychecks(void)
 									printf("%s: %s wrong port write handler start = %08x, end = %08x ALIGN = %d\n",drivers[i]->source_file,drivers[i]->name,pwa->start,pwa->end,alignunit);
 									error = 1;
 								}
-						
 							}
 							pwa++;
 						}
@@ -2068,9 +2090,7 @@ static int validitychecks(void)
 			{
 				for (j = 0;j < MAX_GFX_ELEMENTS && drv.gfxdecodeinfo[j].memory_region != -1;j++)
 				{
-					int len,avail,k,start;
 					int type = drv.gfxdecodeinfo[j].memory_region;
-
 
 /*
 					if (type && (type >= REGION_MAX || type <= REGION_INVALID))
@@ -2082,6 +2102,7 @@ static int validitychecks(void)
 
 					if (!IS_FRAC(drv.gfxdecodeinfo[j].gfxlayout->total))
 					{
+						int len, avail, k, start;
 						start = 0;
 						for (k = 0;k < MAX_GFX_PLANES;k++)
 						{

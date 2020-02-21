@@ -343,6 +343,12 @@ DCS_SOUNDROM3m(	"afm_s2.l1",CRC(6e39d96e) SHA1(b34e31bb1734c86614f153f7201163aaa
 		"afm_s4.l1",CRC(5ff7fbb7) SHA1(ebaf825d3b90b6acee1920e6703801a4bcddfc5b))
 WPC_ROMEND
 
+WPC_ROMSTART(afm,11pfx, "marspfx1_1.rom",  0x080000,CRC(89cc2d47) SHA1(4cabebff151de62066c8c69458a66a5a3dbcbd4b))
+DCS_SOUNDROM3m(	"afm_s2.l1",CRC(6e39d96e) SHA1(b34e31bb1734c86614f153f7201163aaa9943cec),
+		"afm_s3.l1",CRC(1cbce9b1) SHA1(7f258bfe1904a879a2cb007419483f4fee91e072),
+		"afm_s4.l1",CRC(5ff7fbb7) SHA1(ebaf825d3b90b6acee1920e6703801a4bcddfc5b))
+WPC_ROMEND
+
 WPC_ROMSTART(afm,10, "afm_1_00.g11",  0x080000,CRC(1a30fe95) SHA1(218674e63ce4efeecb266f35f0f315758f7c72fc))
 DCS_SOUNDROM3m(	"afm_1_00.s2",CRC(610ff107) SHA1(9590f809a05cb2bda4979fa16f165e2e994719a0),
 		"afm_s3.l1",CRC(1cbce9b1) SHA1(7f258bfe1904a879a2cb007419483f4fee91e072),
@@ -382,14 +388,15 @@ WPC_ROMEND
 /*--------------
 /  Game drivers
 /---------------*/
-CORE_GAMEDEF( afm,113,   "Attack From Mars (1.13)",1995, "Bally",wpc_m95S,0)
-CORE_CLONEDEF(afm,113b,113,"Attack From Mars (1.13b)",1995, "Bally",wpc_m95S,0)
+CORE_GAMEDEF( afm,113,   "Attack From Mars (1.13)", 1995, "Bally",wpc_m95S,0)
+CORE_CLONEDEF(afm,113b,113,"Attack From Mars (1.13b)", 1995, "Bally",wpc_m95S,0)
 CORE_CLONEDEF(afm,11,113,"Attack From Mars (1.1)", 1995, "Bally",wpc_m95S,0)
-CORE_CLONEDEF(afm,11u,113,"Attack From Mars (1.1 Ultrapin)", 1995, "Bally",wpc_m95S,0)
+CORE_CLONEDEF(afm,11u,113,"Attack From Mars (1.1 Ultrapin)", 2006, "Global VR",wpc_m95S,0)
+CORE_CLONEDEF(afm,11pfx,113,"Attack From Mars (1.1 Pinball FX)", 2018, "Zen Studios",wpc_m95S,0)
 CORE_CLONEDEF(afm,10,113,"Attack From Mars (1.0)", 1995, "Bally",wpc_m95S,0)
-CORE_CLONEDEF(afm,f10,113,"Attack From Mars (FreeWPC 0.10)", 1995, "Bally",wpc_m95S,0)
-CORE_CLONEDEF(afm,f20,113,"Attack From Mars (FreeWPC 0.20)", 1995, "Bally",wpc_m95S,0)
-CORE_CLONEDEF(afm,f32,113,"Attack From Mars (FreeWPC 0.32)", 1995, "Bally",wpc_m95S,0)
+CORE_CLONEDEF(afm,f10,113,"Attack From Mars (FreeWPC 0.10)", 1995, "FreeWPC",wpc_m95S,0)
+CORE_CLONEDEF(afm,f20,113,"Attack From Mars (FreeWPC 0.20)", 1995, "FreeWPC",wpc_m95S,0)
+CORE_CLONEDEF(afm,f32,113,"Attack From Mars (FreeWPC 0.32)", 1995, "FreeWPC",wpc_m95S,0)
 
 /*----------
 / Game Data
@@ -440,6 +447,63 @@ static HC4094interface hc4094afm = {
   { qspin_0_out }
 };
 
+#ifdef PROC_SUPPORT
+  #include "p-roc/p-roc.h"
+  #include "p-roc/proc_shift_reg.h"
+
+  /*
+    LEDs of saucer controlled by a serial shift register.  Game sets DATA and
+    then pulses clock HIGH for less than 1ms, about every 100ms.  Except for
+    when it's clearing the LEDs or pulsing a specific pattern and shifts with
+    sub-millisecond timing.  We use a 64-bit queue to track shift requests,
+    and a 12ms timer to shift them out at a rate the P-ROC can handle.
+    
+    Martians seem to be enabled for 0.5 to 1.1ms, disabled briefly (0.1ms),
+    enabled for about 15ms, and disabled for 133ms.  Then the pattern repeats.
+    
+    For solenoids with immediate handling, invert the `smoothed` value to allow
+    default handler to process the changes.
+  */
+  void afm_wpc_proc_solenoid_handler(int solNum, int enabled, int smoothed) {
+    static int saucer_data = 0;
+    switch (solNum) {
+      case  4:  // C05 Left Alien Low
+      case  5:  // C06 Left Alien High
+      case  7:  // C08 Right Alien High
+      case 13:  // C14 Right Alien Low
+
+      case 16:  // C17 to C23, C25 to C28 flashers
+      case 17:
+      case 18:
+      case 19:
+      case 20:
+      case 21:
+      case 22:
+      case 24:
+      case 25:
+      case 26:
+      case 27:
+      
+      case 23:  // C24 Bank Motor
+      case 38:  // C39 Strobe Light
+        smoothed = !smoothed;
+        break;
+
+      case 37:  // C38 data for saucer LEDs
+        if (!smoothed)
+          saucer_data = enabled;
+        return;
+
+      case 36:  // C37 clock for saucer LEDs
+        if (!smoothed && enabled) {
+          proc_shiftRegEnqueue(saucer_data);
+        }
+        return;
+    }
+    default_wpc_proc_solenoid_handler(solNum, enabled, smoothed);
+  }
+#endif
+
 static WRITE_HANDLER(afm_wpc_w) {
   wpc_w(offset, data);
   if (offset == WPC_SOLENOID1) {
@@ -460,5 +524,11 @@ static void init_afm(void) {
   HC4094_oe_w(1, 1);
   HC4094_strobe_w(0, 1);
   HC4094_strobe_w(1, 1);
+  wpc_set_fastflip_addr(0x80);
+#ifdef PROC_SUPPORT
+  wpc_proc_solenoid_handler = afm_wpc_proc_solenoid_handler;
+  // clock on C37, data on C38
+  proc_shiftRegInit(36 + 32, 37 + 32);
+#endif
 }
 

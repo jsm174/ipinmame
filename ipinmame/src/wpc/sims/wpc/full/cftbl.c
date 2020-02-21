@@ -380,6 +380,14 @@ WPCS_SOUNDROM288("bl_u18.l1",CRC(87267bcc) SHA1(3e733437bce3491c216a8627810897f6
                  "bl_u14.l1",CRC(6b02bee4) SHA1(4f852b897dbf0ec2d5b17eed2ff70d9360b12213))
 WPC_ROMEND
 
+//WPC_ROMSTART(cftbl,l5c,"creat_l5c.rom",0x80000,CRC(9cb6f4b3) SHA1(310b125935694d9c5ef040340e1608006e27a214)) //old patch
+//WPC_ROMSTART(cftbl,l4c,"Creature From The Black Lagoon U6 game ROM rev L-4 patch 8c6a.rom",0x80000,CRC(20fc538f) SHA1(688f6663c985b02550df0c06ccd4b6f1ec32a38a)) //patch 8c6a
+WPC_ROMSTART(cftbl,l4c,"Creature From The Black Lagoon U6 game ROM rev L-4 patch eccc.rom",0x80000,CRC(14a1d90a) SHA1(864acf529fbf953c47feecd9a98810fa04a0223c)) //patch eccc
+WPCS_SOUNDROM288("bl_u18.l1", CRC(87267bcc) SHA1(3e733437bce3491c216a8627810897f6123f0679),
+                 "bl_u15.l1",CRC(15477d6f) SHA1(3ed7942828630bc9111d2e602fee931ef67db2ce),
+                 "bl_u14.l1",CRC(6b02bee4) SHA1(4f852b897dbf0ec2d5b17eed2ff70d9360b12213))
+WPC_ROMEND
+
 WPC_ROMSTART(cftbl,d4,"crea_ld4.rom",0x80000,CRC(a88d2712) SHA1(bb9b100f8dbd546b2cd2a48b658fe0ee7f435c30))
 WPCS_SOUNDROM288("bl_u18.l1",CRC(87267bcc) SHA1(3e733437bce3491c216a8627810897f6123f0679),
                  "bl_u15.l1",CRC(15477d6f) SHA1(3ed7942828630bc9111d2e602fee931ef67db2ce),
@@ -387,23 +395,47 @@ WPCS_SOUNDROM288("bl_u18.l1",CRC(87267bcc) SHA1(3e733437bce3491c216a8627810897f6
 WPC_ROMEND
 
 WPC_ROMSTART(cftbl,l3,"cftbl_l3.u6",0x80000,CRC(11280230) SHA1(98ce0777cd7dc91d1d2b7016b2e44bdf60ec2c08))
-WPCS_SOUNDROM288("u18-sp1.rom",CRC(07198d93) SHA1(d91eb7ae7bd11340b0daf4edd2cd2e87acadeda4),
+WPCS_SOUNDROM288("bl_u18.l1",CRC(87267bcc) SHA1(3e733437bce3491c216a8627810897f6123f0679),
                  "bl_u15.l1",CRC(15477d6f) SHA1(3ed7942828630bc9111d2e602fee931ef67db2ce),
                  "bl_u14.l1",CRC(6b02bee4) SHA1(4f852b897dbf0ec2d5b17eed2ff70d9360b12213))
 WPC_ROMEND
 
 WPC_ROMSTART(cftbl,d3,"cftbl_d3.u6",0x80000,CRC(acbe8c59) SHA1(157c8f59bce9c77f1478c97329deb77cdc61c976))
+WPCS_SOUNDROM288("bl_u18.l1",CRC(87267bcc) SHA1(3e733437bce3491c216a8627810897f6123f0679),
+                 "bl_u15.l1",CRC(15477d6f) SHA1(3ed7942828630bc9111d2e602fee931ef67db2ce),
+                 "bl_u14.l1",CRC(6b02bee4) SHA1(4f852b897dbf0ec2d5b17eed2ff70d9360b12213))
+WPC_ROMEND
+
+WPC_ROMSTART(cftbl,l2,"cftbl_l2.u6",0x80000,CRC(f3097f42) SHA1(f15cda9c74b806f13b81aa1e99588ba9139b2969))
+WPCS_SOUNDROM288("bl_u18.l1",CRC(87267bcc) SHA1(3e733437bce3491c216a8627810897f6123f0679),
+                 "bl_u15.l1",CRC(15477d6f) SHA1(3ed7942828630bc9111d2e602fee931ef67db2ce),
+                 "bl_u14.l1",CRC(6b02bee4) SHA1(4f852b897dbf0ec2d5b17eed2ff70d9360b12213))
+WPC_ROMEND
+
+WPC_ROMSTART(cftbl,d2,"cftbl_d2.u6",0x80000,CRC(dee87805) SHA1(79003bffb0932351f440c2ea5825654d30d97978))
+WPCS_SOUNDROM288("bl_u18.l1",CRC(87267bcc) SHA1(3e733437bce3491c216a8627810897f6123f0679),
+                 "bl_u15.l1",CRC(15477d6f) SHA1(3ed7942828630bc9111d2e602fee931ef67db2ce),
+                 "bl_u14.l1",CRC(6b02bee4) SHA1(4f852b897dbf0ec2d5b17eed2ff70d9360b12213))
+WPC_ROMEND
+
+WPC_ROMSTART(cftbl,p3,"cftbl_p3.u6",0x80000,CRC(dfced9c6) SHA1(f8f3abed8dd6339e91e8d6acc48cb83dbccf992b))
 WPCS_SOUNDROM288("u18-sp1.rom",CRC(07198d93) SHA1(d91eb7ae7bd11340b0daf4edd2cd2e87acadeda4),
                  "bl_u15.l1",CRC(15477d6f) SHA1(3ed7942828630bc9111d2e602fee931ef67db2ce),
                  "bl_u14.l1",CRC(6b02bee4) SHA1(4f852b897dbf0ec2d5b17eed2ff70d9360b12213))
 WPC_ROMEND
+
 /*--------------
 /  Game drivers
 /---------------*/
 CORE_GAMEDEF (cftbl,l4,"Creature from the Black Lagoon (L-4)",1993,"Bally",wpc_mFliptronS,0)
-CORE_CLONEDEF (cftbl,d4,l4,"Creature from the Black Lagoon (D-4) LED Ghost Fix",1993,"Bally",wpc_mFliptronS,0)
-CORE_CLONEDEF (cftbl,l3,l4,"Creature from the Black Lagoon (L-3,SP-1)",1993,"Bally",wpc_mFliptronS,0)
-CORE_CLONEDEF (cftbl,d3,l4,"Creature from the Black Lagoon (D-3,SP-1) LED Ghost Fix",1993,"Bally",wpc_mFliptronS,0)
+//CORE_CLONEDEF (cftbl,l5c,l4,"Creature from the Black Lagoon (L-5C Competition MOD)",2016,"Bally",wpc_mFliptronS,0) //outdated
+CORE_CLONEDEF (cftbl,l4c,l4,"Creature from the Black Lagoon (L-4C Competition + LED Ghost MOD)",2020,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF (cftbl,d4,l4,"Creature from the Black Lagoon (D-4 LED Ghost Fix)",1993,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF (cftbl,l3,l4,"Creature from the Black Lagoon (L-3)",1993,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF (cftbl,d3,l4,"Creature from the Black Lagoon (D-3 LED Ghost Fix)",1993,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF (cftbl,l2,l4,"Creature from the Black Lagoon (L-2)",1993,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF (cftbl,d2,l4,"Creature from the Black Lagoon (D-2 LED Ghost Fix)",1993,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF (cftbl,p3,l4,"Creature from the Black Lagoon (P-3 Prototype, SP-1)",1992,"Bally",wpc_mFliptronS,0)
 
 /*-----------------------
 / Simulation Definitions
@@ -427,7 +459,7 @@ static core_tGameData cftblGameData = {
   GEN_WPCFLIPTRON, wpc_dispDMD,
   {
     FLIP_SW(FLIP_L | FLIP_U) | FLIP_SOL(FLIP_L),
-    0,0,0,0,0,0,0,
+    0,1,0,0,0,0,0, // 8 (or 12?) ramp lights; the pattern repeats every 4 lamps, so 1 extra column is enough
     NULL, cftbl_handleMech, NULL, cftbl_drawMech,
     NULL, cftbl_samsolmap
   },
@@ -441,11 +473,22 @@ static core_tGameData cftblGameData = {
   }
 };
 
+static WRITE_HANDLER(cftbl_wpc_w) {
+  UINT8 state;
+  wpc_w(offset, data);
+  if (offset == WPC_SOLENOID3) {
+    state = 1 << ((GET_BIT7 << 1) | GET_BIT3);
+    coreGlobals.lampMatrix[8] = coreGlobals.tmpLampMatrix[8] = (state << 4) | state;
+  }
+}
+
 /*---------------
 /  Game handling
 /----------------*/
 static void init_cftbl(void) {
   core_gameData = &cftblGameData;
+  install_mem_write_handler(0, 0x3fb0, 0x3fff, cftbl_wpc_w);
+  hc55516_set_sample_clock(0, 22372);
 }
 
 static void cftbl_handleMech(int mech) {

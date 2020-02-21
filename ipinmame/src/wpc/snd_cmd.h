@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+
 #ifndef INC_SNDCMD
 #define INC_SNDCMD
 #if !defined(__GNUC__) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4) || (__GNUC__ >= 4)	// GCC supports "pragma once" correctly since 3.4
@@ -13,6 +15,8 @@ void snd_cmd_init(void);
 void snd_cmd_exit(void);
 void snd_cmd_log(int boardNo, int cmd);
 int snd_get_cmd_log(int *last, int *buffer);
+
+void reinit_pinSound(void);
 
 /*Constants*/
 #define DCS_COMMS	14	/* # of Sequential Commands to trigger a sound (DCS )*/

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+
 #include "driver.h"
 #include "core.h"
 #include "sndbrd.h"
@@ -63,6 +65,16 @@ BY6803_ROMEND
 #define input_ports_beatclck input_ports_by6803
 CORE_GAMEDEFNV(beatclck,"Beat the Clock",1985,"Bally",by_mBY6803_61S,0)
 
+INITGAME6803(beatclc2,GEN_BY6803,dispBy7C,FLIP_SW(FLIP_L),4,SNDBRD_BY61, BY6803_DISP7SEG)
+BY6803_ROMSTARTx4(beatclc2,"btc_lights_pro_111385_c70-803-05_u3.cpu", CRC(dff5bad6) SHA1(915495d60be7ca12f00364b6e4b99c822ecfc7aa))
+BY61_SOUNDROM0000(         "btc_u2.snd",CRC(fd22fd2a) SHA1(efad3b94e91d07930ada5366d389f35377dfbd99),
+                           "btc_u3.snd",CRC(22311a4a) SHA1(2c22ba9228e44e68b9308b3bf8803edcd70fa5b9),
+                           "btc_u4.snd",CRC(af1cf23b) SHA1(ebfa3afafd7850dfa2664d3c640fbfa631012455),
+                           "btc_u5.snd",CRC(230cf329) SHA1(45b17a785b81cd5b1d7fdfb720cf1990994b52b7))
+BY6803_ROMEND
+#define input_ports_beatclc2 input_ports_by6803
+CORE_CLONEDEFNV(beatclc2,beatclck,"Beat the Clock (with flasher support)",1985,"Bally",by_mBY6803_61S,0)
+
 /*------------------------------------
 / Lady Luck (6803-0E34: 02/86) - Uses Cheap Squeek (Same as Last MPU-35 Line of games)
 /------------------------------------*/
@@ -87,6 +99,15 @@ BY6803_ROMEND
 #define input_ports_motrdome input_ports_by6803
 CORE_GAMEDEFNV(motrdome,"MotorDome",1986,"Bally",by_mBY6803_TCSS,0)
 
+// german version claims to be game #E69!?
+BY6803_ROMSTART44(motrdomg,"u2_11_de.bin",CRC(8a4bafd3) SHA1(d764d2e38be2df27ab982cfbedddb79f89ca2359),
+                           "u3_11_de.bin",CRC(9cb10037) SHA1(7847a71a0295e8de51a8f2f8d406350eca4555bf))
+BYTCS_SOUNDROM8(           "modm_u7.snd",CRC(29ce4679) SHA1(f17998198b542dd99a34abd678db7e031bde074b))
+BY6803_ROMEND
+#define init_motrdomg init_motrdome
+#define input_ports_motrdomg input_ports_motrdome
+CORE_CLONEDEFNV(motrdomg,motrdome,"MotorDome (German)",1986,"Bally",by_mBY6803_TCSS,0)
+
 /*------------------------------------
 / Karate Fight (6803-????: 06/86) - European version of Black Belt
 /------------------------------------*/
@@ -102,10 +123,19 @@ BY6803_ROMEND
 #define input_ports_blackblt input_ports_by6803
 CORE_GAMEDEFNV(blackblt,"Black Belt",1986,"Bally",by_mBY6803_TCSS,0)
 
-// 1st Game to use Sounds Deluxe Sound Hardware
+INITGAME6803(blackbl2,GEN_BY6803,dispBy104,FLIP6803,4,SNDBRD_BY61, BY6803_DISPALPHA)
+BY6803_ROMSTART44(blackbl2,"cpu_u2.cpu", CRC(b86d16ec) SHA1(2e4601e725261aca67e4d706f310b14eb7578d8b),
+                           "cpu_u3.cpu", CRC(c63e3e6f) SHA1(cd3f66c3796eaf64c36cabba9d74cc8c690d9d8b))
+BY61_SOUNDROM0000(         "blb_u2.snd",NO_DUMP,
+                           "blb_u3.snd",NO_DUMP,
+                           "blb_u4.snd",NO_DUMP,
+                           "blb_u5.snd",NO_DUMP)
+BY6803_ROMEND
+#define input_ports_blackbl2 input_ports_blackblt
+CORE_CLONEDEFNV(blackbl2,blackblt,"Black Belt (Squawk and Talk)",1986,"Bally",by_mBY6803_61SA,0)
 
 /*------------------------------------
-/ Special Force (6803-0E47: 08/86)
+/ Special Force (6803-0E47: 08/86) // 1st Game to use Sounds Deluxe Sound Hardware
 /------------------------------------*/
 INITGAME6803(specforc,GEN_BY6803,dispBy104,FLIP_SW(FLIP_L),4,SNDBRD_BYSD, BY6803_DISPALPHA)
 BY6803_ROMSTART44(specforc,"u2_revc.128",CRC(d042af04) SHA1(0a73ee6d3ce603899fd89de70f90e9efc58b8b42),
@@ -128,6 +158,14 @@ BYTCS_SOUNDROM8(            "sound_u7.256",CRC(bc33901e) SHA1(5231d8f01a107742ac
 BY6803_ROMEND
 #define input_ports_strngsci input_ports_by6803
 CORE_GAMEDEFNV(strngsci,"Strange Science",1986,"Bally",by_mBY6803_TCSS,0)
+
+BY6803_ROMSTART44(strngscg, "cpub_u2.128", CRC(48ef1052) SHA1(afcb0520ab834c0d6ef4a73f615c48653ccedc24),
+                            "cpub_u3.128", CRC(da5b4b3b) SHA1(ff9babf2efc6622803db9ba8712dd8b76c8412b8))
+BYTCS_SOUNDROM8(            "sound_u7.256",CRC(bc33901e) SHA1(5231d8f01a107742acee2d13580a461063018a11))
+BY6803_ROMEND
+#define init_strngscg init_strngsci
+#define input_ports_strngscg input_ports_strngsci
+CORE_CLONEDEFNV(strngscg,strngsci,"Strange Science (German)",1986,"Bally",by_mBY6803_TCSS,0)
 
 /*------------------------------------
 / City Slicker (6803-0E79: 03/87)
@@ -175,6 +213,17 @@ BY6803_ROMEND
 #define input_ports_prtyanim input_ports_by6803
 CORE_GAMEDEFNV(prtyanim,"Party Animal",1987,"Bally",by_mBY6803_SDS,0)
 
+BY6803_ROMSTART44(prtyanig,"cpu_u2g.128", CRC(8abf40a2) SHA1(04ac296c99bc176faf21f1277ff59228a2031715),
+                           "cpu_u3g.128", CRC(e781dd4b) SHA1(3395ddd2d774c83cac98b6d67415d3c8cd0b04fe))
+BYSD_SOUNDROM0000(         "snd_u12.512",CRC(265a9494) SHA1(3b631f2b1c8c685aef32fb6c5289cd792711ff7e),
+                           "snd_u11.512",CRC(20be998f) SHA1(7f98073d0f559e081b2d6dc8c1f3462e3fe9a713),
+                           "snd_u14.512",CRC(639b3db1) SHA1(e07669c3186c963f2fea29bcf5675ac86eb07c86),
+                           "snd_u13.512",CRC(b652597b) SHA1(8b4074a545d420319712a1fdd77a3bfb282ed9cd))
+BY6803_ROMEND
+#define init_prtyanig init_prtyanim
+#define input_ports_prtyanig input_ports_prtyanim
+CORE_CLONEDEFNV(prtyanig,prtyanim,"Party Animal (German)",1987,"Bally",by_mBY6803_SDS,0)
+
 /*-----------------------------------------
 / Heavy Metal Meltdown (6803-0H03: 08/87)
 /-----------------------------------------*/
@@ -188,6 +237,15 @@ BYSD_SOUNDROM00xx(         "u12.rom",CRC(77933258) SHA1(42a01e97440dbb7d3da92dbf
 BY6803_ROMEND
 #define input_ports_hvymetal input_ports_by6803
 CORE_GAMEDEFNV(hvymetal,"Heavy Metal Meltdown",1987,"Bally",by_mBY6803_SDS,0)
+
+INITGAME6803(hvymetag,GEN_BY6803,dispBy104,FLIP6803,4,SNDBRD_BYSD, BY6803_DISPALPHA)
+BY6803_ROMSTART44(hvymetag,"u2g.rom",CRC(e50b500a) SHA1(c4f3502bf8afaa94610e008ce6b719ab4c4be712),
+                           "u3g.rom",CRC(7d018d0d) SHA1(07ba3bd5c15b96d6fc72e0a1de3b5d8defcc53b9))
+BYSD_SOUNDROM00xx(         "u12.rom",CRC(77933258) SHA1(42a01e97440dbb7d3da92dbfbad2516f4b553a5f),
+                           "u11.rom",CRC(b7e4de7d) SHA1(bcc89e10c368cdbc5137d8f585e109c0be25522d))
+BY6803_ROMEND
+#define input_ports_hvymetag input_ports_hvymetal
+CORE_CLONEDEFNV(hvymetag,hvymetal,"Heavy Metal Meltdown (German)",1987,"Bally",by_mBY6803_SDS,0)
 
 /*------------------------------------
 / Dungeons & Dragons (6803-0H06: 10/87)
@@ -257,7 +315,7 @@ CORE_CLONEDEFNV(black10s,black100,"Blackwater 100 (Single Ball Play)",1988,"Ball
 
 //Games below use 6803 MPU & Williams System 11C Sound Hardware
 /*-------------------------------------------------------------
-/ Truck Stop (6803-2001: 12/88) - These are ProtoType ROMS?
+/ Truck Stop (6803-2001: 12/88) - There are only ProtoType ROMS?
 /-------------------------------------------------------------*/
 INITGAME6803(trucksp3,GEN_BY6803A,dispBy104,FLIP6803,4,SNDBRD_S11CS, BY6803_DISPALPHA)
 BY6803_ROMSTART44(trucksp3,"u2_p3.128",   CRC(79b2a5b1) SHA1(d3de91bfadc9684302b2367cfcb30ed0d6faa020),
@@ -267,7 +325,7 @@ S11CS_SOUNDROM888(         "u4sndp1.256", CRC(120a386f) SHA1(51b3b45eb7ea63758b2
                            "u20sndp1.256",CRC(93ac5c33) SHA1(f6dc84eca4678188a58ba3c8ef18975164dd29b0))
 BY6803_ROMEND
 #define input_ports_trucksp3 input_ports_by6803a
-CORE_GAMEDEFNV(trucksp3,"Truck Stop (P-3)",1988,"Bally",by_mBY6803_S11CS,0)
+CORE_GAMEDEFNV(trucksp3,"Truck Stop (P-3 Prototype)",1988,"Bally",by_mBY6803_S11CS,0)
 
 BY6803_ROMSTART44(trucksp2,"u2_p2.128",   CRC(3c397dec) SHA1(2fc86ad39c935ce8615eafd67e571ac94c938cd7),
                            "u3_p2.128",   CRC(d7ac519a) SHA1(612bf9fee0d54e8b1215508bd6c1ea61dcb99951))
@@ -277,11 +335,12 @@ S11CS_SOUNDROM888(         "u4sndp1.256", CRC(120a386f) SHA1(51b3b45eb7ea63758b2
 BY6803_ROMEND
 #define init_trucksp2 init_trucksp3
 #define input_ports_trucksp2 input_ports_trucksp3
-CORE_CLONEDEFNV(trucksp2,trucksp3,"Truck Stop (P-2)",1988,"Bally",by_mBY6803_S11CS,0)
+CORE_CLONEDEFNV(trucksp2,trucksp3,"Truck Stop (P-2 Prototype)",1988,"Bally",by_mBY6803_S11CS,0)
 
 /*-----------------------------------------------------------
 / Atlantis (6803-2006: 03/89)
 /-----------------------------------------------------------*/
+// rev. 2 exists but yet undumped (https://pinside.com/pinball/forum/topic/bally-atlantis-ownerss-club-fans-welcome/page/11#post-2697513)
 INITGAME6803(atlantis,GEN_BY6803A,dispBy104,FLIP6803,4,SNDBRD_S11CS, BY6803_DISPALPHA)
 BY6803_ROMSTART44(atlantis, "u26_cpu.rom",CRC(b98491e1) SHA1(b867e2b24e93c4ee19169fe93c0ebfe0c1e2fc25),
                             "u27_cpu.rom",CRC(8ea2b4db) SHA1(df55a9fb70d1cabad51dc2b089af7904a823e1d8))
@@ -290,4 +349,4 @@ S11CS_SOUNDROM888(          "u4_snd.rom", CRC(6a48b588) SHA1(c58dbfd920c279d7b9d
                             "u20_snd.rom",CRC(d5a6a773) SHA1(30807e03655d2249c801007350bfb228a2e8a0a4))
 BY6803_ROMEND
 #define input_ports_atlantis input_ports_by6803a
-CORE_GAMEDEFNV(atlantis,"Atlantis",1989,"Bally",by_mBY6803_S11CS,0)
+CORE_GAMEDEFNV(atlantis,"Atlantis (rev. 3)",1989,"Bally",by_mBY6803_S11CS,0)

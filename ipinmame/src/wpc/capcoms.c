@@ -48,9 +48,9 @@
 #define DISABLE_VOLUME		0
 
 //Turn on to test accurate BOF line timing
-#define DISABLE_BOF_HACK	0
+#define DISABLE_BOF_HACK	1
 
-//Set length of time to delay the volume commnand (to improve sound getting cut off too soon) - Press start w/o coins in BBB109 for example to see this effect.
+//Set length of time to delay the volume command (to improve sound getting cut off too soon) - Press start w/o coins in BBB109 for example to see this effect.
 #define X9241_DELAY_COMMAND		TIME_IN_MSEC(500)
 
 /*Declarations*/

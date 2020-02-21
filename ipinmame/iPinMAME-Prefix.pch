@@ -8,12 +8,9 @@
 #endif
 
 #define MAMEVER 7300
-#define PINMAMESRC wpc
 #define PINMAME 1
-#define PINMAME_NO_UNUSED 1
+#define UNIX 1
 
-#define BIGCASE 1
-#define ALIGN_INTS 1
 #define LSB_FIRST 1
 
 #define HAS_M6809    1
@@ -48,9 +45,12 @@
 #define HAS_CDP1802	 1
 #define HAS_TMS9980  1
 #define HAS_TMS9995	 1
+#define HAS_COP420   1
+
 #define HAS_DAC        1
 #define HAS_YM2151_ALT 1
 #define HAS_HC55516    1
+#define HAS_MC3417     1
 #define HAS_SAMPLES    1
 #define HAS_TMS5220    1
 #define HAS_AY8910     1
@@ -71,8 +71,11 @@
 #define HAS_YM2203     1
 #define HAS_YM3526     1
 #define HAS_TMS5110    1
+#define HAS_SP0256     1
+#define HAS_Y8950      1
+#define HAS_ASTROCADE  1
+#define HAS_YMF262     1
+#define HAS_MEA8000    1
+#define HAS_SAA1099    1
 
 #define INLINE static __inline
-#define asm __asm__ __volatile__
-
-

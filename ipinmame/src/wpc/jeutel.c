@@ -7,6 +7,7 @@
   with lots of bus signals. I doubt it can be fully handled by MAME
   but it's close enough to make the games work as it is now;
   only thing I can say for sure is they're running way too fast!
+  For sound this is using a TMS5110A speak n spell
 *******************************************************************************************/
 
 #include "driver.h"
@@ -297,10 +298,10 @@ static int tms5110_callback(void) {
 }
 
 static struct TMS5110interface jeutel_5110Int = {
-  639450,				/* clock rate = 80 * output sample rate,     */
-								/* usually 640000 for 8000 Hz sample rate or */
-								/* usually 800000 for 10000 Hz sample rate.  */
-  50,					/* volume */
+  640000,			/* clock rate = 80 * output sample rate,     */
+					/* usually 640000 for 8000 Hz sample rate or */
+					/* usually 800000 for 10000 Hz sample rate.  */
+  50,				/* volume */
   tms5110_irq,		/* IRQ callback function (not implemented!) */
   tms5110_callback	/* function to be called when chip requests another bit*/
 };
@@ -478,7 +479,7 @@ ROM_START(leking)
   NORMALREGION(0x10000, REGION_CPU3)
     ROM_LOAD("sound-v.bin", 0x0000, 0x1000, CRC(36130e7b) SHA1(d9b66d43b55272579b3972005355b8a18ce6b4a9))
   NORMALREGION(0x10000, REGION_SOUND1)
-    ROM_LOAD("sound-p.bin", 0x0000, 0x2000, BAD_DUMP CRC(97eedd6c) SHA1(3bb8e5d32417c49ef97cbe407f2c5eeb214bf72d))
+    ROM_LOAD("sound-p.bin", 0x0000, 0x2000, CRC(97eedd6c) SHA1(3bb8e5d32417c49ef97cbe407f2c5eeb214bf72d) BAD_DUMP)
     ROM_RELOAD(0x2000, 0x2000)
     ROM_RELOAD(0x4000, 0x2000)
     ROM_RELOAD(0x6000, 0x2000)

@@ -213,7 +213,7 @@ static const char* g_cpcc[64] =
 {/* 000    001    010    011    100    101    110    111 */
 	  "f",  "eq", "ogt", "oge", "olt", "ole", "ogl",  "or", /* 000 */
 	 "un", "ueq", "ugt", "uge", "ult", "ule",  "ne",   "t", /* 001 */
-	 "sf", "seq",  "gt",  "ge",  "lt",  "le",  "gl"  "gle", /* 010 */
+	 "sf", "seq",  "gt",  "ge",  "lt",  "le",  "gl",  "gle", /* 010 */
   "ngle", "ngl", "nle", "nlt", "nge", "ngt", "sne",  "st", /* 011 */
 	  "?",   "?",   "?",   "?",   "?",   "?",   "?",   "?", /* 100 */
 	  "?",   "?",   "?",   "?",   "?",   "?",   "?",   "?", /* 101 */
@@ -3193,7 +3193,6 @@ static int DECL_SPEC compare_nof_true_bits(const void *aptr, const void *bptr)
 static void build_opcode_table(void)
 {
 	uint i;
-	uint opcode;
 	opcode_struct* ostruct;
 	uint opcode_info_length = 0;
 
@@ -3204,6 +3203,7 @@ static void build_opcode_table(void)
 
 	for(i=0;i<0x10000;i++)
 	{
+		uint opcode;
 		g_instruction_table[i] = d68000_illegal; /* default to illegal */
 		opcode = i;
 		/* search through opcode info for a match */

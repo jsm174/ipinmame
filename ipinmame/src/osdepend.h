@@ -5,6 +5,9 @@
 #endif
 
 #include "osd_cpu.h"
+#ifdef PINMAME
+#include "pinmame.h"
+#endif
 #include "inptport.h"
 
 #ifdef __cplusplus
@@ -17,7 +20,7 @@ extern "C" {
 #endif
 
 #ifdef __LP64__
-#define FPTR unsigned long   /* 64bit: sizeof(void *) is sizeof(long)  */
+#define FPTR unsigned long long  /* 64bit: sizeof(void *) is sizeof(long long)  */
 #else
 #define FPTR unsigned int
 #endif
@@ -171,7 +174,36 @@ int osd_get_mastervolume(void);
 
 void osd_sound_enable(int enable);
 
+/******************************************************************************
 
+	Audio device related functions
+
+******************************************************************************/
+
+/*
+  Enumerate audio devices using DirectSound and return the number of found devices
+*/
+int osd_enum_audio_devices(void);
+/*
+ Return the number of found devices (by previous call to osd_enum_audio_devices())
+*/
+int osd_get_audio_devices_count(void);
+/*
+ Return the audio device description (null char ended string) of the "num" device
+*/
+char* osd_get_audio_device_description(int num);
+/*
+ Return the audio device module (null char ended string) of the "num" device
+*/
+char* osd_get_audio_device_module(int num);
+/*
+ Set the audio device number to be used for the next call to dsound_init
+*/
+int osd_set_audio_device(int num);
+/*
+ Get the current audio device number
+*/
+int osd_get_current_audio_device(void);
 
 /******************************************************************************
 
@@ -263,6 +295,28 @@ void osd_analogjoy_read(int player,int analog_axis[MAX_ANALOG_AXES], InputCode a
   Scan the list, and change the keys/joysticks you want.
 */
 void osd_customize_inputport_defaults(struct ipd *defaults);
+
+
+
+/******************************************************************************
+
+	P-ROC
+
+******************************************************************************/
+
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+/*
+  return a list of all available P-ROC inputs (see input.h)
+*/
+const struct PROCInfo *osd_get_proc_list(void);
+
+/*
+  tell whether the specified p-roc button is pressed or not.
+  proccode is the OS dependent code specified in the list returned by
+  osd_get_proc_list().
+*/
+int osd_is_proc_pressed(int joycode);
+#endif /* PINMAME && PROC_SUPPORT */
 
 
 

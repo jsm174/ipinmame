@@ -137,8 +137,8 @@ void DeleteListContent(HWND hWnd)
 {
 	HWND hGamesList = GetDlgItem(hWnd, IDC_GAMESLIST);
 
-	int nCount = SendMessage(hGamesList, LB_GETCOUNT, 0, 0);
-	for(int i=0; i<nCount; i++) {
+	LRESULT nCount = SendMessage(hGamesList, LB_GETCOUNT, 0, 0);
+	for(LRESULT i=0; i<nCount; i++) {
 		PGAMEINFO pGameInfo = (PGAMEINFO) SendMessage(hGamesList, LB_GETITEMDATA, i, 0);
 		delete pGameInfo;
 	}
@@ -183,13 +183,13 @@ BOOL PopulateListV1_10andLower(HWND hWnd, IController *pController)
 				WideCharToMultiByte(CP_ACP, 0, sGameName, -1, szGameName, sizeof szGameName, NULL, NULL);
 				
 				lstrcpy(szListEntry, szGameName); // for future versions here we can add the full game name 
-				int nIndex = SendMessage(hGamesList, LB_ADDSTRING, 0, (LPARAM) szListEntry);
+				size_t nIndex = SendMessage(hGamesList, LB_ADDSTRING, 0, (LPARAM) szListEntry);
 				
 				PGAMEINFO pGameInfo = new GAMEINFO;
 				lstrcpy(pGameInfo->szGameName, szGameName);
 				lstrcpy(pGameInfo->szGameDescription, szGameName);
 				pGameInfo->fROMAvailable = true;
-				SendMessage(hGamesList, LB_SETITEMDATA, nIndex, (WPARAM) pGameInfo);
+				SendMessage(hGamesList, LB_SETITEMDATA, nIndex, (LPARAM) pGameInfo);
 			}
 		}
 	}
@@ -209,7 +209,7 @@ BOOL PopulateListGreaterV1_10(HWND hWnd, IController *pController)
 	const int sTabStops[] = {190, 230};
 
 	HWND hGamesList = GetDlgItem(hWnd, IDC_GAMESLIST);
-	SendMessage(hGamesList, LB_SETTABSTOPS, 2, (WPARAM) &sTabStops);
+	SendMessage(hGamesList, LB_SETTABSTOPS, 2, (LPARAM) &sTabStops);
 
 	IGames* pGames = NULL;
 
@@ -246,7 +246,7 @@ BOOL PopulateListGreaterV1_10(HWND hWnd, IController *pController)
 	/* enumerate to all the games, uFetched will be 0 if the end is reached */
 	/* I will increase the number of fetches game in a while, don't have the time now */
 	while ( SUCCEEDED(pEnumGames->Next(1, &vGame, &uFetched)) && uFetched ) {
-		/* same as the IEnumInterface, we will get a interface to IDisptach */
+		/* same as the IEnumInterface, we will get a interface to IDispatch */
 		/* not to IGame, don't wan't to use IDispatch */
 		hr = vGame.pdispVal->QueryInterface(__uuidof(IGame), (void**) &pGame);
 
@@ -293,8 +293,8 @@ BOOL PopulateListGreaterV1_10(HWND hWnd, IController *pController)
 			lstrcat(szListEntry, "\tX");
 
 		/* put it to the list */
-		int nIndex = SendMessage(hGamesList, LB_ADDSTRING, 0, (LPARAM) szListEntry);
-		SendMessage(hGamesList, LB_SETITEMDATA, nIndex, (WPARAM) pGameInfo);
+		size_t nIndex = SendMessage(hGamesList, LB_ADDSTRING, 0, (LPARAM) szListEntry);
+		SendMessage(hGamesList, LB_SETITEMDATA, nIndex, (LPARAM) pGameInfo);
 	}
 
 	/* don't forget this */
@@ -332,7 +332,7 @@ BOOL PopulateList(HWND hWnd, IController *pController)
 /***************************************************************************************/
 void RunGame(HWND hWnd, IController *pController)
 {   
-	int iIndex = SendDlgItemMessage(hWnd,IDC_GAMESLIST, LB_GETCURSEL, 0, 0);
+	LRESULT iIndex = SendDlgItemMessage(hWnd,IDC_GAMESLIST, LB_GETCURSEL, 0, 0);
 
 	if ( iIndex<0 )
 		return;
@@ -342,13 +342,13 @@ void RunGame(HWND hWnd, IController *pController)
 	PGAMEINFO pGameInfo = (PGAMEINFO) SendDlgItemMessage(hWnd, IDC_GAMESLIST, LB_GETITEMDATA, iIndex, 0);
 
 	BSTR sGameName;
-	sGameName = SysAllocStringLen(NULL, strlen(pGameInfo->szGameName));
+	sGameName = SysAllocStringLen(NULL, (UINT)strlen(pGameInfo->szGameName));
 
-	MultiByteToWideChar(CP_ACP, 0,pGameInfo->szGameName, -1, sGameName, strlen(pGameInfo->szGameName)); 
+	MultiByteToWideChar(CP_ACP, 0,pGameInfo->szGameName, -1, sGameName, (int)strlen(pGameInfo->szGameName)); 
 	pController->put_GameName(sGameName);
 	SysFreeString(sGameName);
 
-	pController->put_HandleKeyboard(true);
+	pController->put_HandleKeyboard(VARIANT_TRUE);
 
 	if ( FAILED(pController->Run(0,0)) ) 
 		DisplayCOMError(pController, __uuidof(IController));
@@ -361,7 +361,7 @@ void RunGame(HWND hWnd, IController *pController)
 /***************************************************************************************/
 void CheckRoms(HWND hWnd, IController *pController)
 {   
-	int iIndex = SendDlgItemMessage(hWnd,IDC_GAMESLIST, LB_GETCURSEL, 0, 0);
+	LRESULT iIndex = SendDlgItemMessage(hWnd,IDC_GAMESLIST, LB_GETCURSEL, 0, 0);
 
 	if ( iIndex<0 )
 		return;
@@ -369,9 +369,9 @@ void CheckRoms(HWND hWnd, IController *pController)
 	PGAMEINFO pGameInfo = (PGAMEINFO) SendDlgItemMessage(hWnd, IDC_GAMESLIST, LB_GETITEMDATA, iIndex, 0);
 
 	BSTR sGameName;
-	sGameName = SysAllocStringLen(NULL, strlen(pGameInfo->szGameName));
+	sGameName = SysAllocStringLen(NULL, (UINT)strlen(pGameInfo->szGameName));
 
-	MultiByteToWideChar(CP_ACP, 0,pGameInfo->szGameName, -1, sGameName, strlen(pGameInfo->szGameName)); 
+	MultiByteToWideChar(CP_ACP, 0,pGameInfo->szGameName, -1, sGameName, (int)strlen(pGameInfo->szGameName)); 
 	pController->put_GameName(sGameName);
 	SysFreeString(sGameName);
 
@@ -388,7 +388,7 @@ void CheckRoms(HWND hWnd, IController *pController)
 /***************************************************************************************/
 void GameOptions(HWND hWnd, IController *pController)
 {   
-	int iIndex = SendDlgItemMessage(hWnd,IDC_GAMESLIST, LB_GETCURSEL, 0, 0);
+	LRESULT iIndex = SendDlgItemMessage(hWnd,IDC_GAMESLIST, LB_GETCURSEL, 0, 0);
 
 	if ( iIndex<0 )
 		return;
@@ -396,9 +396,9 @@ void GameOptions(HWND hWnd, IController *pController)
 	PGAMEINFO pGameInfo = (PGAMEINFO) SendDlgItemMessage(hWnd, IDC_GAMESLIST, LB_GETITEMDATA, iIndex, 0);
 
 	BSTR sGameName;
-	sGameName = SysAllocStringLen(NULL, strlen(pGameInfo->szGameName));
+	sGameName = SysAllocStringLen(NULL, (UINT)strlen(pGameInfo->szGameName));
 
-	MultiByteToWideChar(CP_ACP, 0,pGameInfo->szGameName, -1, sGameName, strlen(pGameInfo->szGameName)); 
+	MultiByteToWideChar(CP_ACP, 0,pGameInfo->szGameName, -1, sGameName, (int)strlen(pGameInfo->szGameName)); 
 	pController->put_GameName(sGameName);
 	SysFreeString(sGameName);
 
@@ -431,7 +431,7 @@ void EnableButtons(HWND hWnd, IController *pController) {
 	EnableWindow(GetDlgItem(hWnd, IDC_CHECKROMS), SendDlgItemMessage(hWnd, IDC_GAMESLIST, LB_GETCURSEL, 0,0)>=0);
 }
 
-int PASCAL RunDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR PASCAL RunDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	static HICON m_hIcon = 0;
 	static IController *pController = NULL;

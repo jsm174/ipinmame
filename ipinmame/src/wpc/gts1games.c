@@ -14,7 +14,7 @@ static core_tLCDLayout sys1_disp[] = {
 
 #define INIT_S1(name, dsp) \
 GTS1_INPUT_PORTS_START(name, 1) GTS1_INPUT_PORTS_END \
-static core_tGameData name##GameData = {0,dsp,{FLIP_SW(FLIP_L),0,0,0,SNDBRD_NONE}}; \
+static core_tGameData name##GameData = {GEN_GTS1,dsp,{FLIP_SW(FLIP_L),0,0,0,SNDBRD_NONE}}; \
 static void init_##name(void) { \
 	core_gameData = &name##GameData; \
 } \
@@ -23,7 +23,7 @@ GTS1_2_ROMSTART(name, "u5_cf.bin", CRC(e0d4b405) SHA1(17aadd79c0dcbb336aadd5d203
 
 #define INIT_S1S(name, dsp) \
 GTS1S_INPUT_PORTS_START(name, 1) GTS1_INPUT_PORTS_END \
-static core_tGameData name##GameData = {0,dsp,{FLIP_SW(FLIP_L),0,0,0,SNDBRD_GTS80S}}; \
+static core_tGameData name##GameData = {GEN_GTS1,dsp,{FLIP_SW(FLIP_L),0,0,0,SNDBRD_GTS80S}}; \
 static void init_##name(void) { \
 	core_gameData = &name##GameData; \
 } \
@@ -197,7 +197,7 @@ CORE_CLONEDEFNV(astannie,gts1s,"Asteroid Annie and the Aliens",1980,"Gottlieb",g
 INIT_S1(sys1test, sys1_disp)
 GTS1_1_ROMSTART(sys1test,"test.cpu", CRC(8b0704bb) SHA1(5f0eb8d5af867b815b6012c9d078927398efe6d8))
 GTS1_ROMEND
-CORE_CLONEDEFNV(sys1test,gts1,"System 1 Test prom",19??,"Gottlieb",gl_mGTS1C,GAME_USES_CHIMES)
+CORE_CLONEDEFNV(sys1test,gts1,"System 1 'T' Test Fixture",19??,"Gottlieb",gl_mGTS1C,GAME_USES_CHIMES)
 
 // other manufacturers
 

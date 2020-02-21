@@ -1,5 +1,5 @@
 // WSHDlg.cpp : Implementation of CWSHDlg
-#include "Stdafx.h"
+#include "StdAfx.h"
 #include "VPinMAME_h.h"
 #include "WSHDlg.h"
 
@@ -156,9 +156,9 @@ STDMETHODIMP CWSHDlg::get_Ctrls(IWSHDlgCtrls **ppVal)
 	return m_pWSHDlgCtrls->QueryInterface(IID_IWSHDlgCtrls, (void**) ppVal);
 }
 
-int _stdcall WSHDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+INT_PTR _stdcall WSHDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-STDMETHODIMP CWSHDlg::Show(long hParentWnd, VARIANT *RetVal)
+STDMETHODIMP CWSHDlg::Show(LONG_PTR hParentWnd, VARIANT *RetVal)
 {
 	if ( !RetVal )
 		return S_FALSE;
@@ -191,7 +191,7 @@ STDMETHODIMP CWSHDlg::Show(long hParentWnd, VARIANT *RetVal)
 	VariantInit(RetVal);
 	RetVal->vt = VT_I4;
 	RetVal->lVal = DialogBoxIndirectParam(_Module.m_hInst, &Template.DlgTemplate, (HWND) hParentWnd, WSHDlgProc, (LPARAM) this);
-	DWORD dwLastError = GetLastError();
+	/*DWORD dwLastError =*/ GetLastError();
 
 	return S_OK;
 }
@@ -212,7 +212,7 @@ void SaveDlgValues(HWND hDlg, CWSHDlgCtrls *pWSHDlgCtrls)
 	}
 }
 
-int _stdcall WSHDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR _stdcall WSHDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	static CWSHDlg		*pWSHDlg = NULL;
 	static CWSHDlgCtrls *pWSHDlgCtrls = NULL;
@@ -397,7 +397,7 @@ int _stdcall WSHDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			Rect.bottom += (iButtonHeight + iBorderY);
 		}
 
-		AdjustWindowRect(&Rect, GetWindowLong(hDlg, GWL_STYLE), FALSE);
+		AdjustWindowRect(&Rect, GetWindowLongPtr(hDlg, GWL_STYLE), FALSE);
 
 		int x,y;
 

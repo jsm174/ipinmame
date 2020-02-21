@@ -4,6 +4,8 @@
 #pragma once
 #endif
 
+#include "osdepend.h"
+
 /* 121200  Added SIM_STSWON, SIM_STSWOFF */
 /* 201100  Added new types for manual shooter */
 /* 111100  Updated solenoid numbering */
@@ -86,7 +88,7 @@ typedef struct {
 /------------------- */
 #define SIM_STATES     256
 #define SIM_FIRSTSTATE (SIM_STATES+3)
-#define SIM_STATENO(x) (x & 0xff)
+#define SIM_STATENO(x) ((x) & 0xff)
 
 /*-- common for all games --*/
 #define stNotInst (0)                 /* ball is not installed in the game */

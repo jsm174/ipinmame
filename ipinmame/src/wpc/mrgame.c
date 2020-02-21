@@ -30,14 +30,15 @@
   CPU: 2 x Z80
   Clock: 4 Mhz
   Interrupt: IRQ via a timer - hardwired & jumpered to 60Hz, NMI via the 7th bit of the sound command
-  Generation #1 - Audio: 3 X DAC (1 used to drive volume), 1 X TMS 5220 Speech Chip, 1 X M114S Digital Wave Table Synth Chip
+  Generation #1 - Audio: 3 X DAC (1 used to drive volume), 1 X TMS5220 Speech Chip, 1 X M114S Digital Wave Table Synth Chip
   Generation #2 - Audio: 3 X DAC (1 used to drive volume), 1 X M114S Digital Wave Table Synth Chip
 
   Issues/Todo:
   #2) Timing of animations might be too slow..
-  #3) M114S Sound chip emulated but needs to be improved for better accuracy
+  #3) M114S Sound chip emulated but might need to be further improved for better accuracy
+      -> percussion sounds too calm by default, compare f.e. to https://www.youtube.com/watch?v=n7yO2D5a4Xs
+      -> thus M114S core has a special define for now that tweaks certain channels (maybe this is even correct as the real HW has some filter networks connected to the 4 chip outputs that could be the reason for the volume change?!)
   #4) Generation #2 Video - some corrupt sprites appear on the soccer screen (right hand side)
-
 ************************************************************************************************/
 #include "driver.h"
 #include "cpu/m68000/m68000.h"
@@ -59,9 +60,6 @@
 #define DISABLE_INTST
 
 #define FIX_CMOSINIT 1		// fix nvram-initialization
-
-//Define Total # of Mixing Channels Used ( 2 for the DAC, 1 for the TMS5220, and whatever else for the M114S )
-#define MRGAME_TOTCHANNELS 3 + M114S_OUTPUT_CHANNELS
 
 #define MRGAME_CPUFREQ 6000000
 
@@ -149,7 +147,7 @@ struct M114Sinterface mrgame_m114sInt = {
 	1,					/* # of chips */
 	{4000000},			/* Clock Frequency 4Mhz */
 	{REGION_USER1},		/* ROM Region for samples */
-	{100},				/* Volume Level */
+	{{500,100,50,100}},	/* Volume Level (boosts first channel by a factor of 5!) */
 	{2},				/* cpu # controlling M114S */
 };
 
@@ -502,9 +500,10 @@ static WRITE_HANDLER(soundg1_1_port_w) {
 		case 0:
 		{
 			//Adjust volume on all channels
-			int i;
-			for(i=0;i<MRGAME_TOTCHANNELS;i++)
-				mixer_set_volume(i,data);
+			int ch;
+			for (ch = 0; ch < MIXER_MAX_CHANNELS; ch++)
+				if (mixer_get_name(ch) != NULL)
+					mixer_set_volume(ch, data);
 			break;
 		}
 		case 2:
@@ -649,14 +648,12 @@ static const struct rectangle screen_visible_area =
 //Video Update - Generation #1
 PINMAME_VIDEO_UPDATE(mrgame_update_g1) {
     static int scrollers[32];
-	int offs = 0;
+	size_t offs = 0;
 	int color = 0;
 	int colorindex = 0;
 	int tile = 0;
 	int flipx=0;
 	int flipy=0;
-	int sx=0;
-	int sy=0;
 
 #ifdef MAME_DEBUG
 
@@ -689,8 +686,8 @@ if(keyboard_pressed_memory_repeat(KEYCODE_Z,25)) {
 		{
 //			dirtybuffer[offs] = 0;
 
-			sx = offs % 32;
-			sy = offs / 32;
+			unsigned int sx = (unsigned int)offs % 32;
+			unsigned int sy = (unsigned int)offs / 32;
 
 			colorindex = (colorindex+2);
 			if(sx==0) colorindex=1;
@@ -714,8 +711,8 @@ if(keyboard_pressed_memory_repeat(KEYCODE_Z,25)) {
 	/* Draw Sprites - Not sure of total size here (this memory size allows 8 sprites on screen at once ) */
 	for (offs = 0x40; offs < 0x60; offs += 4)
 	{
-		sx = mrgame_objectram[offs + 3] + 1;
-		sy = 240 - mrgame_objectram[offs];
+		unsigned int sx = mrgame_objectram[offs + 3] + 1;
+		unsigned int sy = 240 - mrgame_objectram[offs];
 		flipx = mrgame_objectram[offs + 1] & 0x40;
 		flipy = mrgame_objectram[offs + 1] & 0x80;
 		tile = (mrgame_objectram[offs + 1] & 0x3f) +
@@ -734,8 +731,8 @@ if(keyboard_pressed_memory_repeat(KEYCODE_Z,25)) {
 
 //Video Update - Generation #2
 PINMAME_VIDEO_UPDATE(mrgame_update_g2) {
-    static int scrollers[32];
-	int offs = 0;
+	static int scrollers[32];
+	size_t offs;
 	int colorindex = 0;
 	int tile = 0;
 	int flipx=0;
@@ -747,12 +744,12 @@ PINMAME_VIDEO_UPDATE(mrgame_update_g2) {
 	/* since last time and update it accordingly. */
 	for (offs = 0; offs < videoram_size; offs++)
 	{
-		if (1) //dirtybuffer[offs])
+		//if (dirtybuffer[offs])
 		{
 //			dirtybuffer[offs] = 0;
 
-			sx = offs % 32;
-			sy = offs / 32;
+			sx = (int)(offs % 32);
+			sy = (int)(offs / 32);
 
 			colorindex = (colorindex+2);
 			if(sx==0) colorindex=1;
@@ -929,7 +926,7 @@ PALETTE_INIT( mrgame_g1 )
 	for (i=3; i < 8; i++)
 		palette_set_color(i,255,255,255);
 
-	for (; i < Machine->drv->total_colors; i++)
+	for (; (UINT32)i < Machine->drv->total_colors; i++)
 	{
 		/* red component */
 		bit0 = (*color_prom >> 0) & 0x01;
@@ -956,7 +953,7 @@ PALETTE_INIT( mrgame_g1 )
 PALETTE_INIT( mrgame_g2 )
 {
 	int bit0,bit1,bit2,i,r,g,b;
-	for (i = 0; i < Machine->drv->total_colors; i++)
+	for (i = 0; (UINT32)i < Machine->drv->total_colors; i++)
 	{
 		/* red component */
 		bit0 = (*color_prom >> 0) & 0x01;

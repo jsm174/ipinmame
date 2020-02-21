@@ -7,11 +7,36 @@
 /* DCS sound needs this one */
 #include "cpu/adsp2100/adsp2100.h"
 
+
+/*----------------------------------------------------------------------
+/ For System 11C and WPC89 (pre-DCS) sound boards, optionally fill
+/ in core_tGameData.hw.gameSpecific2 with this macro to set the
+/ HC55516 gain and/or YM2151 relative mixing volume:
+/
+/ - Set the HC55516 gain according to observed max analog level of
+/   the game's speech clips.  Set this as a percentage of the default
+/   gain, 0..1000, where 100 = the normal gain.
+/
+/ - Set the YM2151 relative volume to equalize loudness between FM
+/   music and speech clips (percent volume, 0..100; ~30 is typical)
+/
+/ - Set the DAC relative volume level to equalize loudness between
+/   the DAC and HC55516 (percent volume, 0..100)
+/
+/ See hc55516.c for details, including how to create an instrumented
+/ build that logs information useful to select the parameters for a
+/ given game.
+/
+/ Use 0 for either parameter to keep the defaults.
+/-------------------------------------------------------------------- */
+#define WPCSND_HC55516_LEVELS(hcgain, ymvol, dacvol) ((hcgain) | ((ymvol) << 18) | ((dacvol) << 25))
+
 /*-------------------------
 /  S3-S7 sound board
 /--------------------------*/
 #define S67S_CPUNO        1
 #define S67S_MEMREG_SCPU  (REGION_CPU1+S67S_CPUNO)
+extern MACHINE_DRIVER_EXTERN(wmssnd_s4s);
 extern MACHINE_DRIVER_EXTERN(wmssnd_s67s);
 
 #define S67S_SOUNDROMS0(ic12, chk12) \
@@ -21,7 +46,9 @@ extern MACHINE_DRIVER_EXTERN(wmssnd_s67s);
 
 #define S67S_SOUNDROMS8(ic12, chk12) \
   SOUNDREGION(0x10000, S67S_MEMREG_SCPU) \
-    ROM_LOAD(ic12, 0x7800, 0x0800, chk12) \
+    ROM_LOAD(ic12, 0x7000, 0x0800, chk12) \
+    ROM_RELOAD(    0x7800, 0x0800) \
+    ROM_RELOAD(    0xf000, 0x0800) \
     ROM_RELOAD(    0xf800, 0x0800)
 
 #define S67S_SPEECHROMS0000(ic7,chk7, ic5,chk5, ic6,chk6, ic4, chk4) \

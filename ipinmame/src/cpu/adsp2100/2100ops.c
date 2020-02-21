@@ -46,11 +46,11 @@
 #define CLR_FLAGS		(adsp2100.astat &= adsp2100.astat_clear)
 
 /* compute flags */
-#define CALC_Z(r)		(adsp2100.astat |= ((r & 0xffff) == 0))
-#define CALC_N(r)		(adsp2100.astat |= (r >> 14) & 0x02)
-#define CALC_V(s,d,r)	(adsp2100.astat |= ((s ^ d ^ r ^ (r >> 1)) >> 13) & 0x04)
-#define CALC_C(r)		(adsp2100.astat |= (r >> 13) & 0x08)
-#define CALC_C_SUB(r)	(adsp2100.astat |= (~r >> 13) & 0x08)
+#define CALC_Z(r)		(adsp2100.astat |= (((r) & 0xffff) == 0))
+#define CALC_N(r)		(adsp2100.astat |= ((r) >> 14) & 0x02)
+#define CALC_V(s,d,r)	(adsp2100.astat |= (((s) ^ (d) ^ (r) ^ ((r) >> 1)) >> 13) & 0x04)
+#define CALC_C(r)		(adsp2100.astat |= ((r) >> 13) & 0x08)
+#define CALC_C_SUB(r)	(adsp2100.astat |= (~(r) >> 13) & 0x08)
 #define CALC_NZ(r) 		CLR_FLAGS; CALC_N(r); CALC_Z(r)
 #define CALC_NZV(s,d,r) CLR_FLAGS; CALC_N(r); CALC_Z(r); CALC_V(s,d,r)
 #define CALC_NZVC(s,d,r) CLR_FLAGS; CALC_N(r); CALC_Z(r); CALC_V(s,d,r); CALC_C(r)
@@ -295,7 +295,7 @@ INLINE int CONDITION(int c)
 {
 	if (c != 14)
 		return condition_table[((c) << 8) | adsp2100.astat];
-	else if (--adsp2100.cntr != 0)
+	else if ((INT32)--adsp2100.cntr > 0)
 		return 1;
 	else
 	{
@@ -494,7 +494,7 @@ INLINE void modify_address(UINT32 ireg, UINT32 mreg)
 	UINT32 i = adsp2100.i[ireg];
 	UINT32 l = adsp2100.l[ireg];
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;
@@ -522,7 +522,7 @@ INLINE void data_write_dag1(UINT32 op, INT32 val)
 	else
 		WWORD_DATA(i, val);
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;
@@ -546,7 +546,7 @@ INLINE UINT32 data_read_dag1(UINT32 op)
 	else
 		res = RWORD_DATA(i);
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;
@@ -564,7 +564,7 @@ INLINE void data_write_dag2(UINT32 op, INT32 val)
 
 	WWORD_DATA(i, val);
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;
@@ -581,7 +581,7 @@ INLINE UINT32 data_read_dag2(UINT32 op)
 
 	UINT32 res = RWORD_DATA(i);
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;
@@ -603,7 +603,7 @@ INLINE void pgm_write_dag2(UINT32 op, INT32 val)
 
 	WWORD_PGM(i, (val << 8) | adsp2100.px);
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;
@@ -623,7 +623,7 @@ INLINE UINT32 pgm_read_dag2(UINT32 op)
 	adsp2100.px = res;
 	res >>= 8;
 
-	i += adsp2100.m[mreg];
+	i = (i + adsp2100.m[mreg]) & 0x3fff;
 	if (i < base) i += l;
 	else if (i >= base + l) i -= l;
 	adsp2100.i[ireg] = i;
@@ -1322,7 +1322,7 @@ void mac_op_mf(int op)
 
 void shift_op(int op)
 {
-	INT8 sc = adsp2100.core.se.s;
+	INT8 sc = (INT8)adsp2100.core.se.s;
 	INT32 xop = (op >> 8) & 7;
 	UINT32 res;
 
@@ -1436,7 +1436,7 @@ void shift_op(int op)
 				xop |= 0x8000;
 				while ((xop & 0x40000000) == 0) res++, xop <<= 1;
 			}
-			adsp2100.core.se.s = -res;
+			adsp2100.core.se.s = -(INT16)res;
 			break;
 		case 0x0d<<11:
 			/* EXP (HIX) */
@@ -1461,7 +1461,7 @@ void shift_op(int op)
 					xop |= 0x8000;
 					while ((xop & 0x40000000) == 0) res++, xop <<= 1;
 				}
-				adsp2100.core.se.s = -res;
+				adsp2100.core.se.s = -(INT16)res;
 			}
 			break;
 		case 0x0e<<11:
@@ -1477,7 +1477,7 @@ void shift_op(int op)
 					xop = (xop << 1) | 1;
 					while ((xop & 0x10000) == 0) res++, xop <<= 1;
 				}
-				adsp2100.core.se.s = -res;
+				adsp2100.core.se.s = -(INT16)res;
 			}
 			break;
 		case 0x0f<<11:
@@ -1491,8 +1491,8 @@ void shift_op(int op)
 				xop |= 0x8000;
 				while ((xop & 0x40000000) == 0) res++, xop <<= 1;
 			}
-			if (res < -adsp2100.core.sb.s)
-				adsp2100.core.sb.s = -res;
+			if ((INT16)res < -adsp2100.core.sb.s)
+				adsp2100.core.sb.s = -(INT16)res;
 			break;
 	}
 }

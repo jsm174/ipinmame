@@ -532,6 +532,12 @@ WPCS_SOUNDROM224("pz_u18.l1",CRC(b7fbba98) SHA1(6533a1474dd335419331d37d4a444795
                  "pz_u14.l1",CRC(4d8897ce) SHA1(7a4ac9e849dae93078ddd60adbd34f3930e4cd46))
 WPC_ROMEND
 
+WPC_ROMSTART(pz,f4pfx,"pzonef_4_pfx.rom",0x40000,CRC(d7353c26) SHA1(5ae2708936ab9ebf180cf795a786f4361df82414))
+WPCS_SOUNDROM224("pz_u18.l1",CRC(b7fbba98) SHA1(6533a1474dd335419331d37d4a4447951171412b),
+                 "pz_u15.l1",CRC(168bcc52) SHA1(0bae89278cd24950b2e247bba48eaa636f7b566c),
+                 "pz_u14.l1",CRC(4d8897ce) SHA1(7a4ac9e849dae93078ddd60adbd34f3930e4cd46))
+WPC_ROMEND
+
 WPC_ROMSTART(pz,f5,"pzonef_5.rom",0x40000,CRC(4e344002) SHA1(f6685a3fc56d33c3aa39928208a90be490d5362e))
 WPCS_SOUNDROM224("pz_u18.l1",CRC(b7fbba98) SHA1(6533a1474dd335419331d37d4a4447951171412b),
                  "pz_u15.l1",CRC(168bcc52) SHA1(0bae89278cd24950b2e247bba48eaa636f7b566c),
@@ -578,14 +584,18 @@ WPC_ROMEND
 /*--------------
 /  Game drivers
 /---------------*/
-CORE_GAMEDEF(pz,f4,"Party Zone (F-4)",1991,"Bally",wpc_mFliptronS,0)
-CORE_CLONEDEF(pz,f5,f4,"Party Zone (F-5) LED Ghost Fix",1991,"Bally",wpc_mFliptronS,0)
-CORE_CLONEDEF(pz,l1,f4,"Party Zone (L-1)",1991,"Bally",wpc_mFliptronS,0)
-CORE_CLONEDEF(pz,d1,f4,"Party Zone (D-1) LED Ghost Fix",1991,"Bally",wpc_mFliptronS,0)
-CORE_CLONEDEF(pz,l2,f4,"Party Zone (L-2)",1991,"Bally",wpc_mFliptronS,0)
-CORE_CLONEDEF(pz,d2,f4,"Party Zone (D-2) LED Ghost Fix",1991,"Bally",wpc_mFliptronS,0)
-CORE_CLONEDEF(pz,l3,f4,"Party Zone (L-3)",1991,"Bally",wpc_mFliptronS,0)
-CORE_CLONEDEF(pz,d3,f4,"Party Zone (D-3) LED Ghost Fix",1991,"Bally",wpc_mFliptronS,0)
+/* F-4: This is a special revision intended for use with the Fliptronic
+Solid-State flipper system. DO NOT USE this revision on games that
+use conventional flippers, use revision L-3 instead. */
+CORE_GAMEDEF(pz, f4, "Party Zone, The (F-4 Fliptronic)", 1991, "Bally", wpc_mFliptronS, 0)
+CORE_CLONEDEF(pz,f4pfx,f4,"Party Zone, The (F-4 Pinball FX)",2018,"Zen Studios",wpc_mFliptronS,0)
+CORE_CLONEDEF(pz,f5,f4,"Party Zone, The (F-5 LED Ghost Fix)",1991,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF(pz,l1,f4,"Party Zone, The (L-1)",1991,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF(pz,d1,f4,"Party Zone, The (D-1 LED Ghost Fix)",1991,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF(pz,l2,f4,"Party Zone, The (L-2)",1991,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF(pz,d2,f4,"Party Zone, The (D-2 LED Ghost Fix)",1991,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF(pz,l3,f4,"Party Zone, The (L-3)",1991,"Bally",wpc_mFliptronS,0)
+CORE_CLONEDEF(pz,d3,f4,"Party Zone, The (D-3 LED Ghost Fix)",1991,"Bally",wpc_mFliptronS,0)
 
 /*-----------------------
 / Simulation Definitions
@@ -628,57 +638,48 @@ static core_tGameData pzGameData = {
  ----------------*/
 static void init_pz(void) {
   core_gameData = &pzGameData;
+  hc55516_set_sample_clock(0, 22372);
 }
 
-static int trick=0;
+static int trick = 44;
 
 static void pz_handleMech(int mech) {
   /* ---------------------------------------
      --	 Handle the Moving Head (Tricky)  --
-     WPCMAME: All this ++ stuff doesn't seem right but I don't want to change it
+      Gaston: completely recoded 09/17/2015
      --------------------------------------- */
   if (mech & 0x01) {
-    /* Move to the Left */
-    if (core_getSol(sHeadOnOff) && core_getSol(sHeadDirection)) {
-      core_setSw(swHeadOpto1,1); core_setSw(swHeadOpto2,1); core_setSw(swHeadOpto3,1); /* 111 */
-      if (trick++ > 20)
-        core_setSw(swHeadOpto2,0); /* 101 */
-      if (trick++ > 40)
-        core_setSw(swHeadOpto3,0); /* 100 */
-      if (trick++ > 60)
-        core_setSw(swHeadOpto1,0); /* 000 */
-      if (trick++ > 80)
-        core_setSw(swHeadOpto3,1); /* 001 */
-      if (trick++ > 100)
-        core_setSw(swHeadOpto2,1); /* 011 */
-      if (trick++ > 120)
-        core_setSw(swHeadOpto3,0); /* 010 */
+    if (core_getSol(sHeadOnOff)) { // wpc_data[WPC_SOLENOID3] & 0x40) {
+      if (core_getSol(sHeadDirection)) { // (wpc_data[WPC_SOLENOID3] & 0x80) {
+        /* Move to the left, test pos. #6 is the most left! */
+        trick++;
+        if (trick > 95) trick = 95;
+      } else {
+        /* Move to the right, test pos. #0 is the most right! */
+        trick--;
+        if (trick < 0) trick = 0;
+      }
     }
-    if (trick++>120)
-      trick = 0;
-    /* Move to the Right */
-    if (core_getSol(sHeadOnOff) && !core_getSol(sHeadDirection)) {
-      core_setSw(swHeadOpto1,0);core_setSw(swHeadOpto2,1);core_setSw(swHeadOpto3,0); /* 010 */
-      if (trick++>20)
-        core_setSw(swHeadOpto3,1); /* 011 */
-      if (trick++>40)
-        core_setSw(swHeadOpto2,0); /* 001 */
-      if (trick++>60)
-        core_setSw(swHeadOpto3,0); /* 000 */
-      if (trick++>80)
-        core_setSw(swHeadOpto1,1); /* 100 */
-      if (trick++>100)
-        core_setSw(swHeadOpto3,1); /* 101 */
-      if (trick++>120)
-        core_setSw(swHeadOpto2,1);
-      core_setSw(swHeadOpto3,0); /* 110 */
+    if (trick >= 84) {
+      core_setSw(swHeadOpto1,0); core_setSw(swHeadOpto2,1); core_setSw(swHeadOpto3,0); /* 101 */
+    } else if (trick >= 72) {
+      core_setSw(swHeadOpto1,0); core_setSw(swHeadOpto2,1); core_setSw(swHeadOpto3,1); /* 001 */
+    } else if (trick >= 60) {
+      core_setSw(swHeadOpto1,0); core_setSw(swHeadOpto2,0); core_setSw(swHeadOpto3,1); /* 011 */
+    } else if (trick >= 48) {
+      core_setSw(swHeadOpto1,0); core_setSw(swHeadOpto2,0); core_setSw(swHeadOpto3,0); /* 111 */
+    } else if (trick >= 36) {
+      core_setSw(swHeadOpto1,1); core_setSw(swHeadOpto2,0); core_setSw(swHeadOpto3,0); /* 110 */
+    } else if (trick >= 24) {
+      core_setSw(swHeadOpto1,1); core_setSw(swHeadOpto2,0); core_setSw(swHeadOpto3,1); /* 010 */
+    } else if (trick >= 12) {
+      core_setSw(swHeadOpto1,1); core_setSw(swHeadOpto2,1); core_setSw(swHeadOpto3,1); /* 000 */
+    } else {
+      core_setSw(swHeadOpto1,1); core_setSw(swHeadOpto2,1); core_setSw(swHeadOpto3,0); /* 100 */
     }
-    if (trick++>120)
-      trick = 0;
   }
 }
 
 static int pz_getMech(int mechNo) {
   return trick;
 }
-

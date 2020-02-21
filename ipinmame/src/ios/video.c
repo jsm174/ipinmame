@@ -202,9 +202,35 @@ void update_autoframeskip(void) {
 	debugger_was_visible = 0;
 }
 
+void throttle_speed_part(int part, int totalparts)
+{
+    //!! TODO defined in video.c windows, needs to be implemented
+}
+
+int g_low_latency_throttle = 0;
+
+int g_iThrottleAdj = 0;
+
+void SetThrottleAdj(int adj)
+{
+#ifdef DEBUG_SOUND
+	char tmp[81];
+
+	static int last = 0;
+	if (adj != last)
+	{
+		sprintf(tmp, "Set throttle adj: %d (cur %d)", adj, g_iThrottleAdjCur);
+		DebugSound(tmp);
+		last = adj;
+	}
+#endif
+	g_iThrottleAdj = adj;
+}
+
+
 /**
  * throttle_speed
- */ 
+ */
 
 static void throttle_speed(void) {
 	static double ticks_per_sleep_msec = 0;

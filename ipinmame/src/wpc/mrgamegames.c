@@ -3,9 +3,6 @@
 #include "mrgame.h"
 #include "sndbrd.h"
 
-//cheap hack to avoid the problem that we've run out of generation flags again
-#define GEN_MRGAME GEN_ALVG
-
 
 /* 10' Color Video Monitor - Generation #1*/
 core_tLCDLayout mrgame_disp_g1[] = {
@@ -43,7 +40,7 @@ MRGAME_SOUNDROM15(		"snd_ic06.rom", CRC(29e9417e) SHA1(24f465993da7c93d385ec4534
 						"snd_ic35.rom", CRC(7b2394d1) SHA1(f588f5105d75b54dd65bb6448a2d7774fb8477ec),
 						"snd_ic36.rom", CRC(4039ea65) SHA1(390fce94d1e48b395157d8d9afaa485114c58d52))
 MRGAME_ROMEND
-CORE_GAMEDEFNV(dakar,"Dakar",1988,"Mr. Game (Italy)",mMRGAME1,GAME_IMPERFECT_SOUND)
+CORE_GAMEDEFNV(dakar,"Dakar",1988,"Mr. Game (Italy)",mMRGAME1,0)
 
 /*-------------------------------------------------------------------
 / Motor Show (1988?)
@@ -60,7 +57,7 @@ MRGAME_SOUNDROM14(		"snd_ic06.rom", CRC(fba5a8f1) SHA1(ddf989abebe05c569c9ecdd49
 						"snd_ic35.rom", CRC(9dec153d) SHA1(8a0140257316aa19c0401456839e11b6896609b1),
 						"snd_ic36.rom", CRC(4f42be6e) SHA1(684e988f413cd21c785ad5d60ef5eaddddaf72ab))
 MRGAME_ROMEND
-CORE_GAMEDEFNV(motrshow,"Motor Show",1988,"Mr. Game (Italy)",mMRGAME1,GAME_IMPERFECT_SOUND)
+CORE_GAMEDEFNV(motrshow,"Motor Show",1988,"Mr. Game (Italy)",mMRGAME1,0)
 
 //Alternate Rom Set (cpu only)
 MRGAME_ROMSTART(motrshwa,	"cpuic13a.rom", CRC(2dbdd9d4) SHA1(b404814a4e83ead6da3c57818ae97f23d380f9da),
@@ -76,7 +73,7 @@ MRGAME_SOUNDROM14(		"snd_ic06.rom", CRC(fba5a8f1) SHA1(ddf989abebe05c569c9ecdd49
 MRGAME_ROMEND
 #define init_motrshwa init_motrshow
 #define input_ports_motrshwa input_ports_motrshow
-CORE_CLONEDEFNV(motrshwa,motrshow,"Motor Show (alternate set)",1988,"Mr. Game (Italy)",mMRGAME1,GAME_IMPERFECT_SOUND)
+CORE_CLONEDEFNV(motrshwa,motrshow,"Motor Show (alternate set)",1988,"Mr. Game (Italy)",mMRGAME1,0)
 
 
 /*-------------------------------------------------------------------
@@ -97,11 +94,11 @@ MRGAME_SOUNDROM14(		"snd_ic06.rom", NO_DUMP,
 						"snd_ic35.rom", NO_DUMP,
 						"snd_ic36.rom", NO_DUMP)
 MRGAME_ROMEND
-CORE_GAMEDEFNV(macattck,"Mac Attack",1990,"Mr. Game (Italy)",mMRGAME2,GAME_IMPERFECT_SOUND)
+CORE_GAMEDEFNV(macattck,"Mac Attack",1990,"Mr. Game (Italy)",mMRGAME2,0)
 
 
 /*-------------------------------------------------------------------
-/ World Cup 90 (1990)
+/ World Cup '90 (1990)
 /-------------------------------------------------------------------*/
 INITGAME(wcup90, mrgame_disp_g2, FLIP_SWNO(65,64), 4/*?*/, SNDBRD_MRGAME, 0)
 MRGAME_ROMSTART(wcup90,	"cpu_ic13.rom", CRC(0e2edfb0) SHA1(862fb1f6509fb1f560d0b2bb8a5764f64b259f04),
@@ -119,4 +116,4 @@ MRGAME_SOUNDROM25(		"snd_ic06.rom", CRC(19a66331) SHA1(fbd71bc378b5a04247fd17545
 						"snd_ic45.rom", CRC(265aa979) SHA1(9ca10c41526a2d227c21f246273ca14bec7f1bc7),
 						"snd_ic46.rom", CRC(7edb321e) SHA1(b242e94c24e996d2de803d339aa9bf6e93586a4c))
 MRGAME_ROMEND
-CORE_GAMEDEFNV(wcup90,"World Cup 90",1990,"Mr. Game (Italy)",mMRGAME3,GAME_IMPERFECT_SOUND)
+CORE_GAMEDEFNV(wcup90,"World Cup '90",1990,"Mr. Game (Italy)",mMRGAME3,0)

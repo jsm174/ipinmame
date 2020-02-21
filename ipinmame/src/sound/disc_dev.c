@@ -64,12 +64,12 @@ struct dsd_566_context
 int dsd_555_astbl_step(struct node_description *node)
 {
 	struct dsd_555_astbl_context *context=(struct dsd_555_astbl_context*)node->context;
-	double cv, cWaveNext, trigger, t, vC;
-	int *astblOutTypePTR;
 
 	/* RESET? */
 	if(node->input[0])
 	{
+		double cv,t,vC,cWaveNext;
+		int *astblOutTypePTR;
 
 		/* Fetch the output type descriptor in a local for quick ref */
 		astblOutTypePTR = (int*)(node->custom);
@@ -122,6 +122,7 @@ int dsd_555_astbl_step(struct node_description *node)
 			}
 			else
 			{
+				double trigger;
 				/* Discharging */
 				cWaveNext = vC - (vC * (1 - exp(-(t / (node->input[3] * node->input[4])))));
 				t = 0;
@@ -325,7 +326,7 @@ int dsd_squarew566_step(struct node_description *node)
 	/*     phase step = 2Pi/(output period/sample period)        */
 	/*                    boils out to                           */
 	/*     phase step = (2Pi*output freq)/sample freq)           */
-	newphase = context->phase+((2.0*M_PI*node->input[1])/Machine->sample_rate);
+	newphase = context->phase+(((2.0*M_PI)*node->input[1])/Machine->sample_rate);
 	/* Keep the new phasor in the 2Pi range.*/
 	context->phase=fmod(newphase,2.0*M_PI);
 
@@ -410,7 +411,7 @@ int dsd_trianglew566_step(struct node_description *node)
 	/*     phase step = 2Pi/(output period/sample period)        */
 	/*                    boils out to                           */
 	/*     phase step = (2Pi*output freq)/sample freq)           */
-	newphase=context->phase+((2.0*M_PI*node->input[1])/Machine->sample_rate);
+	newphase=context->phase+(((2.0*M_PI)*node->input[1])/Machine->sample_rate);
 	/* Keep the new phasor in the 2Pi range.*/
 	newphase=fmod(newphase,2.0*M_PI);
 	context->phase=newphase;

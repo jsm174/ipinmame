@@ -73,7 +73,7 @@ size_t generic_nvram_size;
 data8_t *generic_nvram;
 
 #ifdef PINMAME
-extern void core_nvram(void *file, int write, void *mem, int length, UINT8 init);
+extern void core_nvram(void *file, int write, void *mem, size_t length, UINT8 init);
 #endif
 
 /* hard disks */
@@ -126,7 +126,7 @@ void showdisclaimer(void)   /* MAURY_BEGIN: dichiarazione */
 #ifdef LSB_FIRST
 #define intelLong(x) (x)
 #else
-#define intelLong(x) (((x << 24) | (((unsigned long) x) >> 24) | (( x & 0x0000ff00) << 8) | (( x & 0x00ff0000) >> 8)))
+#define intelLong(x) ((((x) << 24) | (((unsigned long) (x)) >> 24) | (( (x) & 0x0000ff00) << 8) | (( (x) & 0x00ff0000) >> 8)))
 #endif
 
 /*-------------------------------------------------
@@ -136,7 +136,7 @@ void showdisclaimer(void)   /* MAURY_BEGIN: dichiarazione */
 static struct GameSample *read_wav_sample(mame_file *f)
 {
 	unsigned long offset = 0;
-	UINT32 length, rate, filesize, temp32;
+	UINT32 length, rate, filesize;
 	UINT16 bits, temp16;
 	char buf[32];
 	struct GameSample *result;
@@ -232,6 +232,7 @@ static struct GameSample *read_wav_sample(mame_file *f)
 	/* read the data in */
 	if (bits == 8)
 	{
+		UINT32 temp32;
 		mame_fread(f, result->data, length);
 
 		/* convert 8-bit data to signed samples */
@@ -290,10 +291,9 @@ struct GameSamples *readsamples(const char **samplenames,const char *basename)
 
 	for (i = 0;i < samples->total;i++)
 	{
-		mame_file *f;
-
 		if (samplenames[i+skipfirst][0])
 		{
+			mame_file *f;
 			if ((f = mame_fopen(basename,samplenames[i+skipfirst],FILETYPE_SAMPLE,0)) == 0)
 				if (skipfirst)
 					f = mame_fopen(samplenames[0]+1,samplenames[i+skipfirst],FILETYPE_SAMPLE,0);
@@ -323,12 +323,11 @@ struct GameSamples *readsamples(const char **samplenames,const char *basename)
 
 unsigned char *memory_region(int num)
 {
-	int i;
-
 	if (num < MAX_MEMORY_REGIONS)
 		return Machine->memory_region[num].base;
 	else
 	{
+		int i;
 		for (i = 0;i < MAX_MEMORY_REGIONS;i++)
 		{
 			if (Machine->memory_region[i].type == num)
@@ -347,12 +346,11 @@ unsigned char *memory_region(int num)
 
 size_t memory_region_length(int num)
 {
-	int i;
-
 	if (num < MAX_MEMORY_REGIONS)
 		return Machine->memory_region[num].length;
 	else
 	{
+		int i;
 		for (i = 0;i < MAX_MEMORY_REGIONS;i++)
 		{
 			if (Machine->memory_region[i].type == num)
@@ -371,8 +369,6 @@ size_t memory_region_length(int num)
 
 int new_memory_region(int num, size_t length, UINT32 flags)
 {
-    int i;
-
     if (num < MAX_MEMORY_REGIONS)
     {
         Machine->memory_region[num].length = length;
@@ -381,6 +377,7 @@ int new_memory_region(int num, size_t length, UINT32 flags)
     }
     else
     {
+        int i;
         for (i = 0;i < MAX_MEMORY_REGIONS;i++)
         {
             if (Machine->memory_region[i].base == NULL)
@@ -404,8 +401,6 @@ int new_memory_region(int num, size_t length, UINT32 flags)
 
 void free_memory_region(int num)
 {
-	int i;
-
 	if (num < MAX_MEMORY_REGIONS)
 	{
 		free(Machine->memory_region[num].base);
@@ -413,6 +408,7 @@ void free_memory_region(int num)
 	}
 	else
 	{
+		int i;
 		for (i = 0;i < MAX_MEMORY_REGIONS;i++)
 		{
 			if (Machine->memory_region[i].type == num)
@@ -984,12 +980,12 @@ void CLIB_DECL debugload(const char *string, ...)
 {
 #ifdef LOG_LOAD
 	static int opened;
-	va_list arg;
 	FILE *f;
 
 	f = fopen("romload.log", opened++ ? "a" : "w");
 	if (f)
 	{
+		va_list arg;
 		va_start(arg, string);
 		vfprintf(f, string, arg);
 		va_end(arg);
@@ -1173,7 +1169,7 @@ static void verify_length_and_hash(struct rom_load_data *romdata, const char *na
 		return;
 
 	/* get the length and CRC from the file */
-	actlength = mame_fsize(romdata->file);
+	actlength = (UINT32)mame_fsize(romdata->file);
 	acthash = mame_fhash(romdata->file);
 
 	/* verify length */
@@ -1215,8 +1211,6 @@ static void verify_length_and_hash(struct rom_load_data *romdata, const char *na
 
 static int display_rom_load_results(struct rom_load_data *romdata)
 {
-	int region;
-
 	/* final status display */
 	osd_display_loading_rom_message(NULL, romdata);
 
@@ -1258,8 +1252,11 @@ static int display_rom_load_results(struct rom_load_data *romdata)
 
 	/* clean up any regions */
 	if (romdata->errors)
+	{
+		int region;
 		for (region = 0; region < MAX_MEMORY_REGIONS; region++)
 			free_memory_region(region);
+	}
 
 	/* return true if we had any errors */
 	return (romdata->errors != 0);
@@ -1277,7 +1274,6 @@ static void region_post_process(struct rom_load_data *romdata, const struct RomM
 	int datawidth = ROMREGION_GETWIDTH(regiondata) / 8;
 	int littleendian = ROMREGION_ISLITTLEENDIAN(regiondata);
 	UINT8 *base;
-	int i, j;
 
 	debugload("+ datawidth=%d little=%d\n", datawidth, littleendian);
 
@@ -1296,6 +1292,7 @@ static void region_post_process(struct rom_load_data *romdata, const struct RomM
 	/* if the region is inverted, do that now */
 	if (ROMREGION_ISINVERTED(regiondata))
 	{
+		int i;
 		debugload("+ Inverting region\n");
 		for (i = 0, base = romdata->regionbase; i < romdata->regionlength; i++)
 			*base++ ^= 0xff;
@@ -1308,10 +1305,12 @@ static void region_post_process(struct rom_load_data *romdata, const struct RomM
 	if (datawidth > 1 && littleendian)
 #endif
 	{
+		int i;
 		debugload("+ Byte swapping region\n");
 		for (i = 0, base = romdata->regionbase; i < romdata->regionlength; i += datawidth)
 		{
 			UINT8 temp[8];
+			int j;
 			memcpy(temp, base, datawidth);
 			for (j = datawidth - 1; j >= 0; j--)
 				*base++ = temp[j];
@@ -1424,7 +1423,7 @@ static int read_rom_data(struct rom_load_data *romdata, const struct RomModule *
 			return 0;
 		numbytes -= bytesleft;
 
-		debugload("  Copying to %08X\n", (int)base);
+		debugload("  Copying to %08X\n", (size_t)base);
 
 		/* unmasked cases */
 		if (datamask == 0xff)
@@ -1509,7 +1508,7 @@ static int fill_rom_data(struct rom_load_data *romdata, const struct RomModule *
 	}
 
 	/* fill the data (filling value is stored in place of the hashdata) */
-	memset(base, (UINT32)ROM_GETHASHDATA(romp) & 0xff, numbytes);
+	memset(base, (size_t)ROM_GETHASHDATA(romp) & 0xff, numbytes);
 	return 1;
 }
 
@@ -1523,7 +1522,7 @@ static int copy_rom_data(struct rom_load_data *romdata, const struct RomModule *
 	UINT8 *base = romdata->regionbase + ROM_GETOFFSET(romp);
 	int srcregion = ROM_GETFLAGS(romp) >> 24;
 	UINT32 numbytes = ROM_GETLENGTH(romp);
-	UINT32 srcoffs = (UINT32)ROM_GETHASHDATA(romp);  /* srcoffset in place of hashdata */
+	size_t srcoffs = (size_t)ROM_GETHASHDATA(romp);  /* srcoffset in place of hashdata */
 	UINT8 *srcbase;
 
 	/* make sure we copy within the region space */
@@ -1836,7 +1835,7 @@ int rom_load(const struct RomModule *romp)
 	/* loop until we hit the end */
 	for (region = romp, regnum = 0; region; region = rom_next_region(region), regnum++)
 	{
-		int regiontype = ROMREGION_GETTYPE(region);
+		size_t regiontype = ROMREGION_GETTYPE(region);
 
 		debugload("Processing region %02X (length=%X)\n", regiontype, ROMREGION_GETLENGTH(region));
 
@@ -1854,14 +1853,14 @@ int rom_load(const struct RomModule *romp)
 		/* allocate memory for the region */
 		if (new_memory_region(regiontype, ROMREGION_GETLENGTH(region), ROMREGION_GETFLAGS(region)))
 		{
-			printf("Error: unable to allocate memory for region %d\n", regiontype);
+			printf("Error: unable to allocate memory for region %u\n", regiontype);
 			return 1;
 		}
 
 		/* remember the base and length */
 		romdata.regionlength = memory_region_length(regiontype);
 		romdata.regionbase = memory_region(regiontype);
-		debugload("Allocated %X bytes @ %08X\n", romdata.regionlength, (int)romdata.regionbase);
+		debugload("Allocated %X bytes @ %08X\n", romdata.regionlength, (size_t)romdata.regionbase);
 
 		/* clear the region if it's requested */
 		if (ROMREGION_ISERASE(region))

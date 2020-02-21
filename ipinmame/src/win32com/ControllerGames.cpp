@@ -1,5 +1,5 @@
 // ControllerGames.cpp : Implementation of CGames
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "VPinMAME_h.h"
 #include "ControllerGame.h"
 #include "ControllerGames.h"
@@ -29,7 +29,7 @@ public:
 		if ( m_pGames )
 			m_pGames->Release();
 		m_pGames = NULL;
- 	}
+	}
 
 
 DECLARE_NO_REGISTRY()
@@ -70,7 +70,7 @@ public:
 		int i = 0;
 
 		while ( m_lCurrent<m_lMax && celt ) {
-			CComVariant varCelt(m_lCurrent++);
+			CComVariant varCelt(++m_lCurrent);
 			VariantInit(&rgVar[i]);
 
 			IGame* pGame;
@@ -206,7 +206,7 @@ CGames::~CGames()
 			i++;
 		}
 
-		delete m_pGamesList;
+		delete [] m_pGamesList;
 		m_pGamesList = NULL;
 	}
 }

@@ -9,7 +9,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "Resource.h"       // main symbols
+#include "resource.h"       // main symbols
 #include "VPinMAMECP.h"
 
 #include "ControllerSettings.h"
@@ -59,12 +59,13 @@ public:
 	CComObject<CGames>				*m_pGames;
 	CComObject<CControllerSettings>	*m_pControllerSettings;
 
-	CController::CController();
-	CController::~CController();
+	CController();
+	~CController();
 
 private:
 	void GetProductVersion(int *nVersionNo0, int *nVersionNo1, int *nVersionNo2, int *nVersionNo3);
 	static DWORD FAR PASCAL RunController(CController* pController);
+	TIMECAPS caps;
 
 public:
 
@@ -93,7 +94,8 @@ DECLARE_PROTECT_FINAL_CONSTRUCT()
 
 // IController
 public:
-	STDMETHOD(get_ChangedLEDs)(/*[in]*/ int nHigh, int nLow, /*[out, retval]*/ VARIANT *pVal);
+	STDMETHOD(get_ChangedLEDs)(/*[in]*/ int nHigh, int nLow, int nnHigh, int nnLow, /*[out, retval]*/ VARIANT *pVal);
+	STDMETHOD(get_ChangedLEDsState)(/*[in]*/ int nHigh, int nLow, int nnHigh, int nnLow, int **buf, /*[out, retval]*/ int *pVal);
 	STDMETHOD(get_Settings)(/*[out, retval]*/ IControllerSettings * *pVal);
 	STDMETHOD(get_Games)(/*[out, retval]*/ IGames* *pVal);
 	STDMETHOD(get_Version)(/*[out, retval]*/ BSTR *pVal);
@@ -131,25 +133,57 @@ public:
 	STDMETHOD(put_Switch)(/*[in]*/ int nSwitchNo, /*[in]*/ VARIANT_BOOL newVal);
 	STDMETHOD(get_Solenoid)(/*[in]*/ int nSolenoid, /*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(get_Lamp)(/*[in]*/ int nLamp, /*[out, retval]*/ VARIANT_BOOL *pVal);
-	STDMETHOD(ShowAboutDialog)(/*[in]*/ long hParentWnd=0);
+	STDMETHOD(ShowAboutDialog)(/*[in]*/ LONG_PTR hParentWnd=0);
 	STDMETHOD(Stop)();
-	STDMETHOD(Run)(/*[in,defaultvalue(0)]*/ long hParentWnd=0, /*[in,defaultvalue(100)]*/ int nMinVersion=0);
+	STDMETHOD(Run)(/*[in,defaultvalue(0)]*/ LONG_PTR hParentWnd=0, /*[in,defaultvalue(100)]*/ int nMinVersion=0);
 	STDMETHOD(get_Hidden)(/*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(put_Hidden)(/*[in]*/ VARIANT_BOOL newVal);
 	STDMETHOD(get_MechSamples)(/*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(put_MechSamples)(/*[in]*/ VARIANT_BOOL newVal);
 	STDMETHOD(get_Game)(/*[out, retval]*/ IGame * *pVal);
-	STDMETHOD(GetWindowRect)(/*[in,defaultvalue(0)]*/ long hWnd, /*[out, retval]*/ VARIANT *pVal);
-	STDMETHOD(GetClientRect)(/*[in,defaultvalue(0)]*/ long hWnd, /*[out, retval]*/ VARIANT *pVal);
+	STDMETHOD(GetWindowRect)(/*[in,defaultvalue(0)]*/ LONG_PTR hWnd, /*[out, retval]*/ VARIANT *pVal);
+	STDMETHOD(GetClientRect)(/*[in,defaultvalue(0)]*/ LONG_PTR hWnd, /*[out, retval]*/ VARIANT *pVal);
 
-/* depricated methods/properties */
+	STDMETHOD(get_NVRAM)(/*[out, retval]*/ VARIANT *pVal);
+	STDMETHOD(get_ChangedNVRAM)(/*[out, retval]*/ VARIANT *pVal);
+
+	STDMETHOD(get_RawDmdWidth)(/*[out, retval]*/ int *pVal);
+	STDMETHOD(get_RawDmdHeight)(/*[out, retval]*/ int *pVal);
+	STDMETHOD(get_RawDmdPixels)(/*[out, retval]*/ VARIANT *pVal);
+	STDMETHOD(get_RawDmdColoredPixels)(/*[out, retval]*/ VARIANT *pVal);
+
+	STDMETHOD(get_DmdWidth)(/*[out, retval]*/ int *pVal);
+	STDMETHOD(get_DmdHeight)(/*[out, retval]*/ int *pVal);
+	STDMETHOD(get_DmdPixel)(/*[in]*/ int x, /*[in]*/ int y, /*[out, retval]*/ int *pVal);
+	STDMETHOD(get_updateDmdPixels)(/*[in]*/ int **buf, /*[in]*/ int width, /*[in]*/ int height, /*[out, retval]*/ int *pVal);
+	STDMETHOD(get_ChangedLampsState)(/*[in]*/ int **buf, /*[out, retval]*/ int *pVal);
+	STDMETHOD(get_LampsState)(/*[in]*/ int **buf, /*[out, retval]*/ int *pVal);
+	STDMETHOD(get_ChangedSolenoidsState)(/*[in]*/ int **buf, /*[out, retval]*/ int *pVal);
+	STDMETHOD(get_SolenoidsState)(/*[in]*/ int **buf, /*[out, retval]*/ int *pVal);
+	STDMETHOD(get_ChangedGIsState)(/*[in]*/ int **buf, /*[out, retval]*/ int *pVal);
+	STDMETHOD(get_MasterVolume)(/*[out, retval]*/ int *pVal);
+	STDMETHOD(put_MasterVolume)(/*[in]*/ int newVal);
+	STDMETHOD(get_EnumAudioDevices)(/*[out, retval]*/ int *pVal);
+	STDMETHOD(get_AudioDevicesCount)(/*[out, retval]*/ int *pVal);
+	STDMETHOD(get_AudioDeviceDescription)(/*[in]*/ int num, /*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_AudioDeviceModule)(/*[in]*/ int num, /*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_CurrentAudioDevice)(/*[out, retval]*/ int *pVal);
+	STDMETHOD(put_CurrentAudioDevice)(/*[in]*/ int num);
+
+	STDMETHOD(get_ShowPinDMD)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+	STDMETHOD(put_ShowPinDMD)(/*[in]*/ VARIANT_BOOL newVal);
+
+	STDMETHOD(get_ShowWinDMD)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+	STDMETHOD(put_ShowWinDMD)(/*[in]*/ VARIANT_BOOL newVal);
+
+/* deprecated methods/properties */
 	STDMETHOD(get_NewSoundCommands)(/*[out, retval]*/ VARIANT *pVal);
 	STDMETHOD(get_ImgDir)(/*[out, retval]*/ BSTR *pVal);
 	STDMETHOD(put_ImgDir)(/*[in]*/ BSTR newVal);
-	STDMETHOD(ShowPathesDialog)(/*[in,defaultvalue(0)]*/ long hParentWnd);
+	STDMETHOD(ShowPathesDialog)(/*[in,defaultvalue(0)]*/ LONG_PTR hParentWnd);
 	STDMETHOD(get_Antialias)(/*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(put_Antialias)(/*[in]*/ VARIANT_BOOL newVal);
-	STDMETHOD(SetDisplayPosition)(/*[in]*/ int x, /*[in]*/ int y, /*[in]*/ long hParentWindow);
+	STDMETHOD(SetDisplayPosition)(/*[in]*/ int x, /*[in]*/ int y, /*[in]*/ LONG_PTR hParentWindow);
 	STDMETHOD(get_DoubleSize)(/*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(put_DoubleSize)(/*[in]*/ VARIANT_BOOL newVal);
 	STDMETHOD(get_SampleRate)(/*[out, retval]*/ int *pVal);
@@ -166,7 +200,7 @@ public:
 	STDMETHOD(put_ShowFrame)(/*[in]*/ VARIANT_BOOL newVal);
 	STDMETHOD(get_ShowDMDOnly)(/*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(put_ShowDMDOnly)(/*[in]*/ VARIANT_BOOL newVal);
-	STDMETHOD(CheckROMS)(/*[in,defaultvalue(0)]*/ int nShowOptions, /*[in,defaultvalue(0)]*/ long hParentWnd, /*[out, retval]*/ VARIANT_BOOL *pVal);
+	STDMETHOD(CheckROMS)(/*[in,defaultvalue(0)]*/ int nShowOptions, /*[in,defaultvalue(0)]*/ LONG_PTR hParentWnd, /*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(get_ShowTitle)(/*[out, retval]*/ VARIANT_BOOL *pVal);
 	STDMETHOD(put_ShowTitle)(/*[in]*/ VARIANT_BOOL newpVal);
 	STDMETHOD(get_UseSamples)(/*[out, retval]*/ VARIANT_BOOL *pVal);
@@ -180,7 +214,16 @@ public:
 	STDMETHOD(put_NVRamDir)(/*[in]*/ BSTR newVal);
 	STDMETHOD(get_RomDirs)(/*[out, retval]*/ BSTR *pVal);
 	STDMETHOD(put_RomDirs)(/*[in]*/ BSTR newVal);
-	STDMETHOD(ShowOptsDialog)(/*[in]*/ long hParentWnd=0);
+	STDMETHOD(ShowOptsDialog)(/*[in]*/ LONG_PTR hParentWnd=0);
+	STDMETHOD(get_FastFrames)(/*[out, retval]*/ int *pVal);
+	STDMETHOD(put_FastFrames)(/*[in]*/ int newVal);
+	STDMETHOD(get_IgnoreRomCrc)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+	STDMETHOD(put_IgnoreRomCrc)(/*[in]*/ VARIANT_BOOL newVal);
+	STDMETHOD(get_CabinetMode)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+	STDMETHOD(put_CabinetMode)(/*[in]*/ VARIANT_BOOL newVal);
+
+	STDMETHOD(get_SoundMode)(/*[out, retval]*/ int *pVal);
+	STDMETHOD(put_SoundMode)(/*[in]*/ int newVal);
 };
 
 #endif // !defined(AFX_Controller_H__D2811491_40D6_4656_9AA7_8FF85FD63543__INCLUDED_)

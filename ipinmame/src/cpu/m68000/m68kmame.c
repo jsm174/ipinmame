@@ -73,7 +73,7 @@ static void writeword_a24_d32(offs_t address, data16_t data)
 		return;
 	}
 	cpu_writemem24bedw(address, data >> 8);
-	cpu_writemem24bedw(address + 1, data);
+	cpu_writemem24bedw(address + 1, (data8_t)data);
 }
 
 /* potentially misaligned 32-bit reads with a 32-bit data bus (and 24-bit address bus) */
@@ -117,6 +117,8 @@ static void changepc_a24_d32(offs_t pc)
 	change_pc24bedw(pc);
 }
 
+#ifndef A68K2
+#if HAS_M68EC020
 /* interface for 24-bit address bus, 32-bit data bus (68EC020) */
 static const struct m68k_memory_interface interface_a24_d32 =
 {
@@ -129,7 +131,8 @@ static const struct m68k_memory_interface interface_a24_d32 =
 	writelong_a24_d32,
 	changepc_a24_d32
 };
-
+#endif
+#endif
 
 /****************************************************************************
  * 32-bit address, 32-bit data memory interface
@@ -155,7 +158,7 @@ static void writeword_a32_d32(offs_t address, data16_t data)
 		return;
 	}
 	cpu_writemem32bedw(address, data >> 8);
-	cpu_writemem32bedw(address + 1, data);
+	cpu_writemem32bedw(address + 1, (data8_t)data);
 }
 
 /* potentially misaligned 32-bit reads with a 32-bit data bus (and 32-bit address bus) */
@@ -199,6 +202,7 @@ static void changepc_a32_d32(offs_t pc)
 	change_pc32bedw(pc);
 }
 
+#if HAS_M68020
 /* interface for 24-bit address bus, 32-bit data bus (68020) */
 static const struct m68k_memory_interface interface_a32_d32 =
 {
@@ -211,6 +215,7 @@ static const struct m68k_memory_interface interface_a32_d32 =
 	writelong_a32_d32,
 	changepc_a32_d32
 };
+#endif
 
 /* global access */
 struct m68k_memory_interface m68k_memory_intf;
@@ -420,22 +425,22 @@ const char *m68000_info(void *context, int regnum)
 		case CPU_INFO_FLAGS:
 			sr = m68k_get_reg(context, M68K_REG_SR);
 			sprintf(buffer[which], "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
-				sr & 0x8000 ? 'T':'.',
-				sr & 0x4000 ? '?':'.',
-				sr & 0x2000 ? 'S':'.',
-				sr & 0x1000 ? '?':'.',
-				sr & 0x0800 ? '?':'.',
-				sr & 0x0400 ? 'I':'.',
-				sr & 0x0200 ? 'I':'.',
-				sr & 0x0100 ? 'I':'.',
-				sr & 0x0080 ? '?':'.',
-				sr & 0x0040 ? '?':'.',
-				sr & 0x0020 ? '?':'.',
-				sr & 0x0010 ? 'X':'.',
-				sr & 0x0008 ? 'N':'.',
-				sr & 0x0004 ? 'Z':'.',
-				sr & 0x0002 ? 'V':'.',
-				sr & 0x0001 ? 'C':'.');
+				(sr & 0x8000) ? 'T':'.',
+				(sr & 0x4000) ? '?':'.',
+				(sr & 0x2000) ? 'S':'.',
+				(sr & 0x1000) ? '?':'.',
+				(sr & 0x0800) ? '?':'.',
+				(sr & 0x0400) ? 'I':'.',
+				(sr & 0x0200) ? 'I':'.',
+				(sr & 0x0100) ? 'I':'.',
+				(sr & 0x0080) ? '?':'.',
+				(sr & 0x0040) ? '?':'.',
+				(sr & 0x0020) ? '?':'.',
+				(sr & 0x0010) ? 'X':'.',
+				(sr & 0x0008) ? 'N':'.',
+				(sr & 0x0004) ? 'Z':'.',
+				(sr & 0x0002) ? 'V':'.',
+				(sr & 0x0001) ? 'C':'.');
 			break;
 		case CPU_INFO_NAME: return "68000";
 		case CPU_INFO_FAMILY: return "Motorola 68K";
@@ -674,22 +679,22 @@ const char *m68010_info(void *context, int regnum)
 		case CPU_INFO_FLAGS:
 			sr = m68k_get_reg(context, M68K_REG_SR);
 			sprintf(buffer[which], "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
-				sr & 0x8000 ? 'T':'.',
-				sr & 0x4000 ? '?':'.',
-				sr & 0x2000 ? 'S':'.',
-				sr & 0x1000 ? '?':'.',
-				sr & 0x0800 ? '?':'.',
-				sr & 0x0400 ? 'I':'.',
-				sr & 0x0200 ? 'I':'.',
-				sr & 0x0100 ? 'I':'.',
-				sr & 0x0080 ? '?':'.',
-				sr & 0x0040 ? '?':'.',
-				sr & 0x0020 ? '?':'.',
-				sr & 0x0010 ? 'X':'.',
-				sr & 0x0008 ? 'N':'.',
-				sr & 0x0004 ? 'Z':'.',
-				sr & 0x0002 ? 'V':'.',
-				sr & 0x0001 ? 'C':'.');
+				(sr & 0x8000) ? 'T':'.',
+				(sr & 0x4000) ? '?':'.',
+				(sr & 0x2000) ? 'S':'.',
+				(sr & 0x1000) ? '?':'.',
+				(sr & 0x0800) ? '?':'.',
+				(sr & 0x0400) ? 'I':'.',
+				(sr & 0x0200) ? 'I':'.',
+				(sr & 0x0100) ? 'I':'.',
+				(sr & 0x0080) ? '?':'.',
+				(sr & 0x0040) ? '?':'.',
+				(sr & 0x0020) ? '?':'.',
+				(sr & 0x0010) ? 'X':'.',
+				(sr & 0x0008) ? 'N':'.',
+				(sr & 0x0004) ? 'Z':'.',
+				(sr & 0x0002) ? 'V':'.',
+				(sr & 0x0001) ? 'C':'.');
 			break;
 		case CPU_INFO_NAME: return "68010";
 		case CPU_INFO_FAMILY: return "Motorola 68K";
@@ -942,22 +947,22 @@ const char *m68ec020_info(void *context, int regnum)
 		case CPU_INFO_FLAGS:
 			sr = m68k_get_reg(context, M68K_REG_SR);
 			sprintf(buffer[which], "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
-				sr & 0x8000 ? 'T':'.',
-				sr & 0x4000 ? 't':'.',
-				sr & 0x2000 ? 'S':'.',
-				sr & 0x1000 ? 'M':'.',
-				sr & 0x0800 ? '?':'.',
-				sr & 0x0400 ? 'I':'.',
-				sr & 0x0200 ? 'I':'.',
-				sr & 0x0100 ? 'I':'.',
-				sr & 0x0080 ? '?':'.',
-				sr & 0x0040 ? '?':'.',
-				sr & 0x0020 ? '?':'.',
-				sr & 0x0010 ? 'X':'.',
-				sr & 0x0008 ? 'N':'.',
-				sr & 0x0004 ? 'Z':'.',
-				sr & 0x0002 ? 'V':'.',
-				sr & 0x0001 ? 'C':'.');
+				(sr & 0x8000) ? 'T':'.',
+				(sr & 0x4000) ? 't':'.',
+				(sr & 0x2000) ? 'S':'.',
+				(sr & 0x1000) ? 'M':'.',
+				(sr & 0x0800) ? '?':'.',
+				(sr & 0x0400) ? 'I':'.',
+				(sr & 0x0200) ? 'I':'.',
+				(sr & 0x0100) ? 'I':'.',
+				(sr & 0x0080) ? '?':'.',
+				(sr & 0x0040) ? '?':'.',
+				(sr & 0x0020) ? '?':'.',
+				(sr & 0x0010) ? 'X':'.',
+				(sr & 0x0008) ? 'N':'.',
+				(sr & 0x0004) ? 'Z':'.',
+				(sr & 0x0002) ? 'V':'.',
+				(sr & 0x0001) ? 'C':'.');
 			break;
 		case CPU_INFO_NAME: return "68EC020";
 		case CPU_INFO_FAMILY: return "Motorola 68K";
@@ -1204,22 +1209,22 @@ const char *m68020_info(void *context, int regnum)
 		case CPU_INFO_FLAGS:
 			sr = m68k_get_reg(context, M68K_REG_SR);
 			sprintf(buffer[which], "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
-				sr & 0x8000 ? 'T':'.',
-				sr & 0x4000 ? 't':'.',
-				sr & 0x2000 ? 'S':'.',
-				sr & 0x1000 ? 'M':'.',
-				sr & 0x0800 ? '?':'.',
-				sr & 0x0400 ? 'I':'.',
-				sr & 0x0200 ? 'I':'.',
-				sr & 0x0100 ? 'I':'.',
-				sr & 0x0080 ? '?':'.',
-				sr & 0x0040 ? '?':'.',
-				sr & 0x0020 ? '?':'.',
-				sr & 0x0010 ? 'X':'.',
-				sr & 0x0008 ? 'N':'.',
-				sr & 0x0004 ? 'Z':'.',
-				sr & 0x0002 ? 'V':'.',
-				sr & 0x0001 ? 'C':'.');
+				(sr & 0x8000) ? 'T':'.',
+				(sr & 0x4000) ? 't':'.',
+				(sr & 0x2000) ? 'S':'.',
+				(sr & 0x1000) ? 'M':'.',
+				(sr & 0x0800) ? '?':'.',
+				(sr & 0x0400) ? 'I':'.',
+				(sr & 0x0200) ? 'I':'.',
+				(sr & 0x0100) ? 'I':'.',
+				(sr & 0x0080) ? '?':'.',
+				(sr & 0x0040) ? '?':'.',
+				(sr & 0x0020) ? '?':'.',
+				(sr & 0x0010) ? 'X':'.',
+				(sr & 0x0008) ? 'N':'.',
+				(sr & 0x0004) ? 'Z':'.',
+				(sr & 0x0002) ? 'V':'.',
+				(sr & 0x0001) ? 'C':'.');
 			break;
 		case CPU_INFO_NAME: return "68020";
 		case CPU_INFO_FAMILY: return "Motorola 68K";
@@ -2096,7 +2101,7 @@ static void duart_command_register_w(int which, int data)
 //----------------------------
 static void m68306_intreg_w(offs_t address, data16_t data, int word) {
   if (word && (address & 1)) {
-    logerror("M68306reg_w odd word address %08x\n",address); return;
+    LOG(("M68306reg_w odd word address %08x\n",address)); return;
   }
   if (address >= 0xffffffc0) { /* internal regs */
     const int reg = (address & 0x3f)>>1;
@@ -2142,12 +2147,12 @@ static void m68306_intreg_w(offs_t address, data16_t data, int word) {
         m68306intreg[irICR] = data; m68306irq(0,0); // update irq level
         break;
       case irBUSERR: /* refresh + buserror */
-        logerror("buserror_w %04x\n",data);
+        LOG(("buserror_w %04x\n",data));
         break;
       case irSYSTEM: /* system */
 		LOG(("%8x:SYSTEM REG=%04x\n",activecpu_get_pc(),data));
         m68306intreg[irSYSTEM] = (oldval & 0x8000) | (data & 0x7fff); // BTERR bit ignored
-        if (data & 0x4000) logerror("Bus Timeout Error not implmented %x\n",data);
+        if (data & 0x4000) { LOG(("Bus Timeout Error not implmented %x\n",data)); }
         break;
     } /* switch */
   }
@@ -2161,7 +2166,7 @@ static void m68306_intreg_w(offs_t address, data16_t data, int word) {
 static data16_t m68306_intreg_r(offs_t address, int word) {
   data16_t data = 0;
   if (word && (address & 1)) {
-    logerror("M68306reg_r odd word address %08x\n",address); return 0;
+    LOG(("M68306reg_r odd word address %08x\n",address)); return 0;
   }
   if (address >= 0xffffffc0) { /* internal regs */
     const int reg = (address & 0x3f)>>1;
@@ -2189,9 +2194,8 @@ static data16_t m68306_intreg_r(offs_t address, int word) {
         data = m68306intreg[irISR]; break;
       case irICR: /* interrupt control */
         data = m68306intreg[irICR]; break;
-        break;
       case irBUSERR: /* refresh + buserror */
-        logerror("buserror_r\n");
+        LOG(("buserror_r\n"));
         break;
       case irSYSTEM: /* system */
         data = m68306intreg[irSYSTEM];
@@ -2234,8 +2238,9 @@ static int m68306ack(int int_level) {
     else { // no autovector, IACK is not emulated
       if (m68306intack)
         return m68306intack(int_level);
-      else
-        logerror("M68306 No-AutoVector but no callback IRQ=%d\n",int_level);
+      else {
+        LOG(("M68306 No-AutoVector but no callback IRQ=%d\n",int_level));
+      }
     }
   }
   return M68K_INT_ACK_AUTOVECTOR; // Whatever

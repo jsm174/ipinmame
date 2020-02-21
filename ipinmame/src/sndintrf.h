@@ -107,6 +107,9 @@ struct MachineSound
 #if (HAS_HC55516)
 #include "sound/hc55516.h"
 #endif
+#if (HAS_MC3417)
+#include "sound/mc3417.h"
+#endif
 #if (HAS_K005289)
 #include "sound/k005289.h"
 #endif
@@ -172,6 +175,9 @@ struct MachineSound
 #endif
 #if (HAS_SP0250)
 #include "sound/sp0250.h"
+#endif
+#if (HAS_SP0256)
+#include "sound/sp0256.h"
 #endif
 #ifdef PINMAME
 #if (HAS_S14001A)
@@ -265,7 +271,10 @@ enum
 	SOUND_SN76477,
 #endif
 #if (HAS_SN76496)
-	SOUND_SN76496,
+    SOUND_SN76489,
+    SOUND_SN76489A,
+    SOUND_SN76494,
+    SOUND_SN76496,
 #endif
 #if (HAS_POKEY)
 	SOUND_POKEY,
@@ -311,6 +320,9 @@ enum
 #endif
 #if (HAS_HC55516)
 	SOUND_HC55516,
+#endif
+#if (HAS_MC3417)
+	SOUND_MC3417,
 #endif
 #if (HAS_K005289)
 	SOUND_K005289,
@@ -383,6 +395,9 @@ enum
 #endif
 #if (HAS_SP0250)
 	SOUND_SP0250,
+#endif
+#if (HAS_SP0256)
+	SOUND_SP0256,
 #endif
 #ifdef PINMAME
 #if (HAS_S14001A)

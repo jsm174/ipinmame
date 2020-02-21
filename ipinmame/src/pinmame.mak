@@ -6,6 +6,7 @@ ISVER$(MAMEVER)=1
 #
 PINOBJ=$(OBJ)/$(PINMAMESRC)
 CFLAGS += -Isrc/$(PINMAMESRC)
+CPPFLAGS += -Isrc/$(PINMAMESRC)
 DEFS += -DPINMAME=1 -DMAMEVER=$(MAMEVER)
 # Used in GUI version (PinMAME32)
 DEFS += -DMAME32NAME=\"PINMAME32\" -DMAMENAME=\"PINMAME\"
@@ -53,12 +54,12 @@ DRVLIBS += $(PINOBJ)/techno.o
 DRVLIBS += $(PINOBJ)/spinb.o
 DRVLIBS += $(PINOBJ)/mrgame.o
 DRVLIBS += $(PINOBJ)/nuova.o
-DRVLIBS += $(PINOBJ)/inder.o
+DRVLIBS += $(PINOBJ)/inder.o $(PINOBJ)/inderp.o
 DRVLIBS += $(PINOBJ)/jp.o
 DRVLIBS += $(PINOBJ)/ltd.o
 DRVLIBS += $(PINOBJ)/peyper.o
 DRVLIBS += $(PINOBJ)/sleic.o
-DRVLIBS += $(PINOBJ)/play.o
+DRVLIBS += $(PINOBJ)/play.o $(PINOBJ)/playsnd.o
 DRVLIBS += $(PINOBJ)/bowarrow.o $(PINOBJ)/flicker.o $(PINOBJ)/rotation.o
 DRVLIBS += $(PINOBJ)/rowamet.o
 DRVLIBS += $(PINOBJ)/wico.o
@@ -73,6 +74,17 @@ DRVLIBS += $(PINOBJ)/mephisto.o
 DRVLIBS += $(PINOBJ)/tabart.o
 DRVLIBS += $(PINOBJ)/jeutel.o
 DRVLIBS += $(PINOBJ)/spectra.o
+DRVLIBS += $(PINOBJ)/idsa.o
+DRVLIBS += $(PINOBJ)/mac.o
+DRVLIBS += $(PINOBJ)/barni.o
+DRVLIBS += $(PINOBJ)/joctronic.o
+DRVLIBS += $(PINOBJ)/lancelot.o
+DRVLIBS += $(PINOBJ)/stargame.o
+DRVLIBS += $(PINOBJ)/slalom.o
+DRVLIBS += $(PINOBJ)/boomerang.o
+DRVLIBS += $(PINOBJ)/spiritof76.o
+DRVLIBS += $(PINOBJ)/luckydraw.o
+DRVLIBS += $(PINOBJ)/efo.o $(PINOBJ)/efosnd.o
 #
 # Games
 #
@@ -196,6 +208,7 @@ CPUS += AT91@
 CPUS += CDP1802@
 CPUS += TMS9980@
 CPUS += TMS9995@
+CPUS += COP420@
 
 SOUNDS += DAC@
 SOUNDS += YM2151_ALT@
@@ -207,6 +220,7 @@ ifdef ISVER6100
 SOUNDS += YM2610@ #to avoid compile errors
 endif
 SOUNDS += HC55516@
+SOUNDS += MC3417@
 SOUNDS += SAMPLES@
 SOUNDS += TMS5220@
 SOUNDS += AY8910@
@@ -227,6 +241,12 @@ SOUNDS += S14001A@
 SOUNDS += YM2203@
 SOUNDS += YM3526@
 SOUNDS += TMS5110@
+SOUNDS += SP0256@
+SOUNDS += Y8950@
+SOUNDS += ASTROCADE@
+SOUNDS += YMF262@
+SOUNDS += MEA8000@
+SOUNDS += SAA1099@
 
 OBJDIRS += $(PINOBJ)
 OBJDIRS += $(PINOBJ)/sims
@@ -269,10 +289,4 @@ cleanpinmame:
 	@echo Deleting $(target) object tree $(PINOBJ)...
 	$(RM) -r $(PINOBJ)
 	@echo Deleting $(EMULATOR)...
-	$(RM) $(EMULATOR).full
 	$(RM) $(EMULATOR)
-	@echo Deleting $(EMULATOR).debug...
-	$(RM) $(EMULATOR).debug
-	$(RM) $(EMULATOR).strip
-	@echo Deleting $(FULLNAME).map...
-	$(RM) $(FULLNAME).map

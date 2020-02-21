@@ -1,15 +1,10 @@
 #ifndef INC_ALVGDMD
 #define INC_ALVGDMD
-#if !defined(__GNUC__) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4) || (__GNUC__ >= 4)	// GCC supports "pragma once" correctly since 3.4
-#pragma once
-#endif
 
 /*--------------------- DMD 128x32 -------------------*/
 #define ALVGDMD_CPUNO     2
 #define ALVGDMD_CPUREGION (REGION_CPU1 + ALVGDMD_CPUNO)
 #define ALVGDMD_ROMREGION (REGION_GFX1 + ALVGDMD_CPUNO)
-
-extern MACHINE_DRIVER_EXTERN(alvgdmd);
 
 //Use only for testing the 8031 core emulation
 #ifdef MAME_DEBUG
@@ -17,6 +12,8 @@ extern MACHINE_DRIVER_EXTERN(test8031);
 #endif
 
 extern PINMAME_VIDEO_UPDATE(alvgdmd_update);
+extern PINMAME_VIDEO_UPDATE(alvgdmd_update2);
+extern PINMAME_VIDEO_UPDATE(alvgdmd_update3);
 
 /* HELPER MACROS */
 

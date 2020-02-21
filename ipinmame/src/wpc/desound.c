@@ -177,9 +177,8 @@ static WRITE_HANDLER(de1s_ym2151Port) {
 /* by Steve Ellenoff, Martin Adrian, and Aaron Giles
 
  BSMT Clock rate of 24Mhz is confirmed to match the pitch on the real machines (10/31/04)
- Compressed Voice is not really understood and still sounds pretty bad
  There are some special effects the BSMT is programmed to do, but we don't know how, this
- can be heard on the BSMT 2000 Logo (for early games like DE - Star Wars)
+ can be heard on the BSMT 2000 Logo (for early games like DE - Star Wars, command 0x77)
 
  Missing things
  When a sound command is written from the Main CPU it generates a BUF-FULL signal
@@ -188,7 +187,7 @@ static WRITE_HANDLER(de1s_ym2151Port) {
  When the CPU reads the sound commands (BIN) a FIRQ is generated and BUF-FULL
  is cleared.
  A FIRQ is also generated from the 24MHz signal via two dividers U3 & U2
- (I think it is 24MHz/4/4096=1536 Hz)
+ (I think it is 24MHz/4/4096=1536 Hz, new T3 manual says toggle at 976Hz, code below uses 489Hz)
 
  The really strange thing is the PAL. It can generate the following output
  BUSY  - Not used on BSMT board. Sent back to CPU board to STATUS latch?
@@ -221,26 +220,28 @@ const struct sndbrdIntf de2sIntf = {
 /* ---------------------------------------------------------------------------------------------------------------*/
 /* The ONLY differences in the different BSMT interfaces here are for adjusting volume & # of voices used         */
 /* The # of voices should really be handled by the reset lines and the bsmt emulation, but for now it's hardcoded */
+/* The first 4 Sega games (Maverick, MS Frankenstein, Baywatch, Batman Forever) were still using DE board sets which used the volume control mounted on the power junction box to control the volume. It was not done through the software. Although they did start using the Portal menu system for the other settings for the later two games. So you can not turn these 4 up to 31 as you suggest. One thing to note they did use a new revision sound board 520-5126-02 on the latter 2, Baywatch being one of them. I don't know if that would have any bearing. */
+/* Sega's 5th game (Apollo 13) was the first with the new board set that allowed you to control the audio through the software. */
 /* ---------------------------------------------------------------------------------------------------------------*/
 
 /* 11 Voice Style BSMT Chip used with Data East (Hook/Batman/Star Wars, etc..) */
 static struct BSMT2000interface de2s_bsmt2000aaInt = {
-  1, {24000000}, {11}, {DE2S_ROMREGION}, {100}, 1, 1, 0
+  1, {24000000}, {11}, {DE2S_ROMREGION}, {100}, 1, 0, 0 // BSMT2000 mode 1 (Batman,ST25th and Hook also trigger mode 0, but this is most likely a glitch/emulation bug?)
 };
 
 /* 11 Voice Style BSMT Chip used with Sega/Stern (Apollo13,ID4,Godzilla,Monopoly,RCTYCN)*/
 static struct BSMT2000interface de2s_bsmt2000aInt = {
-  1, {24000000}, {11}, {DE2S_ROMREGION}, {100}, 1, 4, 0
+  1, {24000000}, {11}, {DE2S_ROMREGION}, {100}, 1, 0, 0 // BSMT2000 mode 1
 };
 
 /* 12 Voice Style BSMT Chip used with later model Stern (Austin Powers and forward) */
 static struct BSMT2000interface de2s_bsmt2000bInt = {
-  1, {24000000}, {12}, {DE2S_ROMREGION}, {100}, 1, 4, 0
+  1, {24000000}, {12}, {DE2S_ROMREGION}, {100}, 1, 0, 0 // BSMT2000 mode 5
 };
 
 /* 11 Voice Style BSMT Chip used on Titanic */
 static struct BSMT2000interface de2s_bsmt2000tInt = {
-  1, {28000000}, {11}, {DE2S_ROMREGION}, {100}, 1, 4, 0
+  1, {24000000}, {11}, {DE2S_ROMREGION}, {100}, 1, 0, 0 // BSMT2000 mode 1
 };
 
 static MEMORY_READ_START(de2s_readmem)
@@ -264,7 +265,7 @@ MACHINE_DRIVER_START(de2as)
   MDRV_CPU_ADD(M6809, 2000000)
   MDRV_CPU_FLAGS(CPU_AUDIO_CPU)
   MDRV_CPU_MEMORY(de2s_readmem, de2s_writemem)
-  MDRV_CPU_PERIODIC_INT(de2s_firq, 489) /* Fixed FIRQ of 489Hz as measured on real machine*/
+  MDRV_CPU_PERIODIC_INT(de2s_firq, 489) /* Fixed FIRQ of 489Hz as measured on real machine (new T3 manual says toggling at 976Hz) */
   MDRV_INTERLEAVE(50)
   MDRV_SOUND_ADD_TAG("bsmt", BSMT2000, de2s_bsmt2000aInt)
   MDRV_SOUND_ATTRIBUTES(SOUND_SUPPORTS_STEREO)
@@ -362,14 +363,13 @@ static WRITE_HANDLER(de2s_bsmtcmdLo_w)
 }
 
 static READ_HANDLER(de2s_bsmtready_r) { return 0x80; } // BSMT is always ready
+
 /* Writing 0x80 here resets BSMT ?*/
 static WRITE_HANDLER(de2s_bsmtreset_w) {
-	static int last_data = 0;
+	static data8_t last_data = 0;
 	//Watch for 0->1 transition in 8th bit to force a reset
-	if(data & 0x80 && (last_data & 0x80) == 0)
-	{
+	if (!(last_data & 0x80) && (data & 0x80))
 		BSMT2000_sh_reset();
-	}
 	last_data = data;
 }
 
@@ -391,7 +391,7 @@ static INTERRUPT_GEN(de2s_firq) {
    Board is 100% compatible with previous generation hardware (all games using 8Mb roms)
    by simply replacing the older game roms into the board.
    The BSMT chip is software emulated by the AT91 CPU and has added new capabilities such as
-   16 bit sample support and ADPCM compression. The Xilinx FPGA is programmed to handle a variety of
+   16 bit sample support with ADPCM compression. The Xilinx FPGA is programmed to handle a variety of
    tasks. It controls 2 of the ROM Enable lines, acts as a sound command buffer from the main cpu,
    and most importantly, acts as a simple DSP chip which converts the 16 bit sample data into a serial sound
    stream for output to a DAC. It may have other functionality as well, but not related to sound if so.
@@ -400,7 +400,7 @@ static INTERRUPT_GEN(de2s_firq) {
    certain register write occurs, and the boot code is also swapped, I needed to provide the
    AT91 code pointers to the memory region data so it could perform the swap, see init for details.
 
-   Internally the code sets up a timer interrupt @ 24,242Hz (40Mhz/2/0x339).
+   Internally the code sets up a timer interrupt @ 24,242Hz (40Mhz/2/0x339). //!! 24,000Hz??
 
    -10/13/2006
     Removed external irq call and silly irq ready hacks
@@ -429,11 +429,10 @@ static INTERRUPT_GEN(de2s_firq) {
 #define	AT91IMP_LOG_NO_SAMPLES_2PLAY	0	// Set to 1 to log when there are not enough sound samples to play
 
 //Definitions
-#define ARMCPU_FREQ	40000000				//40 MHZ
-#define ARMIRQ_FREQ ARMCPU_FREQ/2/0x339		//Works out to be 24,242Hz
-#define WAVE_OUT_RATE ARMIRQ_FREQ			//Output rate is exactly the IRQ frequency
-#define ARMSNDBUFSIZE 400
-#define BUFFSIZE 0x100000
+#define ARMCPU_FREQ	40000000				// 40 MHZ
+#define WAVE_OUT_RATE 24000			        // Output rate like BSMT2000
+#define ARMSNDBUFSIZE 4                     // Sound command input port buffer size (doublebuffer should actually be good enough, but lets play safe)
+#define BUFFSIZE 0x40000
 
 //Includes
 #if AT91IMP_MAKE_WAVS
@@ -449,12 +448,12 @@ static data32_t *de3as_reset_ram;
 static data32_t *de3as_page0_ram;
 static data32_t *u7_base;
 static int sndcmdbuf[ARMSNDBUFSIZE];
-static int sbuf=0;
-static int spos=0;
-static int sampout = 0;
-static int sampnum = 0;
+static int sndcmdread = 0, sndcmdwrite = 0, sndcmdlast = 0;
+static int sampout[2] = {0,0};
+static int sampnum[2] = {0,0};
 static const int rommap[4] = {4,2,3,1};
-static INT16 samplebuf[BUFFSIZE];
+static INT16 samplebuf[2][BUFFSIZE];
+static INT16 lastsamp[2] = {0,0};
 
 #if AT91IMP_MAKE_WAVS
 static void * wavraw;					/* raw waveform */
@@ -473,7 +472,7 @@ static void * wavraw;					/* raw waveform */
 //CSR 2 Mapped to 0x20000000 (Xilinx & U17-U37 ROMS)
 static READ32_HANDLER(xilinx_r)
 {
-	data32_t data = 0;
+	data32_t data;
 
 	//Xilinx Provides Sound Command from Main CPU
 	#if AT91IMP_LOG_SOUND_CMD
@@ -492,10 +491,44 @@ static READ32_HANDLER(xilinx_r)
 	return data;
 }
 
-//CSR 2 Mapped to 0x20000000 (Xilinx & U17-U37 ROMS)
-static READ32_HANDLER(roms_r)
+//CSR 0 Mapped to 0x10000000 (U8 ROM)
+static READ32_HANDLER(csr0roms_r)
 {
-	data32_t data = 0;
+	data32_t data;
+	int mask_adjust = 0;
+
+	//Adjust offset due to the way MAME 32Bit handler works
+	offset*=4;
+	switch(mem_mask^0xffffffff)
+	{
+	case 0x000000ff:
+		mask_adjust=0;
+		break;
+	case 0x0000ff00:
+		mask_adjust=1;
+		break;
+	case 0x00ff0000:
+		mask_adjust=2;
+		break;
+	case 0xff000000:
+		mask_adjust=3;
+		break;
+	}
+	offset+=mask_adjust;
+	//Read from U8 ROM
+	{
+		// keep bottom 
+		int romaddr = offset;
+		data = (data8_t)*((memory_region(DE2S_CPUREGION) + romaddr + 0x400000));
+	}
+	//Adjust for Mask
+	return data << (8*mask_adjust);
+}
+
+//CSR 2 Mapped to 0x20000000 (Xilinx & U17-U37 ROMS)
+static READ32_HANDLER(csr2roms_r)
+{
+	data32_t data;
 	int mask_adjust = 0;
 
 	//Adjust offset due to the way MAME 32Bit handler works
@@ -538,16 +571,26 @@ static READ32_HANDLER(roms_r)
 //CSR 2 Mapped to 0x20000000 (Xilinx) - Sound Data Stream Output
 static WRITE32_HANDLER(xilinx_w)
 {
-	//Store 16 bit data to our buffer
-	samplebuf[sampnum] = data & 0xffff;
-	sampnum = (sampnum + 1) % BUFFSIZE;
+	int mask = ~mem_mask;
+
+	//if upper mask is used, shift the data
+	if (mask & 0xffff0000)
+	{
+		data = data >> 16;
+		samplebuf[0][sampnum[0]] = data & 0xffff;
+		sampnum[0] = (sampnum[0] + 1) % BUFFSIZE;
+	}
+	else
+	{
+		samplebuf[1][sampnum[1]] = data & 0xffff;
+		sampnum[1] = (sampnum[1] + 1) % BUFFSIZE;
+	}
 
 	//Dump to Wave File
 	#if AT91IMP_MAKE_WAVS
 	if(wavraw)
 	{
-		INT16 d;
-		d = (INT16)data;
+		INT16 d = (INT16)data;
 		wav_add_data_16(wavraw, &d, 1);
 	}
 	#endif
@@ -560,7 +603,6 @@ static WRITE32_HANDLER(xilinx_w)
 //Remove Delay from LED Flashing code to speed up the boot time of the cpu
 static void remove_led_code(void)
 {
-
   //LOTR OS Version -
   if(
 	  (de3as_page0_ram[(0x2854+0x8000)/4] == 0xeb000061) &&
@@ -614,13 +656,28 @@ static void remove_led_code(void)
 
 static void setup_at91(void)
 {
+  //set up the JIT memory map - allow for 128k of address space from address 0
+  if (options.at91jit)
+  {
+    at91_init_jit(0, 0x20000);
+  }
   //because the boot rom code gets written to ram, and then remapped to page 0, we need an interface to handle this.
   at91_set_ram_pointers(de3as_reset_ram,de3as_page0_ram);
   //Copy U7 ROM into correct location (ie, starting at 0x40000000 where it is mapped)
   memcpy(u7_base, memory_region(REGION_SOUND1), memory_region_length(REGION_SOUND1));
+
+  sndcmdread = 0;
+  sndcmdwrite = 0;
+  sndcmdlast = 0;
+  sampout[0] = sampout[1] = 0;
+  sampnum[0] = sampnum[1] = 0;
+  lastsamp[0] = lastsamp[1] = 0;
+  memset(sndcmdbuf, 0, sizeof(sndcmdbuf));
+  memset(samplebuf, 0, sizeof(samplebuf));
 }
 
-static void de3s_init(struct sndbrdData *brdData) {
+static void de3s_init(struct sndbrdData *brdData)
+{
   memset(&de2slocals, 0, sizeof(de2slocals));
   de2slocals.brdData = *brdData;
   setup_at91();
@@ -637,34 +694,56 @@ static void de3s_init(struct sndbrdData *brdData) {
 //Write new sound command to the command queue
 static WRITE_HANDLER(scmd_w)
 {
-	sndcmdbuf[sbuf]=data;
-	sbuf = (sbuf + 1) % ARMSNDBUFSIZE;
+	if (data != sndcmdlast)
+	{
+		// add the command to the queue
+		sndcmdbuf[sndcmdwrite] = sndcmdlast = data;
+		
+		// Advance the write head.  If it collides with the read head,
+		// it means the buffer is full, in which case we need to drop
+		// the oldest sample by advancing the read head as well.
+		sndcmdwrite = (sndcmdwrite + 1) % ARMSNDBUFSIZE;
+		if (sndcmdwrite == sndcmdread)
+			sndcmdread = (sndcmdread + 1) % ARMSNDBUFSIZE;
+		
+		// Whitestar II speedup: wake up the CPU if idle
+		cpunum_resume(de2slocals.brdData.cpuNo, SUSPEND_ANY_REASON);
+	}
 }
-
+	
 //Buffer the sound commands (to account for timing offsets between the 6809 Main CPU & the AT91 CPU)
 static READ_HANDLER(scmd_r)
 {
-	int data = sndcmdbuf[spos];
-	if(spos < sbuf)
-		spos = (spos + 1) % ARMSNDBUFSIZE;
-	if(spos >= sbuf) {
-		spos = sbuf = 0;
-		sndcmdbuf[0] = data;
-	}
+	// read the next sample
+	int data = sndcmdbuf[sndcmdread];
+
+	// If the buffer is non-empty, advance the read head (the buffer is
+	// circular, so wrap if we hit the high end).
+	if (sndcmdread != sndcmdwrite)
+		sndcmdread = (sndcmdread + 1) % ARMSNDBUFSIZE;
+
+	// if this leaves the buffer empty, repeat the last sample on
+	// future calls until a new sample arrives
+	if (sndcmdread == sndcmdwrite)
+		sndcmdbuf[sndcmdread] = data;
+
+	// return the sample
 	return data;
 }
 
-
-static int at91_stream = 0;
-static INT16 lastsamp = 0;
-
-static void at91_sh_update(int num, INT16 *buffer, int length)
+static void at91_sh_update(int num, INT16 *buffer[2], int length)
 {
- int ii=0;
+ int ii,jj;
 
  /* fill in with samples until we hit the end or run out */
+ for (jj = 0; jj < 2; jj++)
+ {
  for (ii = 0; ii < length; ii++) {
-	if(sampout == sampnum || sampnum < 500) {
+	if(sampout[jj] == sampnum[jj]
+#if 0
+		|| sampnum[jj] < 500 //!! check is stupid due to wrap around?!
+#endif
+		) {
 		#if AT91IMP_LOG_NO_SAMPLES_2PLAY
 		LOG(("not enough samples to play\n"));
 		#endif
@@ -672,26 +751,37 @@ static void at91_sh_update(int num, INT16 *buffer, int length)
 	}
 
 	//Send next pcm sample to output buffer
-	buffer[ii] = samplebuf[sampout];
+	buffer[jj][ii] = samplebuf[jj][sampout[jj]];
 
 	//Loop to beginning if we reach end of pcm buffer
-	sampout = (sampout + 1) % BUFFSIZE;
+	sampout[jj] = (sampout[jj] + 1) % BUFFSIZE;
 
 	//Store last output
-	lastsamp = buffer[ii];
+	lastsamp[jj] = buffer[jj][ii];
  }
- /* fill the rest with last sample output */
+
+ // Will adjust throttling to keep sound buffers at a desired place.
+ // Also includes previous "sound catchup" hack should throttling strategy not work.
+ core_sound_throttle_adj(sampnum[jj], &sampout[jj], BUFFSIZE, WAVE_OUT_RATE);
+
+ /* fill the rest with last sample output */ //!! should only be needed, if at all, initially?
  for ( ; ii < length; ii++)
-	buffer[ii] = lastsamp;
+	buffer[jj][ii] = lastsamp[jj];
+ }
 }
 
 int at91_sh_start(const struct MachineSound *msound)
 {
-	char stream_name[40];
+	const char* stream_name[2] = { "AT91 Channel #1", "AT91 Channel #2" };
+	int volume[2] = { MIXER(100, MIXER_PAN_LEFT), MIXER(100, MIXER_PAN_RIGHT) };
 	/*-- allocate a DAC stream at fixed frequency --*/
-	sprintf(stream_name, "%s", "AT91");
-	at91_stream = stream_init(stream_name, 100, WAVE_OUT_RATE*2, 0, at91_sh_update);		// RATE * 2 because we didn't separate out the left/right data stream
-	return at91_stream < 0;
+	return stream_init_multi
+		(2,
+		stream_name,
+		volume,
+		WAVE_OUT_RATE,
+		0,
+		at91_sh_update) < 0;
 }
 
 void at91_sh_stop(void)
@@ -720,10 +810,10 @@ static struct CustomSound_interface at91CustIntf =
 /*********************/
 READ32_HANDLER(arm_port_r)
 {
-	data32_t data;
-	int logit = AT91IMP_LOG_PORT_READ;
-	data = 0;
-	if(logit)	LOG(("%08x: Read port - Data = %08x\n",activecpu_get_pc(),data));
+	data32_t data = 0;
+#if AT91IMP_LOG_PORT_READ
+    LOG(("%08x: Read port - Data = %08x\n", activecpu_get_pc(), data));
+#endif
 	return data;
 }
 
@@ -737,7 +827,6 @@ static WRITE32_HANDLER(arm_port_w)
 //for debugging
 #if AT91IMP_LOG_PORT_WRITE
 	char bitstr[33];
-	int logit = 1;
 	int i;
 	for(i = 31; i >= 0; i--)
 	{
@@ -747,7 +836,7 @@ static WRITE32_HANDLER(arm_port_w)
 			bitstr[31-i]='0';
 	}
 	bitstr[32]='\0';
-	if(logit)	LOG(("%08x: Write port - Data = %08x  (%s)\n",activecpu_get_pc(),data,bitstr));
+	LOG(("%08x: Write port - Data = %08x  (%s)\n",activecpu_get_pc(),data,bitstr));
 #endif
 
 	plin = ((data & 0x1F0000) >> 16) | ((data & 0x3800000) >> 18);
@@ -770,8 +859,9 @@ static MEMORY_READ32_START(arm_readmem)
 {0x00000000,0x000FFFFF,MRA32_RAM},						//Boot RAM
 {0x00300000,0x003FFFFF,MRA32_RAM},						//Swapped RAM
 {0x00400000,0x005FFFFF,MRA32_RAM},						//Mirrored BIOS @ Boot Time
+{0x10000000,0x101FFFFF,csr0roms_r},						//CSR 0 - U8 ROM (2MB)
 {0x20000000,0x20000003,xilinx_r},						//Xilinx Sound Command Input
-{0x20000004,0x207FFFFF,roms_r},							//U17-U37 ROMS (4MB FOR ALL)
+{0x20000004,0x207FFFFF,csr2roms_r},						//CSR2 - U17-U37 ROMS (4MB FOR ALL)
 {0x40000000,0x4000FFFF,MRA32_ROM},						//U7 ROM (64K)
 MEMORY_END
 
@@ -808,7 +898,7 @@ MACHINE_DRIVER_START(de3as)
   MDRV_CPU_MEMORY(arm_readmem, arm_writemem)
   MDRV_CPU_PORTS(arm_readport, arm_writeport)
   MDRV_INTERLEAVE(50)
-  MDRV_SOUND_ADD(CUSTOM,  at91CustIntf)
+  MDRV_SOUND_ADD(CUSTOM, at91CustIntf)
   MDRV_SOUND_ATTRIBUTES(SOUND_SUPPORTS_STEREO)
 MACHINE_DRIVER_END
 
@@ -819,6 +909,7 @@ MACHINE_DRIVER_END
 
 
 
+//======================================================================================================================
 //No longer supported, code needs to be rewritten to do memory handlers properly now that support removed from AT91 core
 #if 0
 

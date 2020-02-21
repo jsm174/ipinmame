@@ -38,6 +38,8 @@
 #include "sim.h"
 #include "wmssnd.h"
 #include "mech.h"
+#include "machine/4094.h"
+
 /*------------------
 /  Local functions
 /-------------------*/
@@ -380,6 +382,7 @@ DCS_SOUNDROM3m("sssnd_s2.22",CRC(12b92d7a) SHA1(69151ffb5d2befe28e1ed2c8153c2227
                "sssnd_s4.21",CRC(258b0a27) SHA1(83763b98907cf38e6f7b9fe4f26ce93a54ba3568))
 WPC_ROMEND
 
+// The manual mentions a Sound Rev. D.41 for game D.01R, but we got a 0.25 dump
 WPC_ROMSTART(ss,01,"ss_g11.rom",0x80000,CRC(affd278f) SHA1(e6f41da169fa15c25cfaac22057f3e491da18fc5))
 DCS_SOUNDROM3m("ss_s2.rom",CRC(ad079cbc) SHA1(77c7f676fc2f46e22b74b381638725269f7d23f4),
                "sssnd_s3.21",CRC(c4f2e08a) SHA1(e20ff622a3f475db11f1f44d36a6669e160437a3),
@@ -398,9 +401,9 @@ WPC_ROMEND
 CORE_GAMEDEF(ss,15,"Scared Stiff (1.5)",1996,"Bally",wpc_m95S,0)
 CORE_CLONEDEF(ss,14,15,"Scared Stiff (1.4)",1996,"Bally",wpc_m95S,0)
 CORE_CLONEDEF(ss,12,15,"Scared Stiff (1.2)",1996,"Bally",wpc_m95S,0)
-CORE_CLONEDEF(ss,03,15,"Scared Stiff (0.3)",1996,"Bally",wpc_m95S,0)
-CORE_CLONEDEF(ss,01,15,"Scared Stiff (D0.1R with sound rev.25)",1996,"Bally",wpc_m95S,0)
-CORE_CLONEDEF(ss,01b,15,"Scared Stiff (D0.1R with sound rev.25 Coin Play)",1996,"Bally",wpc_m95S,0)
+CORE_CLONEDEF(ss,03,15,"Scared Stiff (0.3 Prototype)",1996,"Bally",wpc_m95S,0)
+CORE_CLONEDEF(ss,01,15,"Scared Stiff (D.01R Prototype, Sound 0.25)",1996,"Bally",wpc_m95S,0)
+CORE_CLONEDEF(ss,01b,15,"Scared Stiff (D.01R Prototype Coin Play, Sound 0.25)",1996,"Bally",wpc_m95S,0)
 
 /*-----------------------
 / Simulation Definitions
@@ -417,6 +420,22 @@ static sim_tSimData ssSimData = {
   NULL  					/* no key conditions */
 };
 
+static WRITE_HANDLER(parallel_0_out) {
+  coreGlobals.tmpLampMatrix[9] = core_revbyte(data);
+}
+static WRITE_HANDLER(parallel_1_out) {
+  coreGlobals.tmpLampMatrix[8] = core_revbyte(data);
+}
+static WRITE_HANDLER(qspin_0_out) {
+  HC4094_data_w(1, data);
+}
+
+static HC4094interface hc4094ss = {
+  2, // 2 chips
+  { parallel_0_out, parallel_1_out },
+  { qspin_0_out }
+};
+
 /*----------------------
 / Game Data Information
 /----------------------*/
@@ -424,7 +443,7 @@ static core_tGameData ssGameData = {
   GEN_WPC95, wpc_dispDMD,
   {
     FLIP_SW(FLIP_L | FLIP_U) | FLIP_SOL(FLIP_L),
-    0,0,0,0,0,1,0,
+    0,2,0,0,0,1,0, // 2 extra lamp columns for the LEDs of rev. 0.1
     NULL, ss_handleMech, ss_getMech, ss_drawMech,
     NULL, NULL
   },
@@ -436,18 +455,42 @@ static core_tGameData ssGameData = {
     /*Start    Tilt    SlamTilt    CoinDoor    Shooter */
     { swStart, swTilt, swSlamTilt, swCoinDoor, 0},
   }
+  ,0
 };
 
 static mech_tInitData ss_wheelMech = {
   39,40, MECH_LINEAR|MECH_CIRCLE|MECH_TWOSTEPSOL|MECH_FAST, 200, 200,
   {{swWheelIndex, 25, 199}}
 };
+
+static WRITE_HANDLER(ss_wpc_w) {
+  wpc_w(offset, data);
+  if (offset == WPC_SOLENOID1) {
+    HC4094_data_w (0, GET_BIT5);
+    HC4094_clock_w(0, GET_BIT4);
+    HC4094_clock_w(1, GET_BIT4);
+  } else if (offset == WPC_SOLENOID3) {
+    int enabled = GET_BIT3;
+    if (!enabled) { // finished strobing in the bits, now send data to the lamps - maybe slower by more reliable
+      coreGlobals.lampMatrix[8] = coreGlobals.tmpLampMatrix[8];
+      coreGlobals.lampMatrix[9] = coreGlobals.tmpLampMatrix[9];
+    }
+    HC4094_strobe_w(0, enabled);
+    HC4094_strobe_w(1, enabled);
+    HC4094_oe_w(0, enabled);
+    HC4094_oe_w(1, enabled);
+  }
+}
+
 /*---------------
 /  Game handling
 /----------------*/
 static void init_ss(void) {
   core_gameData = &ssGameData;
   mech_add(0,&ss_wheelMech);
+  install_mem_write_handler(0, 0x3fb0, 0x3fff, ss_wpc_w);
+  HC4094_init(&hc4094ss);
+  wpc_set_fastflip_addr(0x81);
 }
 
 static void ss_handleMech(int mech) {

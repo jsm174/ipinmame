@@ -1,7 +1,13 @@
+// license:BSD-3-Clause
+
 #ifndef INC_S11
 #define INC_S11
 #if !defined(__GNUC__) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4) || (__GNUC__ >= 4)	// GCC supports "pragma once" correctly since 3.4
 #pragma once
+#endif
+
+#ifdef PROC_SUPPORT
+int s11_m2sw(int col, int row);
 #endif
 
 /*-- Common Inports for S11Games --*/
@@ -127,6 +133,12 @@ extern const core_tLCDLayout s11_dispS9[], s11_dispS11[], s11_dispS11a[], s11_di
       ROM_LOAD(n2, 0x6000, 0x2000, chk2) \
       ROM_RELOAD(  0xe000, 0x2000)
 
+#define S9_ROMSTARTx2(name, ver, n1, chk1) \
+  ROM_START(name##_##ver) \
+    NORMALREGION(0x10000, S11_CPUREGION) \
+      ROM_LOAD(n1, 0x6000, 0x2000, chk1) \
+      ROM_RELOAD(  0xe000, 0x2000)
+
 #define S11_ROMSTART48(name, ver, n1, chk1, n2, chk2) \
   ROM_START(name##_##ver) \
     NORMALREGION(0x10000, S11_CPUREGION) \
@@ -224,7 +236,7 @@ extern MACHINE_DRIVER_EXTERN(de_dmd642aS);
 #define S11_RKMUX        0x08 // Road Kings muxes different solenoids
 #define S11_MUXDELAY     0x10 // Delay mux solenoid by one IRQ
 #define S11_SNDDELAY     0x20 // Sound delay for Pool Sharks
-
+#define S9_BREAKPIA      0x40 // cut one wire on the sound PIA for Still Crazy
 #if 0
 GEN_S9      BCDDISP
 GEN_S11

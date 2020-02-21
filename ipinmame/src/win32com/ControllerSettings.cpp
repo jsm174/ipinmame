@@ -1,11 +1,18 @@
 // ControllerSettings.cpp : Implementation of CControllerSettings
-#include "stdafx.h"
+#include "StdAfx.h"
+
+#if _MSC_VER >= 1700
+ #ifdef inline
+  #undef inline
+ #endif
+#endif
+
 #include "VPinMAME_h.h"
 #include "ControllerSettings.h"
 #include "VPinMAMEConfig.h"
 #include "VPinMAMEAboutDlg.h"
 
-#include "ControllerRegKeys.h"
+#include "ControllerRegkeys.h"
 
 #include <atlwin.h>
 #include <shlobj.h>
@@ -70,7 +77,7 @@ private:
 
 			// Add to the list
 			// displayList.SendMessage(CB_ADDSTRING, 0, (LPARAM)display->GetDriverDescription());
-			int index = displayList.SendMessage(CB_ADDSTRING, 0, (LPARAM) display->GetFriendlyName());
+			UINT_PTR index = displayList.SendMessage(CB_ADDSTRING, 0, (LPARAM) display->GetFriendlyName());
 
 			char* szItemData = new char[256];
 			if ( display->GetIsDefault() )
@@ -90,8 +97,8 @@ private:
 
 	void CleanupDisplayComboBox()
 	{
-		int count = displayList.SendMessage(CB_GETCOUNT, 0, 0);
-		for(int i=0; i<count; i++) 
+		UINT_PTR count = displayList.SendMessage(CB_GETCOUNT, 0, 0);
+		for(UINT_PTR i=0; i<count; i++) 
 		{
 			char* szItemData = (char*) displayList.SendMessage(CB_GETITEMDATA, (WPARAM) i, (LPARAM) NULL);	
 			displayList.SendMessage(CB_SETITEMDATA, (WPARAM) i, (LPARAM) NULL);	
@@ -117,6 +124,7 @@ private:
 		SetDlgItemText(IDC_CFGDIR,	   (char*) get_option("cfg_directory"));
 		SetDlgItemText(IDC_NVRAMDIR,   (char*) get_option("nvram_directory"));
 		SetDlgItemText(IDC_SAMPLEDIRS, (char*) get_option("samplepath"));
+		SetDlgItemText(IDC_MEMCARDDIRS, (char*)get_option("memcard_directory"));
 		SetDlgItemText(IDC_IMGDIR,     (char*) get_option("snapshot_directory"));
 
 		// Set check boxes
@@ -149,10 +157,13 @@ private:
 		GetDlgItemText(IDC_SAMPLEDIRS, szPath, sizeof(szPath));
 		pControllerSettings->put_Value(CComBSTR("samplepath"), CComVariant(szPath));
 
+		GetDlgItemText(IDC_MEMCARDDIRS, szPath, sizeof(szPath));
+		pControllerSettings->put_Value(CComBSTR("memcard_directory"), CComVariant(szPath));
+
 		GetDlgItemText(IDC_IMGDIR, szPath, sizeof(szPath));
 		pControllerSettings->put_Value(CComBSTR("snapshot_directory"), CComVariant(szPath));
 
-		int index = displayList.SendMessage(CB_GETCURSEL, (WPARAM) 0, (LPARAM) 0);
+		UINT_PTR index = displayList.SendMessage(CB_GETCURSEL, (WPARAM) 0, (LPARAM) 0);
 		char* szItemData = (char*) displayList.SendMessage(CB_GETITEMDATA, (WPARAM) index, (LPARAM) NULL);
 		pControllerSettings->put_Value(CComBSTR("screen"), CComVariant(szItemData));
 
@@ -174,9 +185,9 @@ private:
 		BOOL        bResult = FALSE;
 		LPMALLOC	piMalloc;
 		BROWSEINFO  Info;
-		ITEMIDLIST* pItemIDList = NULL;
+		LPITEMIDLIST pItemIDList = NULL;
 		char        buf[MAX_PATH];
-    
+
 		if (!SUCCEEDED(SHGetMalloc(&piMalloc)))
 			return FALSE;
 
@@ -293,6 +304,9 @@ private:
 		case IDDIRBUTTONSAMPLE:
 				SetDlgItemText(IDC_SAMPLEDIRS, szDir);
 			break;
+		case IDDIRBUTTONMEMCARD:
+				SetDlgItemText(IDC_MEMCARDDIRS, szDir);
+			break;
 		case IDDIRBUTTONIMG:
 				SetDlgItemText(IDC_IMGDIR, szDir);
 			break;
@@ -322,7 +336,7 @@ CControllerSettings::CControllerSettings()
 {
 }
 
-STDMETHODIMP CControllerSettings::ShowSettingsDlg(long hParentWnd)
+STDMETHODIMP CControllerSettings::ShowSettingsDlg(LONG_PTR hParentWnd)
 {
 	CControllerSettingsDlg ControllerSettingsDlg;
 	ControllerSettingsDlg.DoModal((HWND) hParentWnd, (LPARAM) this);
@@ -350,7 +364,7 @@ STDMETHODIMP CControllerSettings::put_Value(BSTR sName, VARIANT newVal)
 	char szName[4096];
 	WideCharToMultiByte(CP_ACP, 0, sName, -1, szName, sizeof szName, NULL, NULL);
 
-	HRESULT hr = PutSetting(NULL, szName, newVal);
+	HRESULT hr = PutSetting(NULL, szName, newVal)?S_OK:S_FALSE;
 	if ( SUCCEEDED(hr) ) {
 		VariantChangeType(&newVal, &newVal, 0, VT_BSTR);
 		char szValue[4096];

@@ -16,10 +16,15 @@
 //	MACROS
 //============================================================
 
-#define osd_pend	osd_pend
+#if defined(_WIN64) || defined(PINMAME_DLL) //!!
+#define pdo16		NULL
+#define pdt16		NULL
+#define pdt16np		NULL
+#else
 #define pdo16		osd_pdo16
 #define pdt16		osd_pdt16
 #define pdt16np		osd_pdt16np
+#endif
 
 
 //============================================================
@@ -38,6 +43,7 @@ void osd_pdt16np( UINT16 *dest, const UINT16 *source, const UINT8 *pMask, int ma
 
 #ifdef _MSC_VER
 
+#ifndef __LP64__
 #define vec_mult _vec_mult
 INLINE int _vec_mult(int x, int y)
 {
@@ -51,6 +57,7 @@ INLINE int _vec_mult(int x, int y)
 
     return result;
 }
+#endif
 
 #else
 

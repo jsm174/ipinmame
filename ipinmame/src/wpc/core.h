@@ -16,6 +16,10 @@
   #define TRUE (1)
 #endif
 
+#ifdef UNIX
+  #define _strnicmp(x,y,z) strncasecmp(x,y,z)
+#endif
+
 #ifdef MAME_DEBUG
   #define DBGLOG(x) logerror x
 #else
@@ -182,13 +186,17 @@
 #define CORE_SEG16S  13 // 16 segments with split top and bottom line
 #define CORE_DMD     14 // DMD Display
 #define CORE_VIDEO   15 // VIDEO Display
+#define CORE_SEG16N  16 // 16 segments without commas
+#define CORE_SEG16D  17 // 16 segments with periods only
 
-#define CORE_IMPORT   0x10 // Link to another display layout
-#define CORE_SEGHIBIT 0x20
-#define CORE_SEGREV   0x40
-#define CORE_DMDNOAA  0x80
-#define CORE_NODISP   0x100
-#define CORE_SEGMASK  0x1f // Note that CORE_IMPORT must be part of the segmask as well!
+#define CORE_SEGALL   0x1f // maximum segment definition number
+#define CORE_IMPORT   0x20 // Link to another display layout
+#define CORE_SEGMASK  0x3f // Note that CORE_IMPORT must be part of the segmask as well!
+
+#define CORE_SEGHIBIT 0x40
+#define CORE_SEGREV   0x80
+#define CORE_DMDNOAA  0x100
+#define CORE_NODISP   0x200
 
 #define CORE_SEG8H    (CORE_SEG8  | CORE_SEGHIBIT)
 #define CORE_SEG7H    (CORE_SEG7  | CORE_SEGHIBIT)
@@ -203,8 +211,8 @@
 typedef UINT8 tDMDDot[DMD_MAXY+2][DMD_MAXX+2];
 
 /* Shortcuts for some common display sizes */
-#define DISP_SEG_16(row,type)    {4*row, 0, 20*row, 16, type}
-#define DISP_SEG_7(row,col,type) {4*row,16*col,row*20+col*8+1,7,type}
+#define DISP_SEG_16(row,type)    {4*(row), 0, 20*(row), 16, type}
+#define DISP_SEG_7(row,col,type) {4*(row),16*(col),(row)*20+(col)*8+1,7,type}
 #define DISP_SEG_CREDIT(no1,no2,type) {2,2,no1,1,type},{2,4,no2,1,type}
 #define DISP_SEG_BALLS(no1,no2,type)  {2,8,no1,1,type},{2,10,no2,1,type}
 #define DISP_SEG_IMPORT(x) {0,0,0,1,CORE_IMPORT,NULL,x}
@@ -258,6 +266,9 @@ extern void video_update_core_dmd(struct mame_bitmap *bitmap, const struct recta
 #define CORE_FIRSTCUSTSOL  51
 #define CORE_FIRSTLFLIPSOL 45
 #define CORE_FIRSTSIMSOL   49
+#ifdef PROC_SUPPORT
+#define CORE_MAXSOL        64
+#endif
 
 #define CORE_SSFLIPENSOL  23
 #define CORE_FIRSTSSSOL   17
@@ -293,12 +304,14 @@ extern void video_update_core_dmd(struct mame_bitmap *bitmap, const struct recta
 #define CORE_CUSTSWCOL     CORE_STDSWCOLS  /* first custom (game specific) switch column */
 #define CORE_MAXLAMPCOL     42   /* lamp column (0-7=std lamp matrix 8- custom) */
 #define CORE_CUSTLAMPCOL   CORE_STDLAMPCOLS  /* first custom lamp column */
+#define CORE_MAXRGBLAMPS     260 /* Currently the max needed for SAM support, see SAM_LEDS_MAX */
 #define CORE_MAXPORTS        8   /* Maximum input ports */
 #define CORE_MAXGI           5   /* Maximum GI strings */
+#define CORE_MAXNVRAM        131118 /* Maximum number of NVRAM bytes, only used for get_ChangedNVRAM so far */
 
 /*-- create a custom switch number --*/
 /* example: #define swCustom CORE_CUSTSWNO(1,2)  // custom column 1 row 2 */
-#define CORE_CUSTSWNO(c,r) ((CORE_CUSTSWCOL-1+c)*10+r)
+#define CORE_CUSTSWNO(c,r) ((CORE_CUSTSWCOL-1+(c))*10+(r))
 
 /*-------------------
 /  Flipper Switches
@@ -345,6 +358,11 @@ extern void video_update_core_dmd(struct mame_bitmap *bitmap, const struct recta
 #define LBLUE       (COL_LAMP+6)
 #define LPURPLE     (COL_LAMP+7)
 
+/* Modulated solenoid array */
+#define CORE_MODSOL_CUR		0
+#define CORE_MODSOL_PREV	1
+#define CORE_MODSOL_MAX		68
+
 /*-------------------------------------------
 /  Draw data. draw lamps,switches,solenoids
 /  in this way instead of a matrix
@@ -364,27 +382,33 @@ typedef struct {
   core_tLampData lamps[CORE_MAXLAMPCOL*8];      /*Can support up to 160 lamps!*/
 } core_tLampDisplay;
 
-#define CORE_SEGCOUNT 64
+#define CORE_SEGCOUNT 128
 #ifdef LSB_FIRST
 typedef union { struct { UINT8 lo, hi; } b; UINT16 w; } core_tSeg[CORE_SEGCOUNT];
 #else /* LSB_FIRST */
 typedef union { struct { UINT8 hi, lo; } b; UINT16 w; } core_tSeg[CORE_SEGCOUNT];
 #endif /* LSB_FIRST */
 typedef struct {
-  UINT8  swMatrix[CORE_MAXSWCOL];
-  UINT8  invSw[CORE_MAXSWCOL];   /* Active low switches */
-  UINT8  lampMatrix[CORE_MAXLAMPCOL], tmpLampMatrix[CORE_MAXLAMPCOL];
+  volatile UINT8  swMatrix[CORE_MAXSWCOL];
+  volatile UINT8  invSw[CORE_MAXSWCOL];   /* Active low switches */
+  volatile UINT8  lampMatrix[CORE_MAXLAMPCOL], tmpLampMatrix[CORE_MAXLAMPCOL];
+  volatile UINT8  RGBlamps[CORE_MAXRGBLAMPS];
   core_tSeg segments;     /* segments data from driver */
   UINT16 drawSeg[CORE_SEGCOUNT]; /* segments drawn */
-  UINT32 solenoids;       /* on power driver bord */
-  UINT32 solenoids2;      /* flipper solenoids */
-  UINT32 pulsedSolState;  /* current pulse value of solenoids on driver board */
+  volatile UINT32 solenoids;       /* on power driver bord */
+  volatile UINT32 solenoids2;      /* flipper solenoids */
+  volatile UINT8  modulatedSolenoids[2][CORE_MODSOL_MAX];
+  volatile UINT32 pulsedSolState;  /* current pulse value of solenoids on driver board */
   UINT64 lastSol;         /* last state of all solenoids */
-  int    gi[CORE_MAXGI];  /* WPC gi strings */
+  volatile int    gi[CORE_MAXGI];  /* WPC gi strings */
   int    simAvail;        /* simulator (keys) available */
   int    soundEn;         /* Sound enabled ? */
-  int    diagnosticLed;	  /* data relating to diagnostic led(s)*/
-  char   segDim[CORE_SEGCOUNT]; /* segments dimming */
+  volatile int    diagnosticLed;	  /* data relating to diagnostic led(s)*/
+#ifdef PROC_SUPPORT
+  int    p_rocEn;         /* P-ROC support enable */
+  int    isKickbackLamp[255];
+#endif
+  volatile char   segDim[CORE_SEGCOUNT]; /* segments dimming */
 } core_tGlobals;
 extern core_tGlobals coreGlobals;
 /* shortcut for coreGlobals */
@@ -430,6 +454,8 @@ extern const int core_bcd2seg9a[]; /* BCD to 9 segment display, missing 6 top li
 extern const int core_bcd2seg7[]; /* BCD to 7 segment display */
 extern const int core_bcd2seg7a[]; /* BCD to 7 segment display, missing 6 top line */
 extern const int core_bcd2seg7e[]; /* BCD to 7 segment display with A to E letters */
+extern const UINT16 core_ascii2seg16[]; /* BCD to regular 16 segment display */
+extern const UINT16 core_ascii2seg16s[]; /* BCD to 16 segment display with split top / botom lines */
 #define core_bcd2seg  core_bcd2seg7
 
 /*-- Exported Display handling functions--*/
@@ -456,8 +482,17 @@ extern int core_getSol(int solNo);
 extern int core_getPulsedSol(int solNo);
 extern UINT64 core_getAllSol(void);
 
+INLINE void core_update_modulated_light(UINT32 *light, int bit){
+	(*light) = (*light) << 1;
+	if (bit)
+		(*light) |= 0x01;
+}
+
+extern UINT8 core_calc_modulated_light(UINT32 bits, UINT32 bit_count, UINT8 *prev_level);
+extern void core_sound_throttle_adj(int sIn, int *sOut, int buffersize, int samplerate);
+
 /*-- nvram handling --*/
-extern void core_nvram(void *file, int write, void *mem, int length, UINT8 init);
+extern void core_nvram(void *file, int write, void *mem, size_t length, UINT8 init);
 
 /* makes it easier to swap bits */
 extern const UINT8 core_swapNyb[16];

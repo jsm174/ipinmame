@@ -192,7 +192,7 @@ typedef struct
 	/* Sound */
 	int    samplerate;
 	BOOL   use_samples;
-	BOOL   use_filter;
+	//BOOL   use_filter;
 	BOOL   enable_sound;
 	int    attenuation;
 	int audio_latency;
@@ -217,6 +217,14 @@ typedef struct
         int dmd_red,    dmd_green,   dmd_blue;
         int dmd_perc66, dmd_perc33,  dmd_perc0;
         int dmd_only,   dmd_compact, dmd_antialias;
+
+		int dmd_colorize;
+		int dmd_red0, dmd_green0, dmd_blue0, dmd_red33, dmd_green33, dmd_blue33, dmd_red66, dmd_green66, dmd_blue66;
+		int dmd_opacity;
+		int resampling_quality;
+#if defined(VPINMAME_ALTSOUND) || defined(VPINMAME_PINSOUND)
+		int sound_mode;
+#endif
 #endif /* PINMAME */
 
 } options_type;
@@ -300,7 +308,7 @@ typedef struct
     int      ui_joy_history_down[4];
     int      ui_joy_exec[4];
 
-    char*    exec_command;  // Command line to execute on ui_joy_exec   
+    char*    exec_command;  // Command line to execute on ui_joy_exec
     int      exec_wait;     // How long to wait before executing
     BOOL     hide_mouse;    // Should mouse cursor be hidden on startup?
     BOOL     full_screen;   // Should we fake fullscreen?
@@ -314,6 +322,9 @@ typedef struct
 
     char*    romdirs;
     char*    sampledirs;
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+    char*    procdirs;
+#endif /* PINMAME && PROC_SUPPORT */
     char*    inidir;
     char*    cfgdir;
     char*    nvramdir;
@@ -327,7 +338,7 @@ typedef struct
     char*	 iconsdir;
     char*    bgdir;
 #ifdef PINMAME
-        char*    wavedir;
+    char*    wavedir;
 #endif /* PINMAME */
     char*    cheat_filename;
     char*    history_filename;
@@ -475,9 +486,14 @@ const char* GetRomDirs(void);
 void SetRomDirs(const char* paths);
 
 const char* GetSampleDirs(void);
-void  SetSampleDirs(const char* paths);
+void SetSampleDirs(const char* paths);
 
-const char * GetIniDir(void);
+#if defined(PINMAME) && defined(PROC_SUPPORT)
+const char* GetProcDirs(void);
+void SetProcDirs(const char* paths);
+#endif /* PINMAME && PROC_SUPPORT */
+
+const char* GetIniDir(void);
 void SetIniDir(const char *path);
 
 const char* GetCfgDir(void);

@@ -41,22 +41,58 @@ const core_tLCDLayout cc_dispDMD256x64[] = {
 		core_gameData = &name##GameData; \
 	}
 
+
+// Fast flips support.   My process for finding these is to load them in pinmame32 in VC debugger.  
+// Load the balls in trough (I+SDF for pinball magic, e+fghj for big bang bar), start the game.  
+// Use CheatEngine to find memory locations that are 1
+// Tilt (INSERT key)
+//  Use CheatEngine to find memory locations that are 0.
+// Repeat until game end.   Ensure stays 0 in attract mode
+// Now you know the dynamic memory address - break PinMame32 in VC debugger.  
+// Add a memory breakpoint on that address.   Resume debugging.  Exit/enter the service menu, 
+// breakpoint will hit.  Walk back up the stack one step to find the write.  This will have the 
+// memory "address" as the parameter.   This is the value you need for fastflipaddr.  
+//
+// If you end up in capcoms.c you're in the sound hardware.  Look for values
+// at a higher address.   If you're in a 32 bit memory write, you're probably in the wrong place, the 1 
+// might be the hiword of a longer value.  Check address/data.
+//
+// Pinball Magic seems to have 4 candidates. 0x9f3e, 0x3a16, 0x5e175, 0x5E1EF, 0x5E1F2 are also possibilities
+// Big Bang Bar sets a whole bunch of values to 8.  I went with the first. 
+// Kingpin had lots of values that changed, but only one value that goes from 128 to 0 during the bonus collection sequence
+
+#define INITGAMEFF(name, gameno, disp, balls, sb, lamps, fastflipaddr) \
+	CC_INPUT_PORTS_START(name, balls) CC_INPUT_PORTS_END \
+	static int name##_getsol(int solNo) { \
+		return (memory_region(REGION_CPU1)[fastflipaddr] > 0); \
+	} \
+	static core_tGameData name##GameData = {0,disp,{FLIP,0,lamps,1,sb,0,gameno,0, name##_getsol},NULL,{"", capInvSw##gameno}}; \
+	static void init_##name(void) { \
+		core_gameData = &name##GameData; \
+	}
+	
 /*-------------------------------------------------------------------
 / Goofy Hoops (Romstar game) (??/95)
 /-------------------------------------------------------------------*/
 //Might have different hardware mappings as a quick peek of the code looked different than the pins
-INITGAME(ghv101, 0, cc_dispDMD128x32, 3, 0, 0)
-CC_ROMSTART_4(ghv101,  "u06_v11.bin", CRC(3b6ab802),
-                       "u23_v11.bin", CRC(f6cac3aa),
+INITGAME(ghv101, 0, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 0)
+CC_ROMSTART_4(ghv101, "u17_v10.bin", CRC(b6a39327),
                        "u13_v10.bin", CRC(1712f21f),
-                       "u17_v10.bin", CRC(b6a39327))
+			"u23_v11.bin", CRC(f6cac3aa),
+			"u06_v11.bin", CRC(3b6ab802))
+CAPCOMS_SOUNDROM5a("u24_v11.bin",  CRC(d46212f4) SHA1(50f1279d995b597c468805b323e0252800b28274),\
+		   "u15_v10.bin", CRC(a77c884c) SHA1(10e7e242876fe197f582f1574ed47c4682b87db5), \
+		   "u19_v10.bin", CRC(550c1c52) SHA1(f97cceb552a6bffe55c85fc01120ad99d3b7f19b), \
+		   "u30_v10.bin", CRC(44a2edb9) SHA1(c14b00e07cc873ef99ec629fbdeda72e9e69ac47), \
+		   "u32_v10.bin", CRC(73ee0ecc) SHA1(48aed6f76c0b506bd39430c7f1ea8735db99b8e3), \
+		   "u34_v10.bin", CRC(cd5ea236) SHA1(dded158bc2f8443d2e69834cde87e81661ca7c53))
 CC_ROMEND
-CORE_GAMEDEFNV(ghv101,"Goofy Hoops",1995,"Romstar",cc,GAME_NOT_WORKING|GAME_NO_SOUND)
+CORE_GAMEDEFNV(ghv101,"Goofy Hoops",1995,"Romstar",cc1,GAME_NOT_WORKING)
 
 /*-------------------------------------------------------------------
 / Pinball Magic (10/95)
 /-------------------------------------------------------------------*/
-INITGAME(pmv112, 1, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 8)
+INITGAMEFF(pmv112, 1, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 8, 0x9f3e)
 //Version 1.0.12
 CC_ROMSTART_4(pmv112,  "u1l_v112.bin",CRC(c8362623) SHA1(ebe37d3273e5cefd4fbc041ea3b15d59010b8160),
                        "u1h_v112.bin",CRC(f6232c74) SHA1(28bab61de2ece27aff4cbdd36b10c136a4b7c936),
@@ -70,7 +106,7 @@ CAPCOMS_SOUNDROM3("u24_v11.bin", CRC(d46212f4) SHA1(50f1279d995b597c468805b323e0
 CC_ROMEND
 CORE_GAMEDEFNV(pmv112,"Pinball Magic",1995,"Capcom",cc2,0)
 //Redemption Version 1.0.12I
-INITGAME(pmv112r, 2, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 8)
+INITGAMEFF(pmv112r, 2, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 8, 0x9f3e)
 CC_ROMSTART_4(pmv112r, "u1lv112i.bin",CRC(28d35969) SHA1(e19856402855847286db73c17510614d8b40c882),
                        "u1hv112i.bin",CRC(f70da65c) SHA1(0f98c95edd6f2821e3a67ff1805aa752a4d018c0),
                        "u2l_v10.bin", CRC(d3e4241d) SHA1(fe480ea2b3901e2e571f8871a0ebe63fbf152e28),
@@ -87,7 +123,7 @@ CORE_CLONEDEFNV(pmv112r,pmv112,"Pinball Magic (Redemption)",1995,"Capcom",cc2,0)
 / Airborne (03/96)
 /-------------------------------------------------------------------*/
 //Version 1.6
-INITGAME(abv106, 3, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 8)
+INITGAMEFF(abv106, 3, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 8, 0x0a7c6)
 CC_ROMSTART_4(abv106,  "u1l_v16.bin", CRC(59b258f1) SHA1(764496114609d65648e1c7b12409ec582037d8df),
                        "u1h_v16.bin", CRC(a4571905) SHA1(62fabc45e81c49125c047c6e5d268d4093b860bc),
                        "u2l_v10.bin", CRC(a15b1ec0) SHA1(673a283ddf670109a9728fefac2bcf493d70f23d),
@@ -116,7 +152,7 @@ CORE_CLONEDEFNV(abv106r,abv106,"Airborne (Redemption)",1996,"Capcom",cc2,0)
 / Break Shot (05/96)
 /-------------------------------------------------------------------*/
 //Version 1.3
-INITGAME(bsv103, 5, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 0)
+INITGAMEFF(bsv103, 5, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 0, 0xa7da)
 CC_ROMSTART_2(bsv103,  "u1l_v13.bin", CRC(f8932dcc) SHA1(dab34e6c412655c60abeedc1f62254dce5ebb202),
                        "u1h_v13.bin", CRC(508c145d) SHA1(b019d445f87bca203646c616fdc295066da90921))
 //I'm told BS can run with the U24 from FF
@@ -124,7 +160,18 @@ CAPCOMS_SOUNDROM2("u24_v11.bin", CRC(d46212f4) SHA1(50f1279d995b597c468805b323e0
 				  "u28_v11.bin", CRC(b076ad2e) SHA1(1be8e3bda2890545253f6f7e4825d2db1d925255), \
 				  "u29_v11.bin", CRC(b251a27c) SHA1(bc30791cb9b5497c11f1cff06c89a729a07b5d4a))
 CC_ROMEND
-CORE_GAMEDEFNV(bsv103,"Break Shot",1996,"Capcom",cc1,0)
+CORE_GAMEDEFNV(bsv103,"Break Shot (1.3)",1996,"Capcom",cc1,0)
+
+//Version 1.2
+INITGAME(bsv102, 5, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 0)
+CC_ROMSTART_2(bsv102,  "u1l_v12.bin", CRC(3e61a32b) SHA1(7708f2c65eea44a872432581ad6ced16e3bbf9f9),
+                       "u1h_v12.bin", CRC(2bfeb237) SHA1(87097d102beff2816cb61d58811dcdf9c04bc18e))
+CAPCOMS_SOUNDROM2("u24_v11.bin", CRC(d46212f4) SHA1(50f1279d995b597c468805b323e0252800b28274), \
+				  "u28_v11.bin", CRC(b076ad2e) SHA1(1be8e3bda2890545253f6f7e4825d2db1d925255), \
+				  "u29_v11.bin", CRC(b251a27c) SHA1(bc30791cb9b5497c11f1cff06c89a729a07b5d4a))
+CC_ROMEND
+CORE_CLONEDEFNV(bsv102, bsv103,"Break Shot (1.2)",1996,"Capcom",cc1,0)
+
 //Redemption Version 1.0I
 INITGAME(bsv100r, 6, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 0)
 CC_ROMSTART_2(bsv100r, "u1l_v10i.bin",CRC(304b4da8) SHA1(2643f304adce3543b792bd2d0ec8abe8d9a5478c),
@@ -161,7 +208,9 @@ CORE_CLONEDEFNV(bsb105,bsv103,"Break Shot (Beta)",1996,"Capcom",cc1,0)
 / Flipper Football (10/96)
 /-------------------------------------------------------------------*/
 //Version 1.04
-INITGAME(ffv104, 9, cc_dispDMD256x64, 3, SNDBRD_CAPCOMS, 8)
+// Not 100% clear on FF address for this one.   Goes 0-255 at seemingly appropriate times,
+// but will disable flips for a short period on a tilt warning ("yellow card" on DMD).
+INITGAMEFF(ffv104, 9, cc_dispDMD256x64, 3, SNDBRD_CAPCOMS, 8, 0x010af)
 CC_ROMSTART_8(ffv104,  "u1l_v104.bin",CRC(375f4dd3) SHA1(0e3845afccf51a2d20e01afb371b8b7076a1ea79),
                        "u1h_v104.bin",CRC(2133fc8e) SHA1(b4296f890a11aefdd09083636f416112e64fb0be),
                        "u2l_v104.bin",CRC(b74175ae) SHA1(dd0279e20a2ccb03dbea0087ab9d15a973543553),
@@ -176,7 +225,7 @@ CAPCOMS_SOUNDROM4a("u24_v11.bin",  CRC(d46212f4) SHA1(50f1279d995b597c468805b323
 				   "u30_v101.bin", CRC(f5432518) SHA1(8c26a267335289145f29db822bf7dfcb4730b208), \
 				   "u31_v101.bin", CRC(2b14e032) SHA1(c423ae5ed2fcc582201606bac3e766ec332b395a))
 CC_ROMEND
-CORE_GAMEDEFNV(ffv104,"Flipper Football (v1.04)",1996,"Capcom",cc2,0)
+CORE_GAMEDEFNV(ffv104,"Flipper Football (1.04)",1996,"Capcom",cc2,0)
 //Version 1.01
 INITGAME(ffv101, 12, cc_dispDMD256x64, 3, SNDBRD_CAPCOMS, 8)
 CC_ROMSTART_8(ffv101,  "u1l_v100.bin",CRC(1c0b776f) SHA1(a1cabe9646973a97000a8f42295dfcfbed3691fa),
@@ -193,13 +242,13 @@ CAPCOMS_SOUNDROM4a("u24_v11.bin",  CRC(d46212f4) SHA1(50f1279d995b597c468805b323
 				   "u30_v100.bin", CRC(a92885a1) SHA1(b06453c710fd86e97567e70ab7558b0c2fd54c72), \
 				   "u31_v100.bin", CRC(358c2727) SHA1(73ac6cc51a6ceb27934607909a0fff369a47ba7d))
 CC_ROMEND
-CORE_CLONEDEFNV(ffv101,ffv104,"Flipper Football (v1.01)",1996,"Capcom",cc2,0)
+CORE_CLONEDEFNV(ffv101,ffv104,"Flipper Football (1.01)",1996,"Capcom",cc2,0)
 
 /*-------------------------------------------------------------------
 / Big Bang Bar - Beta (11/96)
 /-------------------------------------------------------------------*/
 //Beta Version 1.9
-INITGAME(bbb109, 10, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 8)
+INITGAMEFF(bbb109, 10, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 8, 0x6234d)
 CC_ROMSTART_4(bbb109,  "u1l_b19.bin", CRC(32be6cb0) SHA1(e6c73366d5b85c0e96878e275320f82004bb97b5),
                        "u1h_b19.bin", CRC(2bd1c06d) SHA1(ba81faa07b9d53f51bb981a82aa8684905516420),
                        "u2l_b17.bin", CRC(9bebf271) SHA1(01c85396b96ffb04e445c03d6d2d88cce7835664),
@@ -228,14 +277,18 @@ CORE_CLONEDEFNV(bbb108,bbb109,"Big Bang Bar (Beta 1.8 US)",1996,"Capcom",cc2,0)
 /*-------------------------------------------------------------------
 / Kingpin (12/96)
 /-------------------------------------------------------------------*/
-//Beta Version 1.5 (There should be a regular version 1.6 according to Pfutz!)
-INITGAME(kpv106, 11, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 8)
-CC_ROMSTART_2X(kpv106, "u1hu1l.bin",  CRC(d2d42121) SHA1(c731e0b5c9b211574dda8aecbad799bc180a59db),
-                       "u2hu2l.bin",  CRC(9cd91371) SHA1(197a06a0ed6b661d798ed18b1db72215c28e1bc2))
+//Old comment: Beta Version 1.5 (There should be a regular version 1.6 according to Pfutz!)
+//New comment, from the newest readme coming with the ROMs:
+//With the help of other people, I have found out that this is really version
+//"B1.05", not "V1.0".If you find a version 1.0, please contact me at
+//pfutz@mediaone.net
+INITGAMEFF(kpb105, 11, cc_dispDMD128x32, 3, SNDBRD_CAPCOMS, 8, 0x70d5)
+CC_ROMSTART_2X(kpb105, "u1hu1l.bin", CRC(d2d42121) SHA1(c731e0b5c9b211574dda8aecbad799bc180a59db),
+                       "u2hu2l.bin", CRC(9cd91371) SHA1(197a06a0ed6b661d798ed18b1db72215c28e1bc2))
 CAPCOMS_SOUNDROM4b("u24_v11.bin", CRC(d46212f4) SHA1(50f1279d995b597c468805b323e0252800b28274), \
 				   "u28_b11.bin", CRC(aa480506) SHA1(4fbf384bc5e2d0eec4d1137784006d63091974ca), \
 				   "u29_b11.bin", CRC(33345446) SHA1(d229d45228e13e2f02b73ce125eab4f2dd91db6e), \
 				   "u30_b11.bin", CRC(fa35a177) SHA1(3c54c12db8e17a8c316a22b9b7ac80b6b3af8474), \
 				   "u31_b18.bin", CRC(07a7d514) SHA1(be8cb4b6d70ccae7821110689b714612c8a0b460))
 CC_ROMEND
-CORE_GAMEDEFNV(kpv106,"Kingpin",1996,"Capcom",cc2,0)
+CORE_GAMEDEFNV(kpb105,"Kingpin (Beta 1.05)",1996,"Capcom",cc2,0) // previously known as V1.0 or B1.06

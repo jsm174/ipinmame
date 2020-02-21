@@ -1,5 +1,5 @@
 // ControllerRoms.cpp : Implementation of CRoms
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "VPinMAME_h.h"
 #include "ControllerRom.h"
 #include "ControllerRoms.h"
@@ -222,7 +222,7 @@ STDMETHODIMP CRoms::Deinit()
 			i++;
 		}
 
-		delete m_pRomsList;
+		delete [] m_pRomsList;
 		m_pRomsList = NULL;
 	}
 

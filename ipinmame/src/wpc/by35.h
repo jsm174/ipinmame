@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+
 #ifndef INC_BY35
 #define INC_BY35
 #if !defined(__GNUC__) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4) || (__GNUC__ >= 4)	// GCC supports "pragma once" correctly since 3.4
@@ -340,13 +342,15 @@
 extern MACHINE_DRIVER_EXTERN(by35);
 extern MACHINE_DRIVER_EXTERN(by35_32S);
 extern MACHINE_DRIVER_EXTERN(by35_51S);
+extern MACHINE_DRIVER_EXTERN(by35_51NS);
 extern MACHINE_DRIVER_EXTERN(by35_56S);
 extern MACHINE_DRIVER_EXTERN(by35_61S);
 extern MACHINE_DRIVER_EXTERN(by35_45S);
 extern MACHINE_DRIVER_EXTERN(by6802_45S);
 extern MACHINE_DRIVER_EXTERN(st100s);
+extern MACHINE_DRIVER_EXTERN(st100bs);
 extern MACHINE_DRIVER_EXTERN(st200);
-extern MACHINE_DRIVER_EXTERN(st200s100);
+extern MACHINE_DRIVER_EXTERN(st200s100b);
 extern MACHINE_DRIVER_EXTERN(st200v);
 extern MACHINE_DRIVER_EXTERN(hnk);
 
@@ -355,20 +359,21 @@ extern MACHINE_DRIVER_EXTERN(hnk);
 #define by35_mBY35_32S  by35_32S
 #define by35_mBY35_50S  by35_32S
 #define by35_mBY35_51S  by35_51S
+#define by35_mBY35_51NS by35_51NS // Super Bowl
 #define by35_mBY35_61S  by35_61S
 #define by35_mBY35_61BS by35_61S
-#define by35_mBY35_81S  by35_61S
-#define by35_mBY35_56S  by35_56S // XENON
+#define by35_mBY35_56S  by35_56S  // Xenon & early Flash Gordon
 #define by35_mBY35_45S  by35_45S
 #define by35_m6802_45S  by6802_45S
-#define by35_mBowling   st100s
-#define by35_mBowling2  st200s100
+#define by35_mBowling   st100bs
+#define by35_mBowling2  st200s100b
 #define by35_mAstro     st200
 #define by35_mHNK       hnk
 #define by35_mST100     by35
 #define by35_mST100s    st100s
+#define by35_mST100bs   st100bs
 #define by35_mST200     st200
-#define by35_mST200v	st200v
+#define by35_mST200v    st200v
 
 #ifdef MAME_DEBUG
 extern MACHINE_DRIVER_EXTERN(by6802_61S);
@@ -381,6 +386,8 @@ extern MACHINE_DRIVER_EXTERN(by6802_61S);
 #define BY35GD_FAKEZERO 0x04 // fake some zero digits for Nuova Bell games
 #define BY35GD_SWVECTOR 0x08 // read switch column 6 like Vector
 #define BY35GD_ALPHA    0x10 // alphanumeric display for Nuova Bell games
+#define BY35GD_MARAUDER 0x20 // flag for Midnight Marauders
+#define BY35GD_REVERB   0x40 // flag for speech reverb (Centaur)
 
 #endif /* INC_BY35 */
 

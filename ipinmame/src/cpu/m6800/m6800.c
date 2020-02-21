@@ -4,7 +4,7 @@
 
 	References:
 
-		6809 Simulator V09, By L.C. Benschop, Eidnhoven The Netherlands.
+		6809 Simulator V09, By L.C. Benschop, Eindhoven The Netherlands.
 
 		m6809: Portable 6809 emulator, DS (6809 code in MAME, derived from
 			the 6809 Simulator V09)
@@ -28,7 +28,7 @@ History
 
 990316  HJB
 	Renamed to 6800, since that's the basic CPU.
-	Added different cycle count tables for M6800/2/8, M6801/3 and HD63701.
+	Added different cycle count tables for M6800/2/8, M6801/3 and m68xx.
 
 990314  HJB
 	Also added the M6800 subtype.
@@ -51,6 +51,36 @@ TODO:
 
 *****************************************************************************/
 
+/*
+
+    Chip                RAM     NVRAM   ROM     SCI     r15-f   ports
+    -----------------------------------------------------------------
+    MC6800              -       -       -       no      no      4
+    MC6802              128     32      -       no      no      4
+    MC6802NS            128     -       -       no      no      4
+    MC6808              -       -       -       no      no      4
+
+    MC6801              128     64      2K      yes     no      4
+    MC68701             128     64      -       yes     no      4
+    MC6803              128     64      -       yes     no      4
+
+    MC6801U4            192     32      4K      yes     yes     4
+    MC6803U4            192     32      -       yes     yes     4
+
+    HD6801              128     64      2K      yes     no      4
+    HD6301V             128     -       4K      yes     no      4
+    HD63701V            192     -       4K      yes     no      4
+    HD6303R             128     -       -       yes     no      4
+
+    HD6301X             192     -       4K      yes     yes     6
+    HD6301Y             256     -       16K     yes     yes     6
+    HD6303X             192     -       -       yes     yes     6
+    HD6303Y             256     -       -       yes     yes     6
+
+    NSC8105
+    MS2010-A
+
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -264,21 +294,20 @@ static UINT32 timer_next;
 #define CLR_HNZC	CC&=0xd2
 #define CLR_NZVC	CC&=0xf0
 #define CLR_Z		CC&=0xfb
-#define CLR_NZC 	CC&=0xf2
 #define CLR_ZC		CC&=0xfa
 #define CLR_C		CC&=0xfe
 
 /* macros for CC -- CC bits affected should be reset before calling */
-#define SET_Z(a)		if(!a)SEZ
-#define SET_Z8(a)		SET_Z((UINT8)a)
-#define SET_Z16(a)		SET_Z((UINT16)a)
-#define SET_N8(a)		CC|=((a&0x80)>>4)
-#define SET_N16(a)		CC|=((a&0x8000)>>12)
-#define SET_H(a,b,r)	CC|=(((a^b^r)&0x10)<<1)
-#define SET_C8(a)		CC|=((a&0x100)>>8)
-#define SET_C16(a)		CC|=((a&0x10000)>>16)
-#define SET_V8(a,b,r)	CC|=(((a^b^r^(r>>1))&0x80)>>6)
-#define SET_V16(a,b,r)	CC|=(((a^b^r^(r>>1))&0x8000)>>14)
+#define SET_Z(a)		if(!(a))SEZ
+#define SET_Z8(a)		SET_Z((UINT8)(a))
+#define SET_Z16(a)		SET_Z((UINT16)(a))
+#define SET_N8(a)		CC|=(((a)&0x80)>>4)
+#define SET_N16(a)		CC|=(((a)&0x8000)>>12)
+#define SET_H(a,b,r)	CC|=((((a)^(b)^(r))&0x10)<<1)
+#define SET_C8(a)		CC|=(((a)&0x100)>>8)
+#define SET_C16(a)		CC|=(((a)&0x10000)>>16)
+#define SET_V8(a,b,r)	CC|=((((a)^(b)^(r)^((r)>>1))&0x80)>>6)
+#define SET_V16(a,b,r)	CC|=((((a)^(b)^(r)^((r)>>1))&0x8000)>>14)
 
 static const UINT8 flags8i[256]=	 /* increment */
 {
@@ -322,13 +351,13 @@ static const UINT8 flags8d[256]= /* decrement */
 #define SET_FLAGS8D(a)		{CC|=flags8d[(a)&0xff];}
 
 /* combos */
-#define SET_NZ8(a)			{SET_N8(a);SET_Z(a);}
-#define SET_NZ16(a)			{SET_N16(a);SET_Z(a);}
+#define SET_NZ8(a)			{SET_N8(a);SET_Z8(a);}
+#define SET_NZ16(a)			{SET_N16(a);SET_Z16(a);}
 #define SET_FLAGS8(a,b,r)	{SET_N8(r);SET_Z8(r);SET_V8(a,b,r);SET_C8(r);}
 #define SET_FLAGS16(a,b,r)	{SET_N16(r);SET_Z16(r);SET_V16(a,b,r);SET_C16(r);}
 
 /* for treating an UINT8 as a signed INT16 */
-#define SIGNED(b) ((INT16)(b&0x80?b|0xff00:b))
+#define SIGNED(b) ((INT16)(((b)&0x80)?(b)|0xff00:(b)))
 
 /* Macros for addressing modes */
 #define DIRECT IMMBYTE(EAD)
@@ -394,90 +423,99 @@ static const UINT8 flags8d[256]= /* decrement */
 #define CHANGE_PC() change_pc16(PCD)
 #define BRANCH(f) {IMMBYTE(t);if(f){PC+=SIGNED(t);CHANGE_PC();}}
 #define NXORV  ((CC&0x08)^((CC&0x02)<<2))
+#define NXORC  ((CC&0x08)^((CC&0x01)<<3))
+
+/* Note: don't use 0 cycles here for invalid opcodes so that we don't */
+/* hang in an infinite loop if we hit one */
+#define XX 5 // invalid opcode unknown cc
 
 static const UINT8 cycles_6800[] =
 {
 		/* 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F */
-	/*0*/  0, 2, 0, 0, 0, 0, 2, 2, 4, 4, 2, 2, 2, 2, 2, 2,
-	/*1*/  2, 2, 0, 0, 0, 0, 2, 2, 0, 2, 0, 2, 0, 0, 0, 0,
-	/*2*/  4, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-	/*3*/  4, 4, 4, 4, 4, 4, 4, 4, 0, 5, 0,10, 0, 0, 9,12,
-	/*4*/  2, 0, 0, 2, 2, 0, 2, 2, 2, 2, 2, 0, 2, 2, 0, 2,
-	/*5*/  2, 0, 0, 2, 2, 0, 2, 2, 2, 2, 2, 0, 2, 2, 0, 2,
-	/*6*/  7, 0, 0, 7, 7, 0, 7, 7, 7, 7, 7, 0, 7, 7, 4, 7,
-	/*7*/  6, 0, 0, 6, 6, 0, 6, 6, 6, 6, 6, 0, 6, 6, 3, 6,
-	/*8*/  2, 2, 2, 0, 2, 2, 2, 0, 2, 2, 2, 2, 3, 8, 3, 0,
-	/*9*/  3, 3, 3, 0, 3, 3, 3, 4, 3, 3, 3, 3, 4, 0, 4, 5,
-	/*A*/  5, 5, 5, 0, 5, 5, 5, 6, 5, 5, 5, 5, 6, 8, 6, 7,
-	/*B*/  4, 4, 4, 0, 4, 4, 4, 5, 4, 4, 4, 4, 5, 9, 5, 6,
-	/*C*/  2, 2, 2, 0, 2, 2, 2, 0, 2, 2, 2, 2, 0, 0, 3, 0,
-	/*D*/  3, 3, 3, 0, 3, 3, 3, 4, 3, 3, 3, 3, 0, 0, 4, 5,
-	/*E*/  5, 5, 5, 0, 5, 5, 5, 6, 5, 5, 5, 5, 0, 0, 6, 7,
-	/*F*/  4, 4, 4, 0, 4, 4, 4, 5, 4, 4, 4, 4, 0, 0, 5, 6
+	/*0*/ XX, 2,XX,XX,XX,XX, 2, 2, 4, 4, 2, 2, 2, 2, 2, 2,
+	/*1*/  2, 2,XX,XX,XX,XX, 2, 2,XX, 2,XX, 2,XX,XX,XX,XX,
+	/*2*/  4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+	/*3*/  4, 4, 4, 4, 4, 4, 4, 4,XX, 5,XX,10,XX,XX, 9,12,
+	/*4*/  2,XX,XX, 2, 2,XX, 2, 2, 2, 2, 2,XX, 2, 2,XX, 2,
+	/*5*/  2,XX,XX, 2, 2,XX, 2, 2, 2, 2, 2,XX, 2, 2,XX, 2,
+	/*6*/  7,XX,XX, 7, 7,XX, 7, 7, 7, 7, 7,XX, 7, 7, 4, 7,
+	/*7*/  6,XX,XX, 6, 6,XX, 6, 6, 6, 6, 6,XX, 6, 6, 3, 6,
+	/*8*/  2, 2, 2,XX, 2, 2, 2, 3, 2, 2, 2, 2, 3, 8, 3, 4,
+	/*9*/  3, 3, 3,XX, 3, 3, 3, 4, 3, 3, 3, 3, 4, 6, 4, 5,
+	/*A*/  5, 5, 5,XX, 5, 5, 5, 6, 5, 5, 5, 5, 6, 8, 6, 7,
+	/*B*/  4, 4, 4,XX, 4, 4, 4, 5, 4, 4, 4, 4, 5, 9, 5, 6,
+	/*C*/  2, 2, 2,XX, 2, 2, 2, 3, 2, 2, 2, 2,XX,XX, 3, 4,
+	/*D*/  3, 3, 3,XX, 3, 3, 3, 4, 3, 3, 3, 3,XX,XX, 4, 5,
+	/*E*/  5, 5, 5,XX, 5, 5, 5, 6, 5, 5, 5, 5,XX,XX, 6, 7,
+	/*F*/  4, 4, 4,XX, 4, 4, 4, 5, 4, 4, 4, 4,XX,XX, 5, 6
 };
 
 static const UINT8 cycles_6803[] =
 {
 		/* 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F */
-	/*0*/  0, 2, 0, 0, 3, 3, 2, 2, 3, 3, 2, 2, 2, 2, 2, 2,
-	/*1*/  2, 2, 0, 0, 0, 0, 2, 2, 0, 2, 0, 2, 0, 0, 0, 0,
+	/*0*/ XX, 2,XX,XX, 3, 3, 2, 2, 3, 3, 2, 2, 2, 2, 2, 2,
+	/*1*/  2, 2,XX,XX,XX,XX, 2, 2,XX, 2,XX, 2,XX,XX,XX,XX,
 	/*2*/  3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	/*3*/  3, 3, 4, 4, 3, 3, 3, 3, 5, 5, 3,10, 4,10, 9,12,
-	/*4*/  2, 0, 0, 2, 2, 0, 2, 2, 2, 2, 2, 0, 2, 2, 0, 2,
-	/*5*/  2, 0, 0, 2, 2, 0, 2, 2, 2, 2, 2, 0, 2, 2, 0, 2,
-	/*6*/  6, 0, 0, 6, 6, 0, 6, 6, 6, 6, 6, 0, 6, 6, 3, 6,
-	/*7*/  6, 0, 0, 6, 6, 0, 6, 6, 6, 6, 6, 0, 6, 6, 3, 6,
-	/*8*/  2, 2, 2, 4, 2, 2, 2, 0, 2, 2, 2, 2, 4, 6, 3, 0,
+	/*4*/  2,XX,XX, 2, 2,XX, 2, 2, 2, 2, 2,XX, 2, 2,XX, 2,
+	/*5*/  2,XX,XX, 2, 2,XX, 2, 2, 2, 2, 2,XX, 2, 2,XX, 2,
+	/*6*/  6,XX,XX, 6, 6,XX, 6, 6, 6, 6, 6,XX, 6, 6, 3, 6,
+	/*7*/  6,XX,XX, 6, 6,XX, 6, 6, 6, 6, 6,XX, 6, 6, 3, 6,
+	/*8*/  2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 2, 4, 6, 3, 3,
 	/*9*/  3, 3, 3, 5, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 4, 4,
 	/*A*/  4, 4, 4, 6, 4, 4, 4, 4, 4, 4, 4, 4, 6, 6, 5, 5,
 	/*B*/  4, 4, 4, 6, 4, 4, 4, 4, 4, 4, 4, 4, 6, 6, 5, 5,
-	/*C*/  2, 2, 2, 4, 2, 2, 2, 0, 2, 2, 2, 2, 3, 0, 3, 0,
+	/*C*/  2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 2, 3,XX, 3, 3,
 	/*D*/  3, 3, 3, 5, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4,
 	/*E*/  4, 4, 4, 6, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5,
 	/*F*/  4, 4, 4, 6, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5
 };
 
+#if (HAS_HD63701)
 static const UINT8 cycles_63701[] =
 {
 		/* 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F */
-	/*0*/  0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	/*1*/  1, 1, 0, 0, 0, 0, 1, 1, 2, 2, 4, 1, 0, 0, 0, 0,
+	/*0*/ XX, 1,XX,XX, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	/*1*/  1, 1,XX,XX,XX,XX, 1, 1, 2, 2, 4, 1,XX,XX,XX,XX,
 	/*2*/  3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	/*3*/  1, 1, 3, 3, 1, 1, 4, 4, 4, 5, 1,10, 5, 7, 9,12,
-	/*4*/  1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1,
-	/*5*/  1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1,
+	/*4*/  1,XX,XX, 1, 1,XX, 1, 1, 1, 1, 1,XX, 1, 1,XX, 1,
+	/*5*/  1,XX,XX, 1, 1,XX, 1, 1, 1, 1, 1,XX, 1, 1,XX, 1,
 	/*6*/  6, 7, 7, 6, 6, 7, 6, 6, 6, 6, 6, 5, 6, 4, 3, 5,
 	/*7*/  6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6, 4, 3, 5,
-	/*8*/  2, 2, 2, 3, 2, 2, 2, 0, 2, 2, 2, 2, 3, 5, 3, 0,
+	/*8*/  2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3, 5, 3, 3,
 	/*9*/  3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 5, 4, 4,
 	/*A*/  4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5,
 	/*B*/  4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 5, 5,
-	/*C*/  2, 2, 2, 3, 2, 2, 2, 0, 2, 2, 2, 2, 3, 0, 3, 0,
+	/*C*/  2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3,XX, 3, 3,
 	/*D*/  3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4,
 	/*E*/  4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5,
 	/*F*/  4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5
 };
+#endif
 
+#if (HAS_NSC8105)
 static const UINT8 cycles_nsc8105[] =
 {
 		/* 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F */
-	/*0*/  0, 0, 2, 0, 0, 2, 0, 2, 4, 2, 4, 2, 2, 2, 2, 2,
-	/*1*/  2, 0, 2, 0, 0, 2, 0, 2, 0, 0, 2, 2, 0, 0, 0, 0,
-	/*2*/  4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-	/*3*/  4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 5,10, 0, 9, 0,12,
-	/*4*/  2, 0, 0, 2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 0, 2, 2,
-	/*5*/  2, 0, 0, 2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 0, 2, 2,
-	/*6*/  7, 0, 0, 7, 7, 7, 0, 7, 7, 7, 7, 0, 7, 4, 7, 7,
-	/*7*/  6, 0, 0, 6, 6, 6, 0, 6, 6, 6, 6, 0, 6, 3, 6, 6,
-	/*8*/  2, 2, 2, 0, 2, 2, 2, 0, 2, 2, 2, 2, 3, 3, 8, 0,
-	/*9*/  3, 3, 3, 0, 3, 3, 3, 4, 3, 3, 3, 3, 4, 4, 0, 5,
-	/*A*/  5, 5, 5, 0, 5, 5, 5, 6, 5, 5, 5, 5, 6, 6, 8, 7,
-	/*B*/  4, 4, 4, 0, 4, 4, 4, 5, 4, 4, 4, 4, 5, 5, 9, 6,
-	/*C*/  2, 2, 2, 0, 2, 2, 2, 0, 2, 2, 2, 2, 0, 3, 0, 0,
-	/*D*/  3, 3, 3, 0, 3, 3, 3, 4, 3, 3, 3, 3, 0, 4, 0, 5,
-	/*E*/  5, 5, 5, 0, 5, 5, 5, 6, 5, 5, 5, 5, 5, 6, 0, 7,
-	/*F*/  4, 4, 4, 0, 4, 4, 4, 5, 4, 4, 4, 4, 4, 5, 0, 6
+	/*0*/  5,XX, 2,XX,XX, 2,XX, 2, 4, 2, 4, 2, 2, 2, 2, 2,
+	/*1*/  2,XX, 2,XX,XX, 2,XX, 2,XX,XX, 2, 2,XX,XX,XX,XX,
+	/*2*/  4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+	/*3*/  4, 4, 4, 4, 4, 4, 4, 4,XX,XX, 5,10,XX, 9,XX,12,
+	/*4*/  2, 2, 2,XX, 2, 2, 2, 3, 2, 2, 2, 2, 3, 3, 8, 4,
+	/*5*/  3, 3, 3,XX, 3, 3, 3, 4, 3, 3, 3, 3, 4, 4, 6, 5,
+	/*6*/  5, 5, 5,XX, 5, 5, 5, 6, 5, 5, 5, 5, 6, 6, 8, 7,
+	/*7*/  4, 4, 4,XX, 4, 4, 4, 5, 4, 4, 4, 4, 5, 5, 9, 6,
+	/*8*/  2,XX,XX, 2, 2, 2,XX, 2, 2, 2, 2,XX, 2,XX, 2, 2,
+	/*9*/  2,XX,XX, 2, 2, 2,XX, 2, 2, 2, 2,XX, 2,XX, 2, 2,
+	/*A*/  7,XX,XX, 7, 7, 7,XX, 7, 7, 7, 7,XX, 7, 4, 7, 7,
+	/*B*/  6,XX,XX, 6, 6, 6,XX, 6, 6, 6, 6, 5, 6, 3, 6, 6,
+	/*C*/  2, 2, 2,XX, 2, 2, 2, 3, 2, 2, 2, 2,XX, 3,XX, 4,
+	/*D*/  3, 3, 3,XX, 3, 3, 3, 4, 3, 3, 3, 3,XX, 4,XX, 5,
+	/*E*/  5, 5, 5,XX, 5, 5, 5, 6, 5, 5, 5, 5, 5, 6,XX, 7,
+	/*F*/  4, 4, 4,XX, 4, 4, 4, 5, 4, 4, 4, 4, 4, 5,XX, 6
 };
+#endif
 
 INLINE UINT32 RM16( UINT32 Addr )
 {
@@ -712,7 +750,7 @@ void m6800_set_irq_line(int irqline, int state)
 	}
 	else
 	{
-		int eddge;
+		//int eddge; //!! never used
 
 		if (m6800.irq_state[irqline] == state) return;
 		LOG(("M6800#%d set_irq_line %d,%d\n", cpu_getactivecpu(), irqline, state));
@@ -724,7 +762,7 @@ void m6800_set_irq_line(int irqline, int state)
 			if (state == CLEAR_LINE) return;
 			break;
 		case M6800_TIN_LINE:
-			eddge = (state == CLEAR_LINE ) ? 2 : 0;
+			//eddge = (state == CLEAR_LINE ) ? 2 : 0;
 			if( ((m6800.tcsr&TCSR_IEDG) ^ (state==CLEAR_LINE ? TCSR_IEDG : 0))==0 )
 				return;
 			/* active edge in */
@@ -1083,14 +1121,14 @@ const char *m6800_info(void *context, int regnum)
 //		case CPU_INFO_REG+M6800_TIN_STATE: sprintf(buffer[which], "TIN:%X", r->irq_state[M6800_TIN_LINE]); break;
 		case CPU_INFO_FLAGS:
 			sprintf(buffer[which], "%c%c%c%c%c%c%c%c",
-				r->cc & 0x80 ? '?':'.',
-				r->cc & 0x40 ? '?':'.',
-				r->cc & 0x20 ? 'H':'.',
-				r->cc & 0x10 ? 'I':'.',
-				r->cc & 0x08 ? 'N':'.',
-				r->cc & 0x04 ? 'Z':'.',
-				r->cc & 0x02 ? 'V':'.',
-				r->cc & 0x01 ? 'C':'.');
+				(r->cc & 0x80) ? '?':'.',
+				(r->cc & 0x40) ? '?':'.',
+				(r->cc & 0x20) ? 'H':'.',
+				(r->cc & 0x10) ? 'I':'.',
+				(r->cc & 0x08) ? 'N':'.',
+				(r->cc & 0x04) ? 'Z':'.',
+				(r->cc & 0x02) ? 'V':'.',
+				(r->cc & 0x01) ? 'C':'.');
 			break;
 		case CPU_INFO_NAME: return "M6800";
 		case CPU_INFO_FAMILY: return "Motorola 6800";
@@ -2387,12 +2425,16 @@ READ_HANDLER( m6803_internal_registers_r )
 		case 0x05:
 			return m6800.port4_ddr;
 		case 0x06:
+                        if (m6800.port3_ddr == 0xff) return m6800.port3_data;
+			return (cpu_readport16(M6803_PORT3) & (m6800.port3_ddr ^ 0xff))
+					| (m6800.port3_data & m6800.port3_ddr);
 		case 0x07:
-			logerror("CPU #%d PC %04x: warning - read from unsupported internal register %02x\n",cpu_getactivecpu(),activecpu_get_pc(),offset);
-			return 0;
+                        if (m6800.port4_ddr == 0xff) return m6800.port4_data;
+			return (cpu_readport16(M6803_PORT4) & (m6800.port4_ddr ^ 0xff))
+					| (m6800.port4_data & m6800.port4_ddr);
 		case 0x08:
 			m6800.pending_tcsr = 0;
-//logerror("CPU #%d PC %04x: warning - read TCSR register\n",cpu_getactivecpu(),activecpu_get_pc());
+			//LOG(("CPU #%d PC %04x: warning - read TCSR register\n",cpu_getactivecpu(),activecpu_get_pc()));
 			return m6800.tcsr;
 		case 0x09:
 			if(!(m6800.pending_tcsr&TCSR_TOF))
@@ -2435,10 +2477,10 @@ READ_HANDLER( m6803_internal_registers_r )
 		case 0x11:
 		case 0x12:
 		case 0x13:
-			logerror("CPU #%d PC %04x: warning - read from unsupported internal register %02x\n",cpu_getactivecpu(),activecpu_get_pc(),offset);
+			LOG(("CPU #%d PC %04x: warning - read from unsupported internal register %02x\n",cpu_getactivecpu(),activecpu_get_pc(),offset));
 			return 0;
 		case 0x14:
-			logerror("CPU #%d PC %04x: read RAM control register\n",cpu_getactivecpu(),activecpu_get_pc());
+			LOG(("CPU #%d PC %04x: read RAM control register\n",cpu_getactivecpu(),activecpu_get_pc()));
 			return m6800.ram_ctrl;
 		case 0x15:
 		case 0x16:
@@ -2452,7 +2494,7 @@ READ_HANDLER( m6803_internal_registers_r )
 		case 0x1e:
 		case 0x1f:
 		default:
-			logerror("CPU #%d PC %04x: warning - read from reserved internal register %02x\n",cpu_getactivecpu(),activecpu_get_pc(),offset);
+			LOG(("CPU #%d PC %04x: warning - read from reserved internal register %02x\n",cpu_getactivecpu(),activecpu_get_pc(),offset));
 			return 0;
 	}
 }
@@ -2485,9 +2527,11 @@ WRITE_HANDLER( m6803_internal_registers_w )
 						| (cpu_readport16(M6803_PORT2) & (m6800.port2_ddr ^ 0xff)));
 #ifndef PINMAME
 				if (m6800.port2_ddr & 2)
-					logerror("CPU #%d PC %04x: warning - port 2 bit 1 set as output (OLVL) - not supported\n",cpu_getactivecpu(),activecpu_get_pc());
+				{
+					LOG(("CPU #%d PC %04x: warning - port 2 bit 1 set as output (OLVL) - not supported\n",cpu_getactivecpu(),activecpu_get_pc()));
+				}
 #endif /* PINMAME */
-					}
+			}
 			break;
 		case 0x02:
 			m6800.port1_data = data;
@@ -2537,8 +2581,24 @@ WRITE_HANDLER( m6803_internal_registers_w )
 			}
 			break;
 		case 0x06:
+#if 0
+			m6800.port3_data = data;
+			if(m6800.port3_ddr == 0xff)
+				cpu_readport16(M6803_PORT3,m6800.port3_data);
+			else
+				cpu_readport16(M6803_PORT3,(m6800.port3_data & m6800.port3_ddr)
+					| (cpu_readport16(M6803_PORT3) & (m6800.port3_ddr ^ 0xff)));
+#endif
+			break;
 		case 0x07:
-			logerror("CPU #%d PC %04x: warning - write %02x to unsupported internal register %02x\n",cpu_getactivecpu(),activecpu_get_pc(),data,offset);
+#if 0
+            m6800.port4_data = data;
+			if(m6800.port4_ddr == 0xff)
+				cpu_readport16(M6803_PORT4,m6800.port4_data);
+			else
+				cpu_readport16(M6803_PORT4,(m6800.port4_data & m6800.port4_ddr)
+					| (cpu_readport16(M6803_PORT4) & (m6800.port4_ddr ^ 0xff)));
+#endif
 			break;
 		case 0x08:
 			m6800.tcsr = data;
@@ -2546,7 +2606,7 @@ WRITE_HANDLER( m6803_internal_registers_w )
 			MODIFIED_tcsr;
 			if( !(CC & 0x10) )
 				CHECK_IRQ2;
-//logerror("CPU #%d PC %04x: TCSR = %02x\n",cpu_getactivecpu(),activecpu_get_pc(),data);
+			//LOG(("CPU #%d PC %04x: TCSR = %02x\n",cpu_getactivecpu(),activecpu_get_pc(),data));
 			break;
 		case 0x09:
 			latch09 = data & 0xff;	/* 6301 only */
@@ -2589,17 +2649,17 @@ WRITE_HANDLER( m6803_internal_registers_w )
 			break;
 		case 0x0d:
 		case 0x0e:
-			logerror("CPU #%d PC %04x: warning - write %02x to read only internal register %02x\n",cpu_getactivecpu(),activecpu_get_pc(),data,offset);
+			LOG(("CPU #%d PC %04x: warning - write %02x to read only internal register %02x\n",cpu_getactivecpu(),activecpu_get_pc(),data,offset));
 			break;
 		case 0x0f:
 		case 0x10:
 		case 0x11:
 		case 0x12:
 		case 0x13:
-			logerror("CPU #%d PC %04x: warning - write %02x to unsupported internal register %02x\n",cpu_getactivecpu(),activecpu_get_pc(),data,offset);
+			LOG(("CPU #%d PC %04x: warning - write %02x to unsupported internal register %02x\n",cpu_getactivecpu(),activecpu_get_pc(),data,offset));
 			break;
 		case 0x14:
-			logerror("CPU #%d PC %04x: write %02x to RAM control register\n",cpu_getactivecpu(),activecpu_get_pc(),data);
+			LOG(("CPU #%d PC %04x: write %02x to RAM control register\n",cpu_getactivecpu(),activecpu_get_pc(),data));
 			m6800.ram_ctrl = data;
 			break;
 		case 0x15:
@@ -2614,7 +2674,7 @@ WRITE_HANDLER( m6803_internal_registers_w )
 		case 0x1e:
 		case 0x1f:
 		default:
-			logerror("CPU #%d PC %04x: warning - write %02x to reserved internal register %02x\n",cpu_getactivecpu(),activecpu_get_pc(),data,offset);
+			LOG(("CPU #%d PC %04x: warning - write %02x to reserved internal register %02x\n",cpu_getactivecpu(),activecpu_get_pc(),data,offset));
 			break;
 	}
 }

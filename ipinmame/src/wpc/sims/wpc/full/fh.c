@@ -393,8 +393,8 @@ static int fh_handleBallState(sim_tBallStatus *ball, int *inports) {
   {
 
   /* Ball in RIGHT Shooter Lane */
-        /* Note: Sim supports max of 50 speed for manual plunger */
-      case stRBallLane:
+  /* Note: Sim supports max of 50 speed for manual plunger */
+  case stRBallLane:
     if (ball->speed < 20)
       return setState(stRNotEnough,3);  /*Ball not plunged hard enough*/
     if (ball->speed < 25)
@@ -402,16 +402,16 @@ static int fh_handleBallState(sim_tBallStatus *ball, int *inports) {
     if (ball->speed < 30)
       return setState(stDropHole,20);   /*Ball landed in Drop Hole*/
     if (ball->speed < 35)
-                        return setState(stJet1,20);              /*Ball Hit Bumper!*/
+      return setState(stJet1,20);       /*Ball Hit Bumper!*/
     if (ball->speed < 40)
       return setState(stRudyHideout,35);  /*Skill Shot - Landed in Rudy Hideout*/
-    if (ball->speed >= 40)
+    else
       return setState(stRLoopUp,30);    /*Shot missed hideout, but triggered Right Loop!*/
-    break;
+  break;
 
   /* Ball in LEFT Shooter Lane */
-        /* Note: Sim supports max of 50 speed for manual plunger */
-      case stLBallLane:
+  /* Note: Sim supports max of 50 speed for manual plunger */
+  case stLBallLane:
     if (ball->speed < 25)
       return setState(stLNotEnough,3);  /*Ball not plunged hard enough*/
     if (ball->speed < 30)
@@ -420,27 +420,27 @@ static int fh_handleBallState(sim_tBallStatus *ball, int *inports) {
       return setState(stAwardEB,20);    /*Ball landed in Steps Award Extra Ball*/
     if (ball->speed < 40)
       return setState(stAwardPTS,25);   /*Ball landed in Steps Award Points*/
-    if (ball->speed >= 40)
+    else
       return setState(stAwardDog,30);   /*Shot Awards Super Dog*/
-    break;
+  break;
 
   /* Rudy Hit */
-      case stRudyHit:
+  case stRudyHit:
     /*Is Rudy's Mouth Open?*/
     if (locals.rudymouthPos)
       return setState(stRudyJaw1,10);   /*Yes, ball goes into rudy's mouth*/
     else
       return setState(stRudyJaw,10);    /*Ball hits Rudy's Jaw!!*/
-    break;
+  break;
 
   /* Trap Door */
-      case stTrapDoorLoop:
+  case stTrapDoorLoop:
     /*Is the Trap Door Open?*/
     if (locals.trapdoorPos)
       return setState(stBallInTrap,10); /*Trap Door is Open, Ball Lands in Trap Door!*/
     else
       return setState(stUpperLoop,10);  /*Trap Door is Closed, Make Upper Loop Shot!*/
-    break;
+  break;
 
   /* Left Outlane - Drain or Go to Left Shooter? */
   case stLOut2:
@@ -451,8 +451,8 @@ static int fh_handleBallState(sim_tBallStatus *ball, int *inports) {
       }
     else
       return setState(stDrain,15);
-    break;
-    }
+  break;
+  }
   return 0;
 }
 
@@ -623,6 +623,7 @@ static void fh_drawStatic(BMTYPE **line) {
 /*-----------------
 /  ROM definitions
 /------------------*/
+// "special L-2 sound ROM" for L-9:
 #define FH_SOUND_L3 \
 WPCS_SOUNDROM222("fh_u18.sl3",CRC(7f6c7045) SHA1(8c8d601e8e6598507d75b4955ccc51623124e8ab), \
                  "fh_u15.sl2",CRC(0744b9f5) SHA1(b626601d82e6b1cf25f7fdcca31e623fc14a3f92), \
@@ -644,6 +645,9 @@ WPC_ROMSTART(fh,l9b,"fh_l9ger.rom",0x040000,CRC(e9b32a8f) SHA1(deb77f0d025001ddc
 WPC_ROMSTART(fh,d9b,"fh_d9ger.rom",0x040000,CRC(b9759f80) SHA1(979995fc65a616522443b80368f3d78ea3ea2f55)) FH_SOUND_L3 WPC_ROMEND
 
 WPC_ROMSTART(fh,905h,"fh_905h.rom",0x080000,CRC(445b632a) SHA1(6e277027a1d025e2b93f0d7736b414ba3a68a4f8)) FH_SOUND_L3 WPC_ROMEND
+WPC_ROMSTART(fh,906h,"fh_906h.rom",0x080000,CRC(2fe830a1) SHA1(f52eeef26ce509a52d7b58783236605dafae47d8)) FH_SOUND_L3 WPC_ROMEND
+
+WPC_ROMSTART(fh,l2,"u6-l2.rom",0x020000,CRC(7a8a3278) SHA1(b35c1149862724ea70cc810f14141e51b365e950)) FH_SOUND_L2 WPC_ROMEND
 
 WPC_ROMSTART(fh,l3,"u6-l3.rom",0x020000,CRC(7a74d702) SHA1(91540cdc62c855b4139b202aa6ad5440b2dee141)) FH_SOUND_L2 WPC_ROMEND
 WPC_ROMSTART(fh,d3,"u6-d3.rom",0x020000,CRC(fa32b241) SHA1(330fd1403199fcfa7bc018b488ea5f1a51ee4820)) FH_SOUND_L2 WPC_ROMEND
@@ -660,18 +664,20 @@ WPC_ROMSTART(fh,f91,"ffh0_91.rom",0x040000,CRC(b3224e53) SHA1(f0996209a4490af7ac
 /  Game drivers
 /---------------*/
 
-CORE_GAMEDEF(fh,l9,"Funhouse L-9 (SL-3)",1992,"Williams",wpc_mAlpha2S,0)
-CORE_CLONEDEF(fh,d9,l9,"Funhouse D-9 (SL-3) LED Ghost Fix",1992,"Williams",wpc_mAlpha2S,0)
-CORE_CLONEDEF(fh,l9b,l9,"Funhouse L-9 (SL-3) Bootleg Improved German translation",1992,"Williams",wpc_mAlpha2S,0)
-CORE_CLONEDEF(fh,d9b,l9,"Funhouse D-9 (SL-3) German LED Ghost Fix",1992,"Williams",wpc_mAlpha2S,0)
-CORE_CLONEDEF(fh,905h,l9,"Funhouse 9.05H",1996,"Williams",wpc_mAlpha2S,0)
-CORE_CLONEDEF(fh,l3,l9,"Funhouse L-3",1990,"Williams",wpc_mAlpha2S,0)
-CORE_CLONEDEF(fh,d3,l9,"Funhouse D-3 LED Ghost Fix",1990,"Williams",wpc_mAlpha2S,0)
-CORE_CLONEDEF(fh,l4,l9,"Funhouse L-4",1991,"Williams",wpc_mAlpha2S,0)
-CORE_CLONEDEF(fh,d4,l9,"Funhouse D-4 LED Ghost Fix",1991,"Williams",wpc_mAlpha2S,0)
-CORE_CLONEDEF(fh,l5,l9,"Funhouse L-5",1991,"Williams",wpc_mAlpha2S,0)
-CORE_CLONEDEF(fh,d5,l9,"Funhouse D-5 LED Ghost Fix",1991,"Williams",wpc_mAlpha2S,0)
-CORE_CLONEDEF(fh,f91,l9,"Funhouse (FreeWPC 0.91)",1991,"Williams",wpc_mAlpha2S,0)
+CORE_GAMEDEF(fh,l9,"Funhouse (L-9, SL-3)",1992,"Williams",wpc_mAlpha2S,0)
+CORE_CLONEDEF(fh,d9,l9,"Funhouse (D-9, SL-3 LED Ghost Fix)",1992,"Williams",wpc_mAlpha2S,0)
+CORE_CLONEDEF(fh,l9b,l9,"Funhouse (L-9, SL-3 Improved German translation patch)",1992,"Williams",wpc_mAlpha2S,0)
+CORE_CLONEDEF(fh,d9b,l9,"Funhouse (D-9, SL-3 German LED Ghost Fix)",1992,"Williams",wpc_mAlpha2S,0)
+CORE_CLONEDEF(fh,905h,l9,"Funhouse (9.05H)",1996,"Williams",wpc_mAlpha2S,0)
+CORE_CLONEDEF(fh,906h,l9,"Funhouse (9.06H Coin Play)",1996,"Williams",wpc_mAlpha2S,0)
+CORE_CLONEDEF(fh,l2,l9,"Funhouse (L-2)",1990,"Williams",wpc_mAlpha2S,0)
+CORE_CLONEDEF(fh,l3,l9,"Funhouse (L-3)",1990,"Williams",wpc_mAlpha2S,0)
+CORE_CLONEDEF(fh,d3,l9,"Funhouse (D-3 LED Ghost Fix)",1990,"Williams",wpc_mAlpha2S,0)
+CORE_CLONEDEF(fh,l4,l9,"Funhouse (L-4)",1991,"Williams",wpc_mAlpha2S,0)
+CORE_CLONEDEF(fh,d4,l9,"Funhouse (D-4 LED Ghost Fix)",1991,"Williams",wpc_mAlpha2S,0)
+CORE_CLONEDEF(fh,l5,l9,"Funhouse (L-5)",1991,"Williams",wpc_mAlpha2S,0)
+CORE_CLONEDEF(fh,d5,l9,"Funhouse (D-5 LED Ghost Fix)",1991,"Williams",wpc_mAlpha2S,0)
+CORE_CLONEDEF(fh,f91,l9,"Funhouse (FreeWPC 0.91)",1991,"FreeWPC",wpc_mAlpha2S,0)
 
 /*-----------------------
 / Simulation Definitions
@@ -735,12 +741,33 @@ static core_tGameData fhGameData = {
 ---------------------------------------------------------------------------------------------*/
 
 
+#ifdef PROC_SUPPORT
+  #include "p-roc/p-roc.h"
+  /*
+    Solenoid smoothing messes up Rudy's mouth (C21 and C22)
+  */
+  void fh_wpc_proc_solenoid_handler(int solNum, int enabled, int smoothed) {
+    switch (solNum) {
+      case 20:  // C21, Mouth Motor
+      case 21:  // C22, Up/Down Driver
+        // Solenoids to handle in immediate mode, not smoothed.  Negate `smoothed`
+        // so default handler will process immediate solenoid changes and ignore
+        // smoothed changes.
+        smoothed = !smoothed;
+    }
+    default_wpc_proc_solenoid_handler(solNum, enabled, smoothed);
+  }
+#endif
+
 /*---------------
 /  Game handling
 /----------------*/
 static void init_fh(void) {
   core_gameData = &fhGameData;
   locals.divertercount=0;
+#ifdef PROC_SUPPORT
+  wpc_proc_solenoid_handler = fh_wpc_proc_solenoid_handler;
+#endif
 }
 
 

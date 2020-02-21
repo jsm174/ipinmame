@@ -27,7 +27,7 @@
 #include "mamedbg.h"
 #include "tms7000.h"
 
-#define VERBOSE 1
+#define VERBOSE 0
 
 #if VERBOSE
 #define LOG(x)	logerror x
@@ -51,6 +51,9 @@ void tms7000_int2_callback( int	param );
 
 int tms7000_icount;
 
+static int cpuNum;
+static int checkIrqs;
+
 static UINT8 tms7000_reg_layout[] = {
 	TMS7000_PC, TMS7000_SP, TMS7000_ST, 0
 };
@@ -63,8 +66,6 @@ static UINT8 tms7000_win_layout[] = {
 	27,13,53, 9,	/* memory #2 window (right, lower middle) */
 	 0,23,80, 1,	/* command line window (bottom rows) */
 };
-
-void tms7000_check_IRQ_lines( void );
 
 //SJE
 //#define RM(Addr) ((unsigned)cpu_readmem16(Addr))
@@ -94,7 +95,6 @@ UINT16 RRF16( UINT32 mAddr )
 	PAIR result;
 	result.b.h = RM((mAddr-1)&0xffff);
 	result.b.l = RM(mAddr);
-//	return (result.b.h << 8) & result.b.l;
 	return result.w.l;
 }
 
@@ -104,10 +104,6 @@ void WRF16( UINT32 mAddr, PAIR p )
 	WM( (mAddr-1)&0xffff, p.b.h );
 	WM( mAddr, p.b.l );
 }
-
-//SJE: Not used
-//#define RPF(x)		tms7000_pf_r(x)
-//#define WPF(x,y)	tms7000_pf_w(x,y)
 
 #define IMMBYTE(b)	b = ((unsigned)cpu_readop_arg(pPC)); pPC++
 #define SIMMBYTE(b)	b = ((signed)cpu_readop_arg(pPC)); pPC++
@@ -223,26 +219,27 @@ void tms7000_set_reg(int regnum, unsigned val)
 
 void tms7000_init(void)
 {
-	int cpu = cpu_getactivecpu();
+	cpuNum = cpu_getactivecpu();
 
-	memset(tms7000.pf, 0, 0x100);
-	timer_set(TIME_NEVER, 0, tms7000_int2_callback);
-	tms7000.timer1_capturelatch = 0;
-
-	state_save_register_UINT16("tms7000", cpu, "PC", &pPC, 1);
-	state_save_register_UINT8("tms7000", cpu, "SP", &pSP, 1);
-	state_save_register_UINT8("tms7000", cpu, "SR", &pSR, 1);
+	state_save_register_UINT16("tms7000", cpuNum, "PC", &pPC, 1);
+	state_save_register_UINT8("tms7000", cpuNum, "SP", &pSP, 1);
+	state_save_register_UINT8("tms7000", cpuNum, "SR", &pSR, 1);
 }
 
 void tms7000_reset(void *param)
 {
+	memset(tms7000.pf, 0, 0x100);
+	tms7000.timer1 = timer_alloc(tms7000_int2_callback);
+	timer_adjust( tms7000.timer1, TIME_NEVER, 0, TIME_NEVER );
+	tms7000.timer1_capturelatch = 0;
+
 //	tms7000.architecture = (int)param;
 	
 	tms7000.idle_state = 0;
 	tms7000.irq_state[ TMS7000_IRQ1_LINE ] = CLEAR_LINE;
 	tms7000.irq_state[ TMS7000_IRQ2_LINE ] = CLEAR_LINE;
 	tms7000.irq_state[ TMS7000_IRQ3_LINE ] = CLEAR_LINE;
-	
+
 	WM( 0x100 + 9, 0 );		/* Data direction regs are cleared */
 	WM( 0x100 + 11, 0 );
 	
@@ -260,9 +257,9 @@ void tms7000_reset(void *param)
 	pSP = 0x01;				/* Set stack pointer to r1 */
 	pSR = 0x00;				/* Clear status register (disabling interrupts */
 	WM( 0x100 + 0, 0 );		/* Write a zero to IOCNT0 */
-	
+
 	/* On TMS70x2 and TMS70Cx2 IOCNT1 is zero */
-	
+
 	WRA( tms7000.pc.b.h );	/* Write previous PC to A:B */
 	WRB( tms7000.pc.b.l );
 	pPC = RM16(0xfffe);		/* Load reset vector */
@@ -299,14 +296,14 @@ const char *tms7000_info(void *context, int regnum)
 		case CPU_INFO_WIN_LAYOUT: return (const char*)tms7000_win_layout;
 		case CPU_INFO_FLAGS:
 			sprintf(buffer[which], "%c%c%c%c%c%c%c%c",
-				r->sr & 0x80 ? 'C':'c',
-				r->sr & 0x40 ? 'N':'n',
-				r->sr & 0x20 ? 'Z':'z',
-				r->sr & 0x10 ? 'I':'i',
-				r->sr & 0x08 ? '?':'.',
-				r->sr & 0x04 ? '?':'.',
-				r->sr & 0x02 ? '?':'.',
-				r->sr & 0x01 ? '?':'.' );
+				(r->sr & 0x80) ? 'C':'c',
+				(r->sr & 0x40) ? 'N':'n',
+				(r->sr & 0x20) ? 'Z':'z',
+				(r->sr & 0x10) ? 'I':'i',
+				(r->sr & 0x08) ? '?':'.',
+				(r->sr & 0x04) ? '?':'.',
+				(r->sr & 0x02) ? '?':'.',
+				(r->sr & 0x01) ? '?':'.' );
 			break;
 		case CPU_INFO_REG+TMS7000_PC: sprintf(buffer[which], "PC:%04X", r->pc.w.l); break;
 		case CPU_INFO_REG+TMS7000_SP: sprintf(buffer[which], "SP:%02X", r->sp); break;
@@ -329,7 +326,7 @@ void tms7000_set_irq_line(int irqline, int state)
 {
 	tms7000.irq_state[ irqline ] = state;
 
-	LOG(("TMS7000#%d set_irq_line %d, %d\n", cpu_getactivecpu(), irqline, state));
+	LOG(("TMS7000#%d set_irq_line %d, %d\n", cpuNum, irqline, state));
 
 	if (state == CLEAR_LINE)
 	{
@@ -354,7 +351,7 @@ void tms7000_set_irq_line(int irqline, int state)
 		}
 	}
 	
-	tms7000_check_IRQ_lines();
+	checkIrqs = 1;
 }
 
 void tms7000_set_irq_callback(int (*callback)(int irqline))
@@ -426,12 +423,16 @@ tms7000_interrupt:
 
 int tms7000_execute(int cycles)
 {
-	int op;
+	if (checkIrqs) {
+		checkIrqs = 0;
+		tms7000_check_IRQ_lines();
+	}
 	
 	tms7000_icount = cycles;
 
 	do
 	{
+		int op;
 		CALL_MAME_DEBUG;
 		op = cpu_readop(pPC);
 		pPC++;
@@ -457,8 +458,9 @@ void tms7000_starttimer1( void )
 	else
 	{
 		/* Source: internal clock */
-		timer_reset(tms7000.timer1, TIME_IN_CYCLES( 16 * ((tms7000.pf[ 0x03 ] & 0x1f)+1) * ((tms7000.pf[ 0x02 ])+1),
-															cpu_getactivecpu() ) );
+		double d = TIME_IN_CYCLES( 16 * ((tms7000.pf[ 0x03 ] & 0x1f)+1) * ((tms7000.pf[ 0x02 ])+1),	cpuNum );
+		timer_adjust(tms7000.timer1, d, 0, d);
+
 		tms7000.time_timer1 = timer_get_time();
 	}
 }
@@ -507,10 +509,10 @@ UINT8 tms7000_calculate_timer1_decrementator( void )
 	   overflows.
 	*/
 	
-	double prescalertimer = TIME_IN_CYCLES(16,cpu_getactivecpu()) *
+	double prescalertimer = TIME_IN_CYCLES(16,cpuNum) *
 													(tms7000.pf[0x03] & 0x1f);
 	
-	result = (tms7000.time_timer1 - timer_get_time()) / prescalertimer;
+	result = (UINT8)((tms7000.time_timer1 - timer_get_time()) / prescalertimer);
 
 	return result;
 }
@@ -518,54 +520,52 @@ UINT8 tms7000_calculate_timer1_decrementator( void )
 
 WRITE_HANDLER( tms70x0_pf_w )	/* Perpherial file write */
 {
-	data8_t	temp1, temp2, temp3, temp4;
+	data8_t	temp1, temp2, temp3;
 	
 	switch( offset )
 	{
 		case 0x00:	/* IOCNT0, Input/Ouput control */
-			temp1 = data & 0x2a;				/* Record which bits to clear */
-			//SJE - Must be a mistake..
-			//temp2 = tms7000.pf[0x03] & 0x2a;	/* Get copy of current bits */
-			temp2 = tms7000.pf[0x00] & 0x2a;	/* Get copy of current bits */		
-			temp3 = (~temp1) & temp2;			/* Clear the requested bits */
-			temp4 = temp3 | (data & (~0x2a) );	/* OR in the remaining data */
-			
-			tms7000.pf[0x00] = temp4;
+			temp1 = data & 0x2a;							/* Record which bits to clear */
+			temp2 = tms7000.pf[0x00] & 0x2a;				/* Get copy of current bits */
+			temp3 = (~temp1) & temp2;						/* Clear the requested bits */
+			tms7000.pf[0x00] = temp3 | (data & (~0x2a) );	/* OR in the remaining data */
 			break;
 
 		case 0x03:	/* T1CTL, timer 1 control */
+			if( ((tms7000.pf[0x03] & 0x80) == 0) && ((data & 0x80) == 0x80 ) )   /* Start timer? */
+			{
+				tms7000_starttimer1();
+			}
+			else if( ((data & 0x80) == 0 ) && ((tms7000.pf[0x03] & 0x80) == 0x80) )   /* Timer Stopped? */
+			{
+				timer_adjust( tms7000.timer1, TIME_NEVER, 0, TIME_NEVER );
+			}
+
 			/* stuff data in register */
 			tms7000.pf[0x03] = data;
-			
-			/* Stop current counter */
-			timer_reset( tms7000.timer1, TIME_NEVER );
-			
-			if ((data & 0x80) == 0x80)
-				tms7000_starttimer1();
-
 			break;
-		
+
 		case 0x04: /* Port A write */
 			/* Port A is read only so this is a NOP */
 			break;
-			
+
 		case 0x06: /* Port B write */
 			cpu_writeport16( TMS7000_PORTB, data );
 			tms7000.pf[ 0x06 ] = data;
 			break;
-		
+
 		case 0x08: /* Port C write */
 			temp1 = data & tms7000.pf[ 0x09 ];	/* Mask off input bits */
 			cpu_writeport16( TMS7000_PORTC, temp1 );
 			tms7000.pf[ 0x08 ] = temp1;
 			break;
-			
+
 		case 0x0a: /* Port D write */
 			temp1 = data & tms7000.pf[ 0x0b ];	/* Mask off input bits */
 			cpu_writeport16( TMS7000_PORTD, temp1 );
 			tms7000.pf[ 0x0a ] = temp1;
 			break;
-			
+
 		default:
 			/* Just stuff the other registers */
 			tms7000.pf[ offset ] = data;
@@ -576,11 +576,10 @@ WRITE_HANDLER( tms70x0_pf_w )	/* Perpherial file write */
 READ_HANDLER( tms70x0_pf_r )	/* Perpherial file read */
 {
 	data8_t result;
-	data8_t	temp1, temp2, temp3, temp4;
+	data8_t	temp1, temp2, temp3;
 	
 	switch( offset )
 	{
-		//SJE: Why was this commented out?
 		case 0x00:	/* IOCNT0, Input/Ouput control */
 			result = tms7000.pf[0x00];
 			break;
@@ -605,31 +604,27 @@ READ_HANDLER( tms70x0_pf_r )	/* Perpherial file read */
 		case 0x04: /* Port A read */
 			result = cpu_readport16( TMS7000_PORTA );
 			break;
-			
-//SJE: Why was this commented out?
+
+
 		case 0x06: /* Port B read */
 			/* Port B is write only, return a previous written value */
 			result = tms7000.pf[ 0x06 ];
 			break;
-		
+
 		case 0x08: /* Port C read */
 			temp1 = tms7000.pf[ 0x08 ] & tms7000.pf[ 0x09 ];	/* Get previous output bits */
 			temp2 = cpu_readport16( TMS7000_PORTC );			/* Read port */
 			temp3 = temp2 & (~tms7000.pf[ 0x09 ]);				/* Mask off output bits */
-			temp4 = temp1 | temp3;								/* OR together */
-			
-			result = temp4;
+			result = temp1 | temp3;								/* OR together */
 			break;
-			
+
 		case 0x0a: /* Port D read */
 			temp1 = tms7000.pf[ 0x0a ] & tms7000.pf[ 0x0b ];	/* Get previous output bits */
 			temp2 = cpu_readport16( TMS7000_PORTD );			/* Read port */
 			temp3 = temp2 & (~tms7000.pf[ 0x0b ]);				/* Mask off output bits */
-			temp4 = temp1 | temp3;								/* OR together */
-			
-			result = temp4;
+			result = temp1 | temp3;								/* OR together */
 			break;
-			
+
 		default:
 			/* Just unstuff the other registers */
 			result = tms7000.pf[ offset ];
@@ -643,7 +638,7 @@ READ_HANDLER( tms70x0_pf_r )	/* Perpherial file read */
 static UINT16 bcd_add( UINT16 a, UINT16 b )
 {
 	UINT16	t1,t2,t3,t4,t5,t6;
-	
+
 	/* Sure it is a lot of code, but it works! */
 	t1 = a + 0x0666;
 	t2 = t1 + b;
@@ -657,7 +652,7 @@ static UINT16 bcd_add( UINT16 a, UINT16 b )
 static UINT16 bcd_tencomp( UINT16 a )
 {
 	UINT16	t1,t2,t3,t4,t5,t6;
-	
+
 	t1 = 0xffff - a;
 	t2 = -a;
 	t3 = t1 ^ 0x0001;
@@ -667,9 +662,13 @@ static UINT16 bcd_tencomp( UINT16 a )
 	return t2-t6;
 }
 
+/*
+    Compute difference a-b???
+*/
 static UINT16 bcd_sub( UINT16 a, UINT16 b)
 {
-	return bcd_tencomp(b) - bcd_tencomp(a);
+	//return bcd_tencomp(b) - bcd_tencomp(a);
+	return bcd_add(a, bcd_tencomp(b) & 0xff);
 }
 
 

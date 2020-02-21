@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+
 #include <stdarg.h>
 #include <time.h>
 #include "driver.h"
@@ -9,6 +11,12 @@
 #include "stsnd.h"
 #include "hnks.h"
 #include "by35.h"
+
+#if defined(PINMAME) && defined(LISY_SUPPORT)
+ #include "lisy/lisy35.h"
+#endif /* PINMAME && LISY_SUPPORT */
+
+#define BY35_DEBUG_KEY_SUPPORT 0
 
 #define BY35_PIA0 0
 #define BY35_PIA1 1
@@ -74,7 +82,7 @@ static void piaIrq(int num, int state) {
   locals.irqstates[num] = state;
   irqstate = locals.irqstates[0] || locals.irqstates[1] || locals.irqstates[2] || locals.irqstates[3];
   if (oldstate != irqstate) {
-    logerror("IRQ state: %d\n", irqstate);
+//    logerror("IRQ state: %d\n", irqstate);
     cpu_set_irq_line(0, M6800_IRQ_LINE, irqstate ? ASSERT_LINE : CLEAR_LINE);
   }
   oldstate = irqstate;
@@ -98,7 +106,12 @@ static void by35_dispStrobe(int mask) {
       UINT8 dispMask = mask;
       for (jj = 0; dispMask; jj++, dispMask>>=1)
         if (dispMask & 0x01)
+        {
+#ifdef LISY_SUPPORT
+          lisy35_display_handler( jj*8+ii, locals.bcd[jj] & 0x0f );
+#endif
           locals.segments[jj*8+ii].w |= locals.pseg[jj*8+ii].w = locals.bcd2seg[locals.bcd[jj] & 0x0f];
+        }
     }
 
   /* This handles the fake zero for Nuova Bell games */
@@ -113,6 +126,9 @@ static void by35_dispStrobe(int mask) {
 static void by35_lampStrobe(int board, int lampadr) {
   if (lampadr != 0x0f) {
     int lampdata = (locals.a0>>4)^0x0f;
+#ifdef LISY_SUPPORT
+    if ( lampdata ) lisy35_lamp_handler( 0, board, lampadr, lampdata);
+#endif
     UINT8 *matrix = &coreGlobals.tmpLampMatrix[(lampadr>>3)+8*board];
     int bit = 1<<(lampadr & 0x07);
 
@@ -142,35 +158,22 @@ static WRITE_HANDLER(pia0a_w) {
   }
 }
 
-static const UINT16 nuova_ascii2seg[] = {
-  /* 0x00-0x07 */ 0x0000, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
-  /* 0x08-0x0f */ 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
-  /* 0x10-0x17 */ 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
-  /* 0x18-0x1f */ 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
-  /* 0x20-0x27 */ 0x0000, 0xffff, 0xffff, 0xffff, 0xffff, 0xee99, 0x9379, 0x0200, //      %&'
-  /* 0x28-0x2f */ 0x1400, 0x4100, 0xff00, 0xaa00, 0x0040, 0x8800, 0x0020, 0x4400, // ()*+,-./
-  /* 0x30-0x37 */ 0x00ff, 0x2200, 0x8877, 0x883f, 0x888c, 0x88bb, 0x88fb, 0x000f, // 01234567
-  /* 0x38-0x3f */ 0x88ff, 0x88bf, 0x8020, 0x8040, 0x1400, 0x8830, 0x4100, 0x2807, // 89:;<=>?
-  /* 0x40-0x47 */ 0xa07f, 0x88cf, 0x2a3f, 0x00f3, 0x223f, 0x80f3, 0x80c3, 0x08fb, // @ABCDEFG
-  /* 0x48-0x4f */ 0x88cc, 0x2233, 0x007c, 0x94c0, 0x00f0, 0x05cc, 0x11cc, 0x00ff, // HIJKLMNO
-  /* 0x50-0x57 */ 0x88c7, 0x10ff, 0x98c7, 0x88bb, 0x2203, 0x00fc, 0x44c0, 0x50cc, // PRQSTUVW
-  /* 0x58-0x5f */ 0x5500, 0x2500, 0x4433, 0x2212, 0x1100, 0x2221, 0x0404, 0x0030, // XYZ[\]^_
-  /* 0x60-0x67 */ 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
-  /* 0x68-0x6f */ 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
-  /* 0x70-0x77 */ 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
-  /* 0x78-0x7f */ 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
-};
-
 /* PIA1:A-W  0,2-7 Display handling */
 /*        W  1     Sound E */
 static WRITE_HANDLER(pia1a_w) {
   static int counter, pos0, pos1;
-  if (locals.hw & BY35HW_SOUNDE) sndbrd_0_ctrl_w(0, (locals.cb21 ? 1 : 0) | (data & 0x02));
+  if (locals.hw & BY35HW_SOUNDE)
+  {
+    sndbrd_0_ctrl_w(0, (locals.cb21 ? 1 : 0) | (data & 0x02));
+#ifdef LISY_SUPPORT
+    lisy35_sound_handler( LISY35_SOUND_HANDLER_IS_CTRL, (locals.cb21 ? 1 : 0) | (data & 0x02));
+#endif
+  }
 
   if (core_gameData->hw.gameSpecific1 & BY35GD_ALPHA) {
     if (data & 0x80) { // 1st alphanumeric display strobe
       if (pos0 < 20)
-        locals.segments[pos0++].w = nuova_ascii2seg[locals.a0 & 0x7f] | (locals.a0 & 0x80);
+        locals.segments[pos0++].w = core_ascii2seg16s[locals.a0 & 0x7f] | (locals.a0 & 0x80);
       counter++;
       if (counter > 7) {
         counter = 0;
@@ -180,7 +183,7 @@ static WRITE_HANDLER(pia1a_w) {
     } else if (data & 0x40) { // 2nd alphanumeric display strobe
       counter = 0;
       if (pos1 < 12)
-        locals.segments[20+(pos1++)].w = nuova_ascii2seg[locals.a0 & 0x7f] | (locals.a0 & 0x80);
+        locals.segments[20+(pos1++)].w = core_ascii2seg16s[locals.a0 & 0x7f] | (locals.a0 & 0x80);
     }
   } else if (!locals.ca20) {
     if (locals.hw & BY35HW_INVDISP4) {
@@ -210,16 +213,36 @@ static WRITE_HANDLER(pia1a_w) {
 
 /* PIA0:B-R  Get Data depending on PIA0:A */
 static READ_HANDLER(pia0b_r) {
+#ifndef LISY_SUPPORT
   if (locals.a0 & 0x20) return core_getDip(0); // DIP#1 1-8
   if (locals.a0 & 0x40) return core_getDip(1); // DIP#2 9-16
   if (locals.a0 & 0x80) return core_getDip(2); // DIP#3 17-24
   if ((locals.hw & BY35HW_DIP4) && locals.cb20) return core_getDip(3); // DIP#4 25-32
+#else
+  int ret;
+  if (locals.a0 & 0x20)
+   {  ret = lisy35_get_mpudips(0); if (ret<0) return core_getDip(0); else return ret; } // DIP#1 1-8
+  if (locals.a0 & 0x40)
+   {  ret = lisy35_get_mpudips(1); if (ret<0) return core_getDip(1); else return ret; } // DIP#1 9-16
+  if (locals.a0 & 0x80)
+   {  ret = lisy35_get_mpudips(2); if (ret<0) return core_getDip(2); else return ret; } // DIP#1 17-24
+  if ((locals.hw & BY35HW_DIP4) && locals.cb20)
+   {  ret = lisy35_get_mpudips(3); if (ret<0) return core_getDip(3); else return ret; } // DIP#1 25-32
+#endif
   {
     int col = locals.a0 & 0x1f;
     UINT8 sw;
     if (core_gameData->hw.gameSpecific1 & BY35GD_SWVECTOR) col |= (locals.b1 & 0x10)<<1;
     else                                                   col |= (locals.b1 & 0x80)>>2;
-    sw = core_getSwCol(col);
+    if (!col && (core_gameData->hw.gameSpecific1 & BY35GD_MARAUDER)) {
+      sw = coreGlobals.swMatrix[3];
+    } else {
+#ifndef LISY_SUPPORT
+      sw = core_getSwCol(col);
+#else
+      sw = lisy35_switch_handler(col); //get the switches from LISY35
+#endif
+    }
     return (locals.hw & BY35HW_REVSW) ? core_revbyte(sw) : sw;
   }
 }
@@ -252,13 +275,20 @@ static WRITE_HANDLER(pia1ca2_w) {
     if (core_gameData->hw.display & 0x01)
       { locals.bcd[6] = locals.a0>>4; by35_dispStrobe(0x40); }
   }
-  if (locals.hw & BY35HW_SCTRL) sndbrd_0_ctrl_w(0, data);
+  if (locals.hw & BY35HW_SCTRL)
+  {
+    sndbrd_0_ctrl_w(0, data);
+    //Note: HNK only, not for LISY at the moment
+  }
 //  ok
   if ((sb == SNDBRD_ST300V) && (data)) {
     sndbrd_0_diag(1); // gv - switches over to voice board
     sndbrd_0_ctrl_w(0, locals.a0);
   }
   locals.ca21 = locals.diagnosticLed = data;
+#ifdef LISY_SUPPORT
+  coil_bally_led_set(locals.diagnosticLed);
+#endif
 }
 
 /* PIA0:CA2-W Display Strobe */
@@ -274,10 +304,22 @@ static WRITE_HANDLER(pia1b_w) {
   if (~locals.b1 & data & core_gameData->hw.display & 0xf0)
     { locals.bcd[5] = locals.a0>>4; by35_dispStrobe(0x20); }
   locals.b1 = data;
-  if ((sb & 0xff00) != SNDBRD_ST300 && sb != SNDBRD_ASTRO && (sb & 0xff00) != SNDBRD_ST100 && sb != SNDBRD_GRAND) sndbrd_0_data_w(0, data & 0x0f); 	// ok
+  if ((sb & 0xff00) != SNDBRD_ST300 && sb != SNDBRD_ASTRO && (sb & 0xff00) != SNDBRD_ST100 && sb != SNDBRD_GRAND)
+  {
+    sndbrd_0_data_w(0, data & 0x0f); 	// ok
+#ifdef LISY_SUPPORT
+    if (locals.cb21) lisy35_sound_handler( LISY35_SOUND_HANDLER_IS_DATA, data & 0x0f );
+#endif
+  }
   coreGlobals.pulsedSolState = 0;
-  if (!locals.cb21)
+  if (!locals.cb21) {
+#ifdef LISY_SUPPORT
+    lisy35_solenoid_handler( data );
+#endif
     locals.solenoids |= coreGlobals.pulsedSolState = (1<<(data & 0x0f)) & 0x7fff;
+  } else if (core_gameData->hw.gameSpecific1 & BY35GD_MARAUDER) {
+    coreGlobals.pulsedSolState = (1<<(data & 0x0f)) & 0x7fff;
+  }
   data ^= 0xf0;
   coreGlobals.pulsedSolState = (coreGlobals.pulsedSolState & 0xfff0ffff) | ((data & 0xf0)<<12);
   locals.solenoids |= (data & 0xf0)<<12;
@@ -295,6 +337,10 @@ static WRITE_HANDLER(pia1cb2_w) {
   if (((locals.hw & BY35HW_SCTRL) == 0) && ((sb & 0xff00) != SNDBRD_ST300) && (sb != SNDBRD_ASTRO) && (sb & 0xff00) != SNDBRD_ST100)
    	// ok
     sndbrd_0_ctrl_w(0, (data ? 1 : 0) | (locals.a1 & 0x02));
+#ifdef LISY_SUPPORT
+    lisy35_sound_handler( LISY35_SOUND_HANDLER_IS_CTRL, (data ? 1 : 0) | (locals.a1 & 0x02));
+#endif
+
 }
 
 static INTERRUPT_GEN(by35_vblank) {
@@ -307,6 +353,9 @@ static INTERRUPT_GEN(by35_vblank) {
   if ((locals.vblankCount % BY35_LAMPSMOOTH) == 0) {
     memcpy(coreGlobals.lampMatrix, coreGlobals.tmpLampMatrix, sizeof(coreGlobals.tmpLampMatrix));
     memset(coreGlobals.tmpLampMatrix, 0, sizeof(coreGlobals.tmpLampMatrix));
+#ifdef LISY_SUPPORT
+    lisy35_lamp_handler( 1, 0, 0, 0); //tell the lamp handler that we blank lamps
+#endif
   }
 
   /*-- solenoids --*/
@@ -327,7 +376,34 @@ static INTERRUPT_GEN(by35_vblank) {
   core_updateSw(core_getSol(19));
 }
 
+#if BY35_DEBUG_KEY_SUPPORT
+static void adjust_timer(int offset) {
+  static char s[2];
+  static UINT8 cmd;
+  cmd += offset;
+  sprintf(s, "%02x", cmd);
+  core_textOut(s, 2, 25, 5, 5);
+  if (!offset) {
+    sndbrd_0_ctrl_w(0, (cmd >> 3) & 0x02);
+    sndbrd_0_ctrl_w(0, ((cmd >> 3) & 0x02) | 1);
+    sndbrd_0_data_w(0, cmd);
+  }
+}
+#endif /* BY35_DEBUG_KEY_SUPPORT */
+
 static SWITCH_UPDATE(by35) {
+#if BY35_DEBUG_KEY_SUPPORT
+  if      (keyboard_pressed_memory_repeat(KEYCODE_Z, 2))
+    adjust_timer(-0x10);
+  else if (keyboard_pressed_memory_repeat(KEYCODE_X, 2))
+    adjust_timer(-1);
+  else if (keyboard_pressed_memory_repeat(KEYCODE_C, 2))
+    adjust_timer(1);
+  else if (keyboard_pressed_memory_repeat(KEYCODE_V, 2))
+    adjust_timer(0x10);
+  else if (keyboard_pressed_memory_repeat(KEYCODE_SPACE, 2))
+    adjust_timer(0);
+#endif /* BY35_DEBUG_KEY_SUPPORT */
   if (inports) {
     if (core_gameData->gen & (GEN_BY17|GEN_BY35|GEN_STMPU100)) {
       CORE_SETKEYSW(inports[BY35_COMINPORT],   0x07,0);
@@ -357,10 +433,18 @@ static SWITCH_UPDATE(by35) {
     }
   }
   /*-- Diagnostic buttons on CPU board --*/
+#ifndef LISY_SUPPORT
   cpu_set_nmi_line(0, core_getSw(BY35_SWCPUDIAG) ? ASSERT_LINE : CLEAR_LINE);
+#else
+  cpu_set_nmi_line(0, lisy35_get_SW_S33() ? ASSERT_LINE : CLEAR_LINE);
+#endif
   sndbrd_0_diag(core_getSw(BY35_SWSOUNDDIAG));
   /*-- coin door switches --*/
+#ifndef LISY_SUPPORT
   pia_set_input_ca1(BY35_PIA0, !core_getSw(BY35_SWSELFTEST));
+#else
+  pia_set_input_ca1(BY35_PIA0, !lisy35_get_SW_Selftest());
+#endif
 }
 
 /* PIA 0 (U10)
@@ -406,6 +490,9 @@ static INTERRUPT_GEN(by35_irq) {
 
 static void by35_zeroCross(int data) {
     pia_set_input_cb1(BY35_PIA0, locals.cb10 = !locals.cb10);
+#ifdef LISY_SUPPORT
+    lisy35_throttle();
+#endif
 }
 
 /*-----------------------------------------------
@@ -415,24 +502,30 @@ static UINT8 *by35_CMOS;
 
 static NVRAM_HANDLER(by35) {
   core_nvram(file, read_or_write, by35_CMOS, 0x100, (core_gameData->gen & (GEN_STMPU100|GEN_STMPU200))?0x00:0xff);
+#ifdef LISY_SUPPORT
+  // 0 = read; 1 = write
+  //RTH: new: we use seperate rw partition for nvram file
+  //lisy35_nvram_handler(read_or_write, by35_CMOS);
+#endif
 }
 // Bally only uses top 4 bits
 static WRITE_HANDLER(by35_CMOS_w) {
   by35_CMOS[offset] = data | ((core_gameData->gen & (GEN_STMPU100|GEN_STMPU200|GEN_ASTRO))? 0x00 : 0x0f);
 }
 
-// These games use the A0 memory address for extra sound solenoids only.
-WRITE_HANDLER(extra_sol_w) {
-  logerror("%04x: extra sol w (a0)  data  %02x \n", activecpu_get_previouspc(),data);
+// These games use the A0 memory address for monotone sounds
+WRITE_HANDLER(stern100_snd_w) {
+  logerror("%04x: stern100_snd_w (a0) data  %02x \n", activecpu_get_previouspc(),data);
   sndbrd_0_data_w(0,data);
 //if (data != 0)
 //  coreGlobals.pulsedSolState = (data << 24);
 //locals.solenoids = (locals.solenoids & 0x00ffffff) | coreGlobals.pulsedSolState;
 }
 
-WRITE_HANDLER(stern100_sol_w) {
-  logerror("%04x: stern100_sol (c0) data  %02x \n", activecpu_get_previouspc(),data);
-//extra_sol_w(offset, data ^ 0xff);
+// These games can use the C0 memory address for electronic chime sounds
+WRITE_HANDLER(stern100_chm_w) {
+  logerror("%04x: stern100_chm_w (c0) data  %02x \n", activecpu_get_previouspc(),data);
+  sndbrd_0_ctrl_w(0, ~data & 0x0f);
 }
 
 static MACHINE_INIT(by35) {
@@ -473,10 +566,10 @@ static MACHINE_INIT(by35) {
     install_mem_read_handler (0,0x00a0, 0x00a7, snd300_r);    	// ok
     install_mem_write_handler(0,0x00c0, 0x00c0, snd300_wex);	// ok
   } else if (sb == SNDBRD_ST100) {
-    install_mem_write_handler(0,0x00a0, 0x00a0, extra_sol_w); // sounds on (DIP 23 = 1)
-    install_mem_write_handler(0,0x00c0, 0x00c0, stern100_sol_w); // chimes on (DIP 23 = 0)
+    install_mem_write_handler(0,0x00a0, 0x00a0, stern100_snd_w); // sounds on (DIP 23 = 1)
+    install_mem_write_handler(0,0x00c0, 0x00c0, stern100_chm_w); // chimes on (DIP 23 = 0)
   } else if (sb == SNDBRD_ST100B) {
-    install_mem_write_handler(0,0x00a0, 0x00a0, extra_sol_w);
+    install_mem_write_handler(0,0x00a0, 0x00a0, stern100_snd_w);
   } else if (sb == SNDBRD_GRAND) {
     install_mem_write_handler(0,0x0080, 0x0080, sndbrd_0_data_w);
   }
@@ -532,6 +625,11 @@ MACHINE_DRIVER_START(st100s)
   MDRV_IMPORT_FROM(st100)
 MACHINE_DRIVER_END
 
+MACHINE_DRIVER_START(st100bs)
+  MDRV_IMPORT_FROM(by35)
+  MDRV_IMPORT_FROM(st100b)
+MACHINE_DRIVER_END
+
 MACHINE_DRIVER_START(by35_32S)
   MDRV_IMPORT_FROM(by35)
   MDRV_IMPORT_FROM(by32)
@@ -540,6 +638,11 @@ MACHINE_DRIVER_END
 MACHINE_DRIVER_START(by35_51S)
   MDRV_IMPORT_FROM(by35)
   MDRV_IMPORT_FROM(by51)
+MACHINE_DRIVER_END
+
+MACHINE_DRIVER_START(by35_51NS)
+  MDRV_IMPORT_FROM(by35)
+  MDRV_IMPORT_FROM(by51N)
 MACHINE_DRIVER_END
 
 MACHINE_DRIVER_START(by35_56S)
@@ -584,9 +687,9 @@ MACHINE_DRIVER_START(st200)
   MDRV_IMPORT_FROM(st300)
 MACHINE_DRIVER_END
 
-MACHINE_DRIVER_START(st200s100)
+MACHINE_DRIVER_START(st200s100b)
   MDRV_IMPORT_FROM(st200NS)
-  MDRV_IMPORT_FROM(st100)
+  MDRV_IMPORT_FROM(st100b)
 MACHINE_DRIVER_END
 
 MACHINE_DRIVER_START(st200v)

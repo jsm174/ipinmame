@@ -15,8 +15,9 @@
 typedef struct { int lampNo, currStat; } vp_tChgLamps[CORE_MAXLAMPCOL*8];
 typedef struct { int solNo,  currStat; } vp_tChgSols[64];
 typedef struct { int giNo,   currStat; } vp_tChgGIs[CORE_MAXGI];
-typedef struct { int ledNo,  chgSeg, currStat; } vp_tChgLED[60];
+typedef struct { int ledNo, chgSeg, currStat; } vp_tChgLED[128];
 typedef struct { int sndNo; } vp_tChgSound[MAX_CMD_LOG];
+typedef struct { int nvramNo, oldStat, currStat; } vp_tChgNVRAMs[CORE_MAXNVRAM];
 
 #define VP_MAXDIPBANKS 10
 /*----------------------------------------------------
@@ -116,6 +117,6 @@ int vp_getNewSoundCommands(vp_tChgSound chgSound);
 /*-------------------------------------------------
 / get alpha digit value
 /-------------------------------------------------*/
-int vp_getChangedLEDs(vp_tChgLED chgStat, UINT64 mask);
+int vp_getChangedLEDs(vp_tChgLED chgStat, UINT64 mask, UINT64 mask2);
 
 #endif /* INC_VPINTF */

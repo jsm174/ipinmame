@@ -35,14 +35,24 @@ DMD Timing is still wrong.. FIRQ rate is variable, and it's not fully understood
 #include "cpu/at91/at91.h"
 #include "cpu/arm7/arm7core.h"
 #include "sound/wavwrite.h"
+#ifdef PROC_SUPPORT
+#include "p-roc/p-roc.h"
+#endif
 
 #define SE_VBLANKFREQ      60 /* VBLANK frequency */
 #define SE_FIRQFREQ       976 /* FIRQ Frequency according to Theory of Operation */
 #define SE_ROMBANK0         1
 
+#ifdef PROC_SUPPORT
+// TODO/PROC: Make variables out of these defines. Values depend on "-proc" switch.
+#define SE_SOLSMOOTH       1 /* Don't smooth values on real hardware */
+#define SE_LAMPSMOOTH      1
+#define SE_DISPLAYSMOOTH   1
+#else
 #define SE_SOLSMOOTH       4 /* Smooth the Solenoids over this numer of VBLANKS */
 #define SE_LAMPSMOOTH      2 /* Smooth the lamps over this number of VBLANKS */
 #define SE_DISPLAYSMOOTH   2 /* Smooth the display over this number of VBLANKS */
+#endif
 
 #define SUPPORT_TRACERAM 0
 
@@ -74,16 +84,48 @@ struct {
 #endif
   UINT8  curBank;                   /* current bank select */
   #define TRACERAM_SELECTED 0x10    /* this bit set maps trace ram to 0x0000-0x1FFF */
+  int fastflipaddr;
 } selocals;
 
+#ifdef PROC_SUPPORT
+static int switches_retrieved=0;
+#endif
 static INTERRUPT_GEN(se_vblank) {
   /*-------------------------------
   /  copy local data to interface
   /--------------------------------*/
   selocals.vblankCount = (selocals.vblankCount+1) % 16;
 
+#ifdef PROC_SUPPORT
+	if (coreGlobals.p_rocEn) {
+		procTickleWatchdog();
+	}
+#endif
+
   /*-- lamps --*/
   if ((selocals.vblankCount % SE_LAMPSMOOTH) == 0) {
+#ifdef PROC_SUPPORT
+		if (coreGlobals.p_rocEn) {
+			if (!switches_retrieved) {
+				procSetSwitchStates();
+				switches_retrieved = 1;
+			}
+			if (coreGlobals.p_rocEn) {
+				int col, row;
+				for(col = 0; col < 10; col++) {
+					UINT8 chgLamps = coreGlobals.lampMatrix[col] ^ coreGlobals.tmpLampMatrix[col];
+					UINT8 tmpLamps = coreGlobals.tmpLampMatrix[col];
+					for (row = 0; row < 8; row++) {
+						if (chgLamps & 0x01) {
+							procDriveLamp( 80 + 16*(7-row) + col, tmpLamps & 0x01);
+						}
+						chgLamps >>= 1;
+						tmpLamps >>= 1;
+					}
+				}
+			}
+		}
+#endif
     memcpy(coreGlobals.lampMatrix, coreGlobals.tmpLampMatrix, sizeof(coreGlobals.tmpLampMatrix));
     memset(coreGlobals.tmpLampMatrix, 0, 10);
   }
@@ -91,8 +133,40 @@ static INTERRUPT_GEN(se_vblank) {
   coreGlobals.solenoids2 = (coreGlobals.solenoids2 & 0xfff0) | selocals.flipsol; selocals.flipsol = selocals.flipsolPulse;
   if ((selocals.vblankCount % SE_SOLSMOOTH) == 0) {
     coreGlobals.solenoids = selocals.solenoids;
+	// Fast flips.   Use Solenoid 15, this is the left flipper solenoid that is 
+	// unused because it is remapped to VPM flipper constants.  
+	if (selocals.fastflipaddr > 0 && memory_region(SE_CPUREGION)[selocals.fastflipaddr-1] > 0)  
+		coreGlobals.solenoids |= 0x4000;
     selocals.solenoids = coreGlobals.pulsedSolState;
+#ifdef PROC_SUPPORT
+		if (coreGlobals.p_rocEn) {
+			UINT64 allSol = core_getAllSol();
+			if (coreGlobals.p_rocEn) {
+				int ii;
+				UINT64 chgSol = (allSol ^ coreGlobals.lastSol) & 0xffffffffffffffff; //vp_getSolMask64();
+				UINT64 tmpSol = allSol;
+
+				/* standard coils */
+				for (ii = 0; ii < 28; ii++) {
+					// TODO/PROC: disable LOTR flippers.  Hardcoded now.  Will need to do this dynamically
+					if (chgSol & 0x01) {
+						procDriveCoil(ii + 32, tmpSol & 0x01);
+					}
+					chgSol >>= 1;
+					tmpSol >>= 1;
+				}
+			}
+			procFlush();
+			// TODO/PROC: This doesn't seem to be happening in core.c.  Why not?
+			coreGlobals.lastSol = allSol;
+		}
+#endif
   }
+#ifdef PROC_SUPPORT
+	if (coreGlobals.p_rocEn) {
+		procCheckActiveCoils();
+	}
+#endif
   /*-- display --*/
   if ((selocals.vblankCount % SE_DISPLAYSMOOTH) == 0) {
     coreGlobals.diagnosticLed = selocals.diagnosticLed;
@@ -102,6 +176,12 @@ static INTERRUPT_GEN(se_vblank) {
 }
 
 static SWITCH_UPDATE(se) {
+#ifdef PROC_SUPPORT
+	if (coreGlobals.p_rocEn) {
+		procGetSwitchEvents();
+	} else {
+		// TODO/PROC: Really not necessary for P-ROC?
+#endif
   if (inports) {
    if (core_gameData->hw.display & SE_LED2) {
     /*Switch Col 6 = Dedicated Switches */
@@ -119,17 +199,111 @@ static SWITCH_UPDATE(se) {
     CORE_SETKEYSW(inports[SE_COMINPORT]<<1, 0xe0, 7);
    }
   }
+#ifdef PROC_SUPPORT
+	}
+#endif
 }
 
 static MACHINE_INIT(se3) {
+	//const char * const gn = Machine->gamedrv->name;
 	sndbrd_0_init(SNDBRD_DEDMD32, 2, memory_region(DE_DMD32ROMREGION),NULL,NULL);
 	sndbrd_1_init(SNDBRD_DE3S,    1, memory_region(DE2S_ROMREGION), NULL, NULL);
+
+	// Fast flips support.   My process for finding these is to load them in pinmame32 in VC debugger.  
+	// Debug and break on this line:
+	//  return memory_region(SE_CPUREGION)[offset];
+	//
+	// Add "&memory_region(0x81)[0]" to watch.  This will give you the current memory 
+	// location of the WhiteStar RAM block where it goes, narrows things down a lot!
+	//
+	// Use CheatEngine to find memory locations that are 0 starting at the address
+	// you got from the last step, through a couple KB more. 
+	//
+	// Load the balls in trough (W+SDFGHJ), start the game.   Usually have to futz with
+	// W+SDF before the table moves onto BALL 1 and the flippers activate.
+	// You can see when the flippers are active when four sets of dots change
+	// on the bottom two blocks of dots.  When they are not active only 
+	// the switches (middle block) flicker
+	// Use CheatEngine to find memory locations that is 192 (so far all change to this,
+	// except RollerCoaster Tycoon which was 240)
+	// Validation:
+	// Enter service menu.  Value should change back to 0.
+	// Force value to be 192, the flippers should activate in service menu. 
+	// Fastflipaddr is "+1" because a few were found at location 0!  
+
+	// It appears all systems of se3 generation are the same... :) 
+	selocals.fastflipaddr = 0x04 + 1;
+
+/*	if (_strnicmp(gn, "sopranos", 8) == 0)
+		selocals.fastflipaddr = 0x04 + 1;
+	else if (_strnicmp(gn, "elvis", 5) == 0)
+		selocals.fastflipaddr = 0x04 + 1;
+	else if (_strnicmp(gn, "gprix", 5) == 0)
+		selocals.fastflipaddr = 0x04 + 1;
+	else if (_strnicmp(gn, "nascar", 6) == 0)
+		selocals.fastflipaddr = 0x04 + 1;
+	else if (_strnicmp(gn, "ripleys", 7) == 0)
+		selocals.fastflipaddr = 0x04 + 1;
+	else if (_strnicmp(gn, "lotr", 4) == 0)
+		selocals.fastflipaddr = 0x04 + 1;*/
 }
 
 static MACHINE_INIT(se) {
+  const char * const gn = Machine->gamedrv->name;
   sndbrd_0_init(SNDBRD_DEDMD32, 2, memory_region(DE_DMD32ROMREGION),NULL,NULL);
   sndbrd_1_init(SNDBRD_DE2S,    1, memory_region(DE2S_ROMREGION), NULL, NULL);
 
+  // for description on Fast flips, see above
+  if (_strnicmp(gn, "sprk_103", 8) == 0)
+	  selocals.fastflipaddr = 0x0 + 1;
+  else if (_strnicmp(gn, "austin", 6) == 0)
+	  selocals.fastflipaddr = 0x0 + 1;
+  else if (_strnicmp(gn, "monopoly", 8) == 0)
+	  selocals.fastflipaddr = 0xf0 + 1;
+  else if (_strnicmp(gn, "twst_405", 8) == 0)
+	  selocals.fastflipaddr = 0x14d + 1;
+  else if (_strnicmp(gn, "shrkysht", 8) == 0)
+	  selocals.fastflipaddr = 0x00 + 1;
+  else if (_strnicmp(gn, "harl_a30", 8) == 0)
+	  selocals.fastflipaddr = 0x00 + 1;
+  else if (_strnicmp(gn, "hirolcas", 8) == 0)
+	  selocals.fastflipaddr = 0x04 + 1;
+  else if (_strnicmp(gn, "simpprty", 8) == 0)
+	  selocals.fastflipaddr = 0x04 + 1;
+  else if (_strnicmp(gn, "term3", 5) == 0)
+	  selocals.fastflipaddr = 0x04 + 1;
+  else if (_strnicmp(gn, "playboys", 8) == 0)
+	  selocals.fastflipaddr = 0x04 + 1;
+  else if (_strnicmp(gn, "rctycn", 6) == 0)
+	  selocals.fastflipaddr = 0x04 + 1;
+  // For apollo13, fast flips is not really necessary: The flipper "solenoids" are enable/disable flags and act just like the fast flip solenoid!
+  // I'll leave it in there for consistency though since it makes the VP table counter part easier to code.
+  else if (_strnicmp(gn, "apollo13", 8) == 0)
+	  selocals.fastflipaddr = 0x122 + 1;
+  else if (_strnicmp(gn, "godzilla", 8) == 0)
+	  selocals.fastflipaddr = 0x0 + 1;
+  else if (_strnicmp(gn, "id4", 3) == 0)
+	  selocals.fastflipaddr = 0x150 + 1;
+  else if (_strnicmp(gn, "lostspc", 7) == 0)
+	  selocals.fastflipaddr = 0x00 + 1;
+  else if (_strnicmp(gn, "jplstw22", 8) == 0)
+	  selocals.fastflipaddr = 0x00 + 1;
+  else if (_strnicmp(gn, "spacejam", 8) == 0)
+	  selocals.fastflipaddr = 0x14d + 1;
+  else if (_strnicmp(gn, "swtril43", 8) == 0)
+	  selocals.fastflipaddr = 0x00 + 1;
+  else if (_strnicmp(gn, "vipr_102", 8) == 0)
+	  selocals.fastflipaddr = 0x00 + 1;
+  else if (_strnicmp(gn, "xfiles", 6) == 0)
+	  selocals.fastflipaddr = 0x00 + 1;
+  else if (_strnicmp(gn, "nfl", 3) == 0)
+	  selocals.fastflipaddr = 0x00 + 1;
+  else if (_strnicmp(gn, "startrp2", 8) == 0)
+	  selocals.fastflipaddr = 0x00 + 1;
+  else if (_strnicmp(gn, "strikext", 8) == 0)
+	  selocals.fastflipaddr = 0x00 + 1;
+  else if (_strnicmp(gn, "strxt_uk", 8) == 0)
+	  selocals.fastflipaddr = 0x00 + 1;
   // Sharkeys got some extra ram
   if (core_gameData->gen & GEN_WS_1) {
     selocals.ram8000 = install_mem_write_handler(0,0x8000,0x81ff,mcpu_ram8000_w);
@@ -203,7 +377,9 @@ static WRITE_HANDLER(lampdriv_w) {
   core_setLamp(coreGlobals.tmpLampMatrix, selocals.lampColumn, selocals.lampRow);
 }
 static WRITE_HANDLER(lampstrb_w) { core_setLamp(coreGlobals.tmpLampMatrix, selocals.lampColumn = (selocals.lampColumn & 0xff00) | data, selocals.lampRow);}
+static READ_HANDLER(lampstrb_r) { return selocals.lampColumn & 0xff; }
 static WRITE_HANDLER(auxlamp_w) { core_setLamp(coreGlobals.tmpLampMatrix, selocals.lampColumn = (selocals.lampColumn & 0x00ff) | (data<<8), selocals.lampRow);}
+static READ_HANDLER(auxlamp_r) { return (selocals.lampColumn >> 8) & 0xff; }
 static WRITE_HANDLER(gilamp_w) {
   logerror("GI lamps %d=%02x\n", offset, data);
   coreGlobals.tmpLampMatrix[10 + offset] = data;
@@ -238,8 +414,8 @@ static READ_HANDLER(dedswitch_r) {
 static READ_HANDLER(dip_r) { return ~core_getDip(0); }
 
 /*-- Solenoids --*/
+static const int solmaskno[] = { 8, 0, 16, 24 };
 static WRITE_HANDLER(solenoid_w) {
-  static const int solmaskno[] = { 8, 0, 16, 24 };
   UINT32 mask = ~(0xff<<solmaskno[offset]);
   UINT32 sols = data<<solmaskno[offset];
   if (offset == 0) { /* move flipper power solenoids (L=15,R=16) to (R=45,L=47) */
@@ -249,6 +425,52 @@ static WRITE_HANDLER(solenoid_w) {
   coreGlobals.pulsedSolState = (coreGlobals.pulsedSolState & mask) | sols;
   selocals.solenoids |= sols;
 }
+// Some Whitestar II ROMS read from the solenoid ports
+static READ_HANDLER(solenoid_r) {
+  int data = (coreGlobals.pulsedSolState >> solmaskno[offset]) & 0xff;
+  if (offset == 0) {
+	data &= 0x3f;
+	data |= ((selocals.flipsolPulse & 0x01) << 7);
+	data |= ((selocals.flipsolPulse & 0x04) >> 4);
+  }
+  return data;
+}
+
+// *** Unknown memory mapped ports $200C to $3FFF - read ***
+// The CPU #0 ROM code in some Whitestar II games read from a sequence
+// of memory locations from $200C to $3FE8 at some game events.  The
+// reads don't hit every address in this range and don't follow an
+// obvious sequence, but they hit about every 4th-8th byte in a mostly
+// ascending order.  The reads occur on specific game events and seem
+// to always follow reads on the known solenoid, lamp, and aux lamp
+// ports.  My best guess from the grouping with the solenoid/lamp port
+// reads is that the unknown locations are related, perhaps reading the
+// status of other output devices or the status of individual lamps or
+// solenoids.  It's not clear from the schematics that these addresses
+// are mapped at all, but the deliberate ROM reads suggest they have
+// some purpose.  It doesn't seem to have any ill effect on game play
+// to have these locations always read as "0" values.
+//
+// This explicit handler is mainly for the sake of documentation. 
+// These addresses can alternatively be delegated to the default
+// "unmapped byte" handler, since that will just return 0 as well, but
+// it seemed worth calling these out for future reference, in case
+// anyone wants to look into the real purpose of these locations at
+// some point.
+static READ_HANDLER(unknown_r) {
+  return 0;
+}
+
+// *** Unknown memory mapped port $3801 - write ***
+// Similar to above: The CPU #0 code writes a byte to port $3801.  This
+// is rare and seems to happen after end of game.  Port $3800 is the
+// sound board command port, so the location suggests this is another
+// function on the sound board - maybe a reset or something like that?
+// Ignoring it has no obvious bad effect, so this handler is here just
+// for the sake of documentation.
+static WRITE_HANDLER(sndbrd_unk_data_w) {
+}
+
 /*-- DMD communication --*/
 static WRITE_HANDLER(dmdlatch_w) {
   sndbrd_0_data_w(0,data);
@@ -346,7 +568,7 @@ static WRITE_HANDLER(giaux_w) {
   if(GET_BIT4 == 0)
   printf("giaux = %x, (GI=%x A=%x B=%x C=%x D=%x E=%x), aux = %x (%c)\n",data,GET_BIT0,GET_BIT7,GET_BIT3,GET_BIT4,GET_BIT5,GET_BIT6,selocals.auxdata,selocals.auxdata);
 #endif
-
+  coreGlobals.gi[0]=(~data & 0x01) ? 9 : 0;
   if (core_gameData->hw.display & (SE_MINIDMD|SE_MINIDMD3)) {
     if (data & ~selocals.lastgiaux & 0x80) { /* clock in data to minidmd */
       selocals.minidata[selocals.miniidx] = selocals.auxdata & 0x7f;
@@ -551,13 +773,17 @@ if (!pmoptions.dmd_only)
 
 static MEMORY_READ_START(se_readmem)
   { 0x0000, 0x1fff, ram_r },
+  { 0x2000, 0x2003, solenoid_r },
   { 0x2007, 0x2007, auxboard_r },
+  { 0x2008, 0x2008, lampstrb_r },
+  { 0x2009, 0x2009, auxlamp_r },
   { 0x3000, 0x3000, dedswitch_r },
   { 0x3100, 0x3100, dip_r },
   { 0x3400, 0x3400, switch_r },
   { 0x3406, 0x3407, gilamp_r }, // GI lamps on SPP?
   { 0x3500, 0x3500, dmdie_r },
   { 0x3700, 0x3700, dmdstatus_r },
+  { 0x200c, 0x3fff, unknown_r }, // unknown ports from $200c to $3fff, excluding known ports mapped above
   { 0x4000, 0x7fff, MRA_BANK1 },
   { 0x8000, 0xffff, MRA_ROM },
 MEMORY_END
@@ -577,6 +803,7 @@ static MEMORY_WRITE_START(se_writemem)
   { 0x3600, 0x3600, dmdlatch_w },
   { 0x3601, 0x3601, dmdreset_w },
   { 0x3800, 0x3800, sndbrd_1_data_w },
+  { 0x3801, 0x3801, sndbrd_unk_data_w },
   { 0x4000, 0xffff, MWA_NOP },
 MEMORY_END
 
@@ -644,7 +871,14 @@ static NVRAM_HANDLER(se) {
   core_nvram(file, read_or_write, memory_region(SE_CPUREGION), 0x2000, 0xff);
 }
 
-//Stern S.A.M Hardware support
-#ifdef INCLUDE_STERN_SAM
-#include "sam.c"
+// convert switch numbers
+#ifdef PROC_SUPPORT
+int se_m2sw(int col, int row) { return col*8+(7-row)+1; }
+#endif
+
+//Stern S.A.M. Hardware support
+#ifndef SAM_ORIGINAL
+#include "sam.c" // vastly improved variant of the leaked/hacked version
+#else
+#include "sam_original.c" // original internal version (for reference/deprecated)
 #endif

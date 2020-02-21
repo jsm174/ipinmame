@@ -84,7 +84,8 @@ void print_colums(const char *text1, const char *text2)
 void fprint_colums(FILE *f, const char *text1, const char *text2)
 {
    const char *text[2];
-   int i, j, cols, width[2], done = 0;
+   int i, cols, width[2], done = 0;
+   size_t j;
    char *e_cols = getenv("COLUMNS");
 
    cols = e_cols? atoi(e_cols):80;
@@ -94,7 +95,7 @@ void fprint_colums(FILE *f, const char *text1, const char *text2)
    /* initialize our arrays */
    text[0] = text1;
    text[1] = text2;
-   width[0] = cols * 0.4;
+   width[0] = (int)((double)cols * 0.4);
    width[1] = cols - width[0];
 
    while(!done)
@@ -102,7 +103,7 @@ void fprint_colums(FILE *f, const char *text1, const char *text2)
       done = 1;
       for(i = 0; i < 2; i++)
       {
-         int to_print = width[i]-1; /* always leave one space open */
+         size_t to_print = width[i]-1; /* always leave one space open */
 
          /* we don't want to print more then we have */
          j = strlen(text[i]);
@@ -128,7 +129,7 @@ void fprint_colums(FILE *f, const char *text1, const char *text2)
            if(!to_print)
               to_print = width[i]-1;
          }
-         fprintf(f, "%-*.*s", width[i], to_print, text[i]);
+         fprintf(f, "%-*.*s", width[i], (int)to_print, text[i]);
 
          /* adjust ptr */
          text[i] += to_print;

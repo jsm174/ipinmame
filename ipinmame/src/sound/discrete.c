@@ -258,15 +258,15 @@ static void discrete_stream_update_mono(int ch,INT16 *buffer, int length)
 
 void discrete_sh_reset(void)
 {
-	struct node_description *node;
-
 	/* Reset all of the objects */
-	int loop=0,loop2=0;
+	int loop;
 
 	if(!init_ok) return;
 
 	for(loop=0;loop<node_count;loop++)
 	{
+		int loop2;
+		struct node_description *node;
 		/* Pick the first node to process */
 		node=running_order[loop];
 
@@ -477,8 +477,7 @@ int discrete_sh_start (const struct MachineSound *msound)
 	}
 	else
 	{
-		int vol;
-		vol = output_node->input[2];
+		int vol = (int)output_node->input[2];
 		/* Initialise a stereo, stream, we always use stereo even if only a mono system */
 		discrete_stream=stream_init("Discrete Sound",vol,Machine->sample_rate,0,discrete_stream_update_mono);
 		discrete_log("discrete_sh_start() - Mono Audio Stream Initialised", node_count);

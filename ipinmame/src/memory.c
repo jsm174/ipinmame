@@ -186,7 +186,7 @@ static read8_handler 		rmemhandler8s[STATIC_COUNT];	/* copy of 8-bit static read
 static write8_handler 		wmemhandler8s[STATIC_COUNT];	/* copy of 8-bit static write memory handlers */
 
 static struct cpu_data 		cpudata[MAX_CPU];				/* data gathered for each CPU */
-static struct bank_data 	bankdata[MAX_BANKS];			/* data gathered for each bank */
+static struct bank_data 	bankdata[MAX_BANKS+1];			/* data gathered for each bank */ // +1 because various checks allow to set/check MAX_BANKS
 
 offs_t encrypted_opcode_start[MAX_CPU],encrypted_opcode_end[MAX_CPU];
 
@@ -362,7 +362,7 @@ void memory_set_context(int activecpu)
 	OP_ROM = cpudata[activecpu].op_rom;
 	OP_MEM_MIN = cpudata[activecpu].op_mem_min;
 	OP_MEM_MAX = cpudata[activecpu].op_mem_max;
-	opcode_entry = opcode_entry;
+	//opcode_entry = opcode_entry;
 
 	readmem_lookup = cpudata[activecpu].mem.read.table;
 	writemem_lookup = cpudata[activecpu].mem.write.table;
@@ -877,7 +877,7 @@ UINT8 alloc_new_subtable(const struct memport_data *memport, struct table_data *
 	}
 
 	/* initialize the table entries */
-	memset(&tabledata->table[(1 << l1bits) + (tabledata->subtable_count << l2bits)], previous_value, 1 << l2bits);
+	memset(&tabledata->table[(1 << l1bits) + (tabledata->subtable_count << l2bits)], previous_value, 1ull << l2bits);
 
 	/* return the new index */
 	return SUBTABLE_BASE + tabledata->subtable_count++;
@@ -928,7 +928,12 @@ void populate_table(struct memport_data *memport, int iswrite, offs_t start, off
 		/* get the subtable index */
 		subindex = tabledata->table[l1start];
 		if (subindex < SUBTABLE_BASE)
-			subindex = tabledata->table[l1start] = alloc_new_subtable(memport, tabledata, subindex);
+		//	subindex = tabledata->table[l1start] = alloc_new_subtable(memport, tabledata, subindex);
+		// changed by bontango - May 2017: split into two lines, see comment below
+		{
+			subindex = alloc_new_subtable(memport, tabledata, subindex);
+			tabledata->table[l1start] = subindex;
+		}
 		subindex &= SUBTABLE_MASK;
 
 		/* if the start and stop end within the same block, handle that */
@@ -949,7 +954,14 @@ void populate_table(struct memport_data *memport, int iswrite, offs_t start, off
 		/* get the subtable index */
 		subindex = tabledata->table[l1stop];
 		if (subindex < SUBTABLE_BASE)
-			subindex = tabledata->table[l1stop] = alloc_new_subtable(memport, tabledata, subindex);
+		//	subindex = tabledata->table[l1stop] = alloc_new_subtable(memport, tabledata, subindex);
+		// changed by bontango - May 2017:
+		// for some reason gcc under Linux (Raspbian 4.9.2-10 in my case) does not assign tabledata->table[l1stop] with the value from alloc_new_subtable
+		// splitting it up into two lines solved the problem for unix and should not harm windows compile
+		{
+			subindex = alloc_new_subtable(memport, tabledata, subindex);
+			tabledata->table[l1stop] = subindex;
+		}
 		subindex &= SUBTABLE_MASK;
 
 		/* fill from the beginning */
@@ -974,7 +986,7 @@ void populate_table(struct memport_data *memport, int iswrite, offs_t start, off
 
 genf *assign_dynamic_bank(int cpunum, offs_t start)
 {
-	int bank;
+	size_t bank;
 
 	/* special case: never assign a dynamic bank to an offset that */
 	/* intersects the CPU's region; always use RAM for that */
@@ -1147,16 +1159,16 @@ static int init_memport(int cpunum, struct memport_data *data, int abits, int db
 	data->mask = 0xffffffffUL >> (32 - abits);
 
 	/* allocate memory */
-	data->read.table = malloc(1 << LEVEL1_BITS(data->ebits));
-	data->write.table = malloc(1 << LEVEL1_BITS(data->ebits));
+	data->read.table = malloc(1ull << LEVEL1_BITS(data->ebits));
+	data->write.table = malloc(1ull << LEVEL1_BITS(data->ebits));
 	if (!data->read.table)
 		return fatalerror("cpu #%d couldn't allocate read table\n", cpunum);
 	if (!data->write.table)
 		return fatalerror("cpu #%d couldn't allocate write table\n", cpunum);
 
 	/* initialize everything to unmapped */
-	memset(data->read.table, STATIC_UNMAP, 1 << LEVEL1_BITS(data->ebits));
-	memset(data->write.table, STATIC_UNMAP, 1 << LEVEL1_BITS(data->ebits));
+	memset(data->read.table, STATIC_UNMAP, 1ull << LEVEL1_BITS(data->ebits));
+	memset(data->write.table, STATIC_UNMAP, 1ull << LEVEL1_BITS(data->ebits));
 
 	/* initialize the pointers to the handlers */
 	if (ismemory)
@@ -1362,8 +1374,8 @@ static int allocate_memory(void)
 		/* keep going until we break out */
 		while (1)
 		{
-			const struct Memory_ReadAddress *mra = Machine->drv->cpu[cpunum].memory_read;
-			const struct Memory_WriteAddress *mwa = Machine->drv->cpu[cpunum].memory_write;
+			const struct Memory_ReadAddress *mra;
+			const struct Memory_WriteAddress *mwa;
 			offs_t lowest = ~0, end, lastend;
 
 			/* find the base of the lowest memory region that extends past the end */
@@ -1444,12 +1456,13 @@ static int populate_memory(void)
 	/* loop over CPUs */
 	for (cpunum = 0; cpunum < cpu_gettotalcpu(); cpunum++)
 	{
-		const struct Memory_ReadAddress *mra, *mra_start = Machine->drv->cpu[cpunum].memory_read;
-		const struct Memory_WriteAddress *mwa, *mwa_start = Machine->drv->cpu[cpunum].memory_write;
+		const struct Memory_ReadAddress *mra_start = Machine->drv->cpu[cpunum].memory_read;
+		const struct Memory_WriteAddress *mwa_start = Machine->drv->cpu[cpunum].memory_write;
 
 		/* install the read handlers */
 		if (mra_start)
 		{
+			const struct Memory_ReadAddress *mra;
 			/* first find the end and check for address bits */
 			for (mra = mra_start; !IS_MEMPORT_END(mra); mra++)
 				if (IS_MEMPORT_MARKER(mra) && (mra->end & MEMPORT_ABITS_MASK))
@@ -1464,6 +1477,7 @@ static int populate_memory(void)
 		/* install the write handlers */
 		if (mwa_start)
 		{
+			const struct Memory_WriteAddress *mwa;
 			/* first find the end and check for address bits */
 			for (mwa = mwa_start; !IS_MEMPORT_END(mwa); mwa++)
 				if (IS_MEMPORT_MARKER(mwa) && (mwa->end & MEMPORT_ABITS_MASK))
@@ -1495,12 +1509,13 @@ static int populate_ports(void)
 	/* loop over CPUs */
 	for (cpunum = 0; cpunum < cpu_gettotalcpu(); cpunum++)
 	{
-		const struct IO_ReadPort *mra, *mra_start = Machine->drv->cpu[cpunum].port_read;
-		const struct IO_WritePort *mwa, *mwa_start = Machine->drv->cpu[cpunum].port_write;
+		const struct IO_ReadPort *mra_start = Machine->drv->cpu[cpunum].port_read;
+		const struct IO_WritePort *mwa_start = Machine->drv->cpu[cpunum].port_write;
 
 		/* install the read handlers */
 		if (mra_start)
 		{
+			const struct IO_ReadPort *mra;
 			/* first find the end and check for address bits */
 			for (mra = mra_start; !IS_MEMPORT_END(mra); mra++)
 				if (IS_MEMPORT_MARKER(mra) && (mra->end & MEMPORT_ABITS_MASK))
@@ -1515,6 +1530,7 @@ static int populate_ports(void)
 		/* install the write handlers */
 		if (mwa_start)
 		{
+			const struct IO_WritePort *mwa;
 			/* first find the end and check for address bits */
 			for (mwa = mwa_start; !IS_MEMPORT_END(mwa); mwa++)
 				if (IS_MEMPORT_MARKER(mwa) && (mwa->end & MEMPORT_ABITS_MASK))
@@ -1751,7 +1767,7 @@ void register_banks(void)
 			int active = 0;
 			while (e)
 			{
-				if(e && (e->flags & (RG_SAVE_READ|RG_SAVE_WRITE)))
+				if(e->flags & (RG_SAVE_READ|RG_SAVE_WRITE))
 				{
 					if (!active)
 					{

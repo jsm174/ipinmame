@@ -1,11 +1,11 @@
 // Settings.cpp : Implementation of CGameSettings
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "VPinMAME_h.h"
 #include "VPinMAMEAboutDlg.h"
 #include "VPinMAMEConfig.h"
 #include "ControllerGameSettings.h"
 
-#include "ControllerRegKeys.h"
+#include "ControllerRegkeys.h"
 #include "ControllerGame.h"
 
 #include <atlwin.h>
@@ -20,6 +20,9 @@ extern "C" HWND win_video_window;
 // declared in VPinMAMEConfig, enables,/disable script write access
 extern int fAllowWriteAccess;
 
+// color struct
+struct RGB { int r; int g; int b; };
+
 /////////////////////////////////////////////////////////////////////////////
 // CGameSettingsDlg
 
@@ -29,7 +32,13 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtrlColorStatic)
+                MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLeftButtonDown)
 		COMMAND_RANGE_HANDLER(IDC_USECHEAT, IDC_DOUBLESIZE, OnCheckBox)
+		COMMAND_RANGE_HANDLER(IDC_USECHEAT, IDC_PINDMD, OnCheckBox)
+		COMMAND_RANGE_HANDLER(IDC_USECHEAT, IDC_WINDMD, OnCheckBox)
+                COMMAND_RANGE_HANDLER(IDC_USECHEAT, IDC_IGNOREROMCRC, OnCheckBox)
+                COMMAND_RANGE_HANDLER(IDC_USECHEAT, IDC_CABINETMODE, OnCheckBox)
+                COMMAND_ID_HANDLER(IDC_DMD_COLORIZE, OnDmdColorize)
 		COMMAND_CODE_RANGE_HANDLER(IDC_SAMPLERATE, IDC_DMDPERC0, EN_CHANGE, OnEditCtrlChanged)
 		COMMAND_ID_HANDLER(IDOK, OnOK)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
@@ -45,6 +54,9 @@ private:
 	char				m_szROM[256];
 	bool				m_fChanged;
 	HBRUSH				m_hBrushDMDColor;
+
+        RGB m_dmd66, m_dmd33, m_dmd0; // colorized DMD values
+        COLORREF m_acrCustClr[16];    // custom color list for color chooser dialog
 
 	// helper functions
 	void SetControlValues() {
@@ -87,6 +99,52 @@ private:
 		SetDlgItemInt(IDC_SYNCLEVEL, vValue.lVal, TRUE);
 		VariantClear(&vValue);
 
+		pGameSettings->get_Value(CComBSTR("showpindmd"), &vValue);
+		CheckDlgButton(IDC_PINDMD, (vValue.boolVal==VARIANT_TRUE)?BST_CHECKED:BST_UNCHECKED);
+		VariantClear(&vValue);
+
+		pGameSettings->get_Value(CComBSTR("showwindmd"), &vValue);
+		CheckDlgButton(IDC_WINDMD, (vValue.boolVal==VARIANT_TRUE)?BST_CHECKED:BST_UNCHECKED);
+		VariantClear(&vValue);
+
+                pGameSettings->get_Value(CComBSTR("fastframes"), &vValue);
+                SetDlgItemInt(IDC_FASTFRAMES, vValue.lVal, TRUE);
+                VariantClear(&vValue);
+
+                pGameSettings->get_Value(CComBSTR("ignore_rom_crc"), &vValue);
+                CheckDlgButton(IDC_IGNOREROMCRC, (vValue.boolVal==VARIANT_TRUE)?BST_CHECKED:BST_UNCHECKED);
+                VariantClear(&vValue);
+
+                pGameSettings->get_Value(CComBSTR("cabinet_mode"), &vValue);
+                CheckDlgButton(IDC_CABINETMODE, (vValue.boolVal==VARIANT_TRUE)?BST_CHECKED:BST_UNCHECKED);
+                VariantClear(&vValue);
+
+                // colorized dmd
+                pGameSettings->get_Value(CComBSTR("dmd_colorize"), &vValue);
+                CheckDlgButton(IDC_DMD_COLORIZE, (vValue.boolVal==VARIANT_TRUE)?BST_CHECKED:BST_UNCHECKED);
+                VariantClear(&vValue);
+
+                pGameSettings->get_Value(CComBSTR("dmd_red66"), &vValue);
+                m_dmd66.r = vValue.lVal;
+                pGameSettings->get_Value(CComBSTR("dmd_green66"), &vValue);
+                m_dmd66.g = vValue.lVal;
+                pGameSettings->get_Value(CComBSTR("dmd_blue66"), &vValue);
+                m_dmd66.b = vValue.lVal;
+                pGameSettings->get_Value(CComBSTR("dmd_red33"), &vValue);
+                m_dmd33.r = vValue.lVal;
+                pGameSettings->get_Value(CComBSTR("dmd_green33"), &vValue);
+                m_dmd33.g = vValue.lVal;
+                pGameSettings->get_Value(CComBSTR("dmd_blue33"), &vValue);
+                m_dmd33.b = vValue.lVal;
+                pGameSettings->get_Value(CComBSTR("dmd_red0"), &vValue);
+                m_dmd0.r = vValue.lVal;
+                pGameSettings->get_Value(CComBSTR("dmd_green0"), &vValue);
+                m_dmd0.g = vValue.lVal;
+                pGameSettings->get_Value(CComBSTR("dmd_blue0"), &vValue);
+                m_dmd0.b = vValue.lVal;
+
+                show_hide_colorize_ctls();
+
 		pGameSettings->get_Value(CComBSTR("dmd_red"), &vValue);
 		SetDlgItemInt(IDC_DMDRED, vValue.lVal, FALSE);
 		VariantClear(&vValue);
@@ -111,6 +169,20 @@ private:
 		SetDlgItemInt(IDC_DMDPERC0, vValue.lVal, FALSE);
 		VariantClear(&vValue);
 
+		pGameSettings->get_Value(CComBSTR("dmd_opacity"), &vValue);
+		SetDlgItemInt(IDC_DMDOPACITY, vValue.lVal, FALSE);
+		VariantClear(&vValue);
+
+		pGameSettings->get_Value(CComBSTR("resampling_quality"), &vValue);
+		SetDlgItemInt(IDC_RESAMPLEQ, vValue.lVal, FALSE);
+		VariantClear(&vValue);
+
+#if defined(VPINMAME_ALTSOUND) || defined(VPINMAME_PINSOUND)
+		pGameSettings->get_Value(CComBSTR("sound_mode"), &vValue);
+		SetDlgItemInt(IDC_SOUNDMODE, vValue.lVal, FALSE);
+		VariantClear(&vValue);
+#endif
+
 		pGameSettings->Release();
 	}
 
@@ -129,6 +201,13 @@ private:
 		pGameSettings->put_Value(CComBSTR("dmd_antialias"), CComVariant((int) GetDlgItemInt(IDC_ANTIALIAS,NULL,TRUE)));
 		pGameSettings->put_Value(CComBSTR("synclevel"), CComVariant((int) GetDlgItemInt(IDC_SYNCLEVEL,NULL,TRUE)));
 
+		pGameSettings->put_Value(CComBSTR("showpindmd"), CComVariant((BOOL) IsDlgButtonChecked(IDC_PINDMD)));
+		pGameSettings->put_Value(CComBSTR("showwindmd"), CComVariant((BOOL) IsDlgButtonChecked(IDC_WINDMD)));
+
+                pGameSettings->put_Value(CComBSTR("fastframes"), CComVariant((int) GetDlgItemInt(IDC_FASTFRAMES,NULL,TRUE)));
+                pGameSettings->put_Value(CComBSTR("ignore_rom_crc"), CComVariant((BOOL) IsDlgButtonChecked(IDC_IGNOREROMCRC)));
+                pGameSettings->put_Value(CComBSTR("cabinet_mode"), CComVariant((BOOL) IsDlgButtonChecked(IDC_CABINETMODE)));
+
 		pGameSettings->put_Value(CComBSTR("dmd_red"), CComVariant((int) GetDlgItemInt(IDC_DMDRED,NULL,TRUE)));
 		pGameSettings->put_Value(CComBSTR("dmd_green"), CComVariant((int) GetDlgItemInt(IDC_DMDGREEN,NULL,TRUE)));
 		pGameSettings->put_Value(CComBSTR("dmd_blue"), CComVariant((int) GetDlgItemInt(IDC_DMDBLUE,NULL,TRUE)));
@@ -136,6 +215,25 @@ private:
 		pGameSettings->put_Value(CComBSTR("dmd_perc66"), CComVariant((int) GetDlgItemInt(IDC_DMDPERC66,NULL,TRUE)));
 		pGameSettings->put_Value(CComBSTR("dmd_perc33"), CComVariant((int) GetDlgItemInt(IDC_DMDPERC33,NULL,TRUE)));
 		pGameSettings->put_Value(CComBSTR("dmd_perc0"), CComVariant((int) GetDlgItemInt(IDC_DMDPERC0,NULL,TRUE)));
+
+		pGameSettings->put_Value(CComBSTR("dmd_colorize"), CComVariant((BOOL) IsDlgButtonChecked(IDC_DMD_COLORIZE)));
+		pGameSettings->put_Value(CComBSTR("dmd_red66"), CComVariant(m_dmd66.r));
+		pGameSettings->put_Value(CComBSTR("dmd_green66"), CComVariant(m_dmd66.g));
+		pGameSettings->put_Value(CComBSTR("dmd_blue66"), CComVariant(m_dmd66.b));
+		pGameSettings->put_Value(CComBSTR("dmd_red33"), CComVariant(m_dmd33.r));
+		pGameSettings->put_Value(CComBSTR("dmd_green33"), CComVariant(m_dmd33.g));
+		pGameSettings->put_Value(CComBSTR("dmd_blue33"), CComVariant(m_dmd33.b));
+		pGameSettings->put_Value(CComBSTR("dmd_red0"), CComVariant(m_dmd0.r));
+		pGameSettings->put_Value(CComBSTR("dmd_green0"), CComVariant(m_dmd0.g));
+		pGameSettings->put_Value(CComBSTR("dmd_blue0"), CComVariant(m_dmd0.b));
+
+		pGameSettings->put_Value(CComBSTR("dmd_opacity"), CComVariant((int) GetDlgItemInt(IDC_DMDOPACITY,NULL,TRUE)));
+
+		pGameSettings->put_Value(CComBSTR("resampling_quality"), CComVariant((int)GetDlgItemInt(IDC_RESAMPLEQ, NULL, TRUE)));
+
+#if defined(VPINMAME_ALTSOUND) || defined(VPINMAME_PINSOUND)
+		pGameSettings->put_Value(CComBSTR("sound_mode"), CComVariant((int) GetDlgItemInt(IDC_SOUNDMODE,NULL,TRUE)));
+#endif
 
 		pGameSettings->Release();
 	}
@@ -213,6 +311,34 @@ private:
 			int r, g, b, np2, np3, np4;
 			float p2, p3, p4;
 			COLORREF thecolor;
+
+                        if (IsDlgButtonChecked(IDC_DMD_COLORIZE)) {
+                                /*Colorized mode - use the individual colors*/
+                                switch (::GetDlgCtrlID((HWND) lParam)) {
+                                case IDC_DMDSHOW1:
+                                        GetDMD_RGB_Color(&r,&g,&b,&np2,&np3,&np4);
+                                        break;
+
+                                case IDC_DMDSHOW2:
+                                        r = m_dmd66.r;
+                                        g = m_dmd66.g;
+                                        b = m_dmd66.b;
+                                        break;
+
+                                case IDC_DMDSHOW3:
+                                        r = m_dmd33.r;
+                                        g = m_dmd33.g;
+                                        b = m_dmd33.b;
+                                        break;
+
+                                case IDC_DMDSHOW4:
+                                        r = m_dmd0.r;
+                                        g = m_dmd0.g;
+                                        b = m_dmd0.b;
+                                        break;
+                                }
+                        } else {
+                                
 			/*Pull values from Textboxes*/
 			GetDMD_RGB_Color(&r,&g,&b,&np2,&np3,&np4);
 			p2=(float)np2;
@@ -229,7 +355,7 @@ private:
 				g = (int)(g*(p2/100.00));
 				b = (int)(b*(p2/100.00));
 				break;
-			
+
 			case IDC_DMDSHOW3:
 				/*Adjust % from original*/
 				r = (int)(r*(p3/100.00));
@@ -243,6 +369,7 @@ private:
 				b = (int)(b*(p4/100.00));
 				break;
 			}
+                        }
 			
 			/*create a color ref: 0x00bbggrr*/
 			thecolor = ((BYTE)b<<16) + ((BYTE)g<<8) + (BYTE)r;
@@ -256,10 +383,70 @@ private:
 
 			/*Change background color of item*/
 			SetBkColor((HDC) wParam, thecolor);
-			return (int) m_hBrushDMDColor;
+			return (LRESULT) m_hBrushDMDColor;
 		}
 		return 0;
 	}
+
+        BOOL click_in_color(POINT pt, int id, RGB &color)
+        {
+                RECT rc;
+                ::GetWindowRect(GetDlgItem(id), &rc);
+                ::MapWindowPoints(m_hWnd, HWND_DESKTOP, &pt, 1);
+                if (PtInRect(&rc, pt)) {
+                        /* get the current color in the packed byte format */
+                        COLORREF rgbCur = ((BYTE)color.b<<16) + ((BYTE)color.g<<8) + (BYTE)color.r;
+
+                        /*initialize the color chooser dialog */
+                        CHOOSECOLOR cc;
+                        ZeroMemory(&cc, sizeof(cc));
+                        cc.lStructSize = sizeof(cc);
+                        cc.hwndOwner = m_hWnd;
+                        cc.lpCustColors = (LPDWORD) m_acrCustClr;
+                        cc.rgbResult = rgbCur;
+                        cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+
+                        /* launch the dialog */
+                        if (ChooseColor(&cc)) {
+                                /* save the new colors back to the caller's RGB struct */
+                                color.r = (int)GetRValue(cc.rgbResult);
+                                color.g = (int)GetGValue(cc.rgbResult);
+                                color.b = (int)GetBValue(cc.rgbResult);
+
+                                /* force refresh for new colors */
+                                InvalidateRect(0, TRUE);
+
+                                /* note the update */
+                                SetChanged(true);
+                        }
+                        return true;
+                }
+                return false;
+        }
+        
+        LRESULT OnLeftButtonDown(UINT, WPARAM, LPARAM lpar, BOOL&) {
+                if (IsDlgButtonChecked(IDC_DMD_COLORIZE)) {
+                        // check if the click is in a color patch text box
+					POINT pt = { ((int)(short)LOWORD(lpar)), ((int)(short)HIWORD(lpar)) };
+                        RGB dmd100;
+                        int np2, np3, np4;
+                        GetDMD_RGB_Color(&dmd100.r, &dmd100.g, &dmd100.b, &np2, &np3, &np4);
+                        if (click_in_color(pt, IDC_DMDSHOW1, dmd100)) {
+                                SetDlgItemInt(IDC_DMDRED, dmd100.r, FALSE);
+                                SetDlgItemInt(IDC_DMDGREEN, dmd100.g, FALSE);
+                                SetDlgItemInt(IDC_DMDBLUE, dmd100.b, FALSE);
+                                return 0;
+                        }
+                        else if (click_in_color(pt, IDC_DMDSHOW2, m_dmd66)
+                                 || click_in_color(pt, IDC_DMDSHOW3, m_dmd33)
+                                 || click_in_color(pt, IDC_DMDSHOW4, m_dmd0))
+                        {
+                                return 0;
+                        }
+                }
+                return 0;
+        }
+
 
 	// command handlers
 	LRESULT OnCheckBox(WORD, UINT, HWND, BOOL&) {
@@ -305,7 +492,7 @@ private:
 
 		HKEY hKey;
 		if ( RegOpenKeyEx(HKEY_CURRENT_USER, szKey, 0, KEY_WRITE, &hKey)==ERROR_SUCCESS ) {
-			if ( !m_szROM )
+			if (m_szROM[0] == '\0')
 				RegDeleteKey(hKey, REG_DEFAULT);
 			else
 				RegDeleteKey(hKey, m_szROM);
@@ -327,7 +514,6 @@ private:
 	LRESULT OnGetColor(WORD, UINT uCtrlId, HWND, BOOL&) {
 		int r, g, b, p2, p3, p4;
 		CHOOSECOLOR cc;                 // common dialog box structure 
-		static COLORREF acrCustClr[16]; // array of custom colors 
 		COLORREF rgbCurrent;
 		/*Grab current color entries from Dialog Textboxes*/
 		GetDMD_RGB_Color(&r,&g,&b,&p2,&p3,&p4);
@@ -337,7 +523,7 @@ private:
 		ZeroMemory(&cc, sizeof(CHOOSECOLOR));
 		cc.lStructSize = sizeof(CHOOSECOLOR);
 		cc.hwndOwner = m_hWnd;
-		cc.lpCustColors = (LPDWORD) acrCustClr;
+                cc.lpCustColors = (LPDWORD) m_acrCustClr;
 		cc.rgbResult = rgbCurrent;
 		cc.Flags = CC_FULLOPEN | CC_RGBINIT;
 
@@ -357,6 +543,46 @@ private:
 
 		return 0;
 	}
+
+        void show_hide_colorize_ctls()
+        {
+                int shade_ctls[] = {
+                        IDC_DMDRED,
+                        IDC_DMDGREEN,
+                        IDC_DMDBLUE,
+                        IDGETCOLOR,
+                        IDC_DMDPERC66,
+                        IDC_DMDPERC33,
+                        IDC_DMDPERC0,
+                        IDC_DMD_STATIC1,
+                        IDC_DMD_STATIC2,
+                        IDC_DMD_STATIC3,
+                        IDC_DMD_STATIC4,
+                        IDC_DMD_STATIC5,
+                        IDC_DMD_STATIC6,
+                        IDC_DMD_STATIC7,
+                        IDC_DMD_STATIC8,
+                        0
+                };
+                int colorize_ctls[] = {
+                        IDC_DMD_STATIC1A,
+                        0
+                };
+                int clr = IsDlgButtonChecked(IDC_DMD_COLORIZE);
+				int i;
+                for (i = 0 ; shade_ctls[i] != 0 ; ++i)
+                        ::ShowWindow(GetDlgItem(shade_ctls[i]), clr ? SW_HIDE : SW_SHOW);
+                for (i = 0 ; colorize_ctls[i] != 0 ; ++i)
+                        ::ShowWindow(GetDlgItem(colorize_ctls[i]), clr ? SW_SHOW : SW_HIDE);
+        }
+
+        LRESULT OnDmdColorize(WORD, UINT uCtrlId, HWND, BOOL&) {
+                show_hide_colorize_ctls();
+                InvalidateRect(NULL,TRUE); // to update the color patches
+                SetChanged(true);
+                return 0;
+        }
+        
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -415,16 +641,16 @@ void CGameSettings::Init(IGame *pGame)
 		strcat(m_szRegKey, REG_DEFAULT);
 }
 
-STDMETHODIMP CGameSettings::ShowSettingsDlg(long hParentWnd)
+STDMETHODIMP CGameSettings::ShowSettingsDlg(LONG_PTR hParentWnd)
 {
 	switch ( hParentWnd ) {
 	case 0:
 		break;
 
 	case 1:
-		hParentWnd = (long) ::GetActiveWindow();
+		hParentWnd = (LONG_PTR) ::GetActiveWindow();
 		if ( !hParentWnd )
-			hParentWnd = (long) GetForegroundWindow();
+			hParentWnd = (LONG_PTR) GetForegroundWindow();
 		break;
 
 	default:
@@ -483,7 +709,7 @@ STDMETHODIMP CGameSettings::put_Value(BSTR sName, VARIANT newVal)
 	return hr;
 }
 
-STDMETHODIMP CGameSettings::SetDisplayPosition(VARIANT newValX, VARIANT newValY, long hWnd)
+STDMETHODIMP CGameSettings::SetDisplayPosition(VARIANT newValX, VARIANT newValY, LONG_PTR hWnd)
 {
 	VariantChangeType(&newValX, &newValX, 0, VT_I4);
 	VariantChangeType(&newValY, &newValY, 0, VT_I4);

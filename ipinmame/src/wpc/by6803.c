@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+
 /* Bally MPU-6803 Hardware
   6803 vectors:
   RES: FFFE-F
@@ -244,7 +246,7 @@ static void by6803_lampStrobe(void) {
     int bit = 1<<(lampadr & 0x07);
 
     //DBGLOG(("adr=%x data=%x\n",lampadr,lampdata));
-    if (bit) for (i=0; i < 3; i++) {
+    /*if (bit)*/ for (i=0; i < 3; i++) {
       if (lampdata & 0x01) *matrix |= bit; else *matrix &= (0xff ^ bit);
       lampdata >>= 1; matrix += 2;
     }
@@ -568,6 +570,15 @@ MACHINE_DRIVER_END
 //6803 - Generation 1 Sound (Squawk & Talk)
 MACHINE_DRIVER_START(by6803_61S)
   MDRV_IMPORT_FROM(by6803)
+  MDRV_IMPORT_FROM(by61)
+MACHINE_DRIVER_END
+//6803 - Generation 1 Sound (Squawk & Talk), alpha display
+MACHINE_DRIVER_START(by6803_61SA)
+  MDRV_IMPORT_FROM(by6803)
+  MDRV_CPU_MODIFY("mcpu")
+  MDRV_CPU_VBLANK_INT(by6803_vblank_alpha, 1)
+  MDRV_SCREEN_SIZE(640,400)
+  MDRV_VISIBLE_AREA(0, 639, 0, 399)
   MDRV_IMPORT_FROM(by61)
 MACHINE_DRIVER_END
 //6803 - Generation 1A Sound (Cheap Squeak)

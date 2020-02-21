@@ -4,6 +4,8 @@
 //
 //============================================================
 
+#ifndef DISABLE_DX7
+
 // standard windows headers
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -555,6 +557,7 @@ void win_d3d_kill(void)
 
 int win_d3d_init(int width, int height, int depth, int attributes, double aspect, const struct win_effect_data *effect)
 {
+#ifndef DISABLE_DX7
 	type_directdraw_create_ex fn_directdraw_create_ex;
 
 	DDSURFACEDESC2 currmode = { sizeof(DDSURFACEDESC2) };
@@ -729,6 +732,9 @@ int win_d3d_init(int width, int height, int depth, int attributes, double aspect
 	// error handling
 error_handling:
 	win_d3d_kill();
+#else
+	MessageBox(NULL, "Direct 3D not supported", NULL, MB_OK);
+#endif
 
 	return 1;
 }
@@ -830,7 +836,7 @@ static double compute_mode_score(int width, int height, int depth, int refresh)
 	}
 
 	// compute initial score based on difference between target and current (adjusted for zoom level)
-	size_score = 1.0 / (1.0 + (fabs(width - target_width) / win_screen_aspect + fabs(height - target_height)) / 16 / win_gfx_zoom);
+	size_score = 1.0 / (1.0 + (abs(width - target_width) / win_screen_aspect + abs(height - target_height)) / 16 / win_gfx_zoom);
 
 	// if we're looking for a particular mode, make sure it matches
 	if (win_gfx_width && win_gfx_height && (width != win_gfx_width || height != win_gfx_height))
@@ -1532,6 +1538,7 @@ error_handling:
 
 static void set_brightness(void)
 {
+#ifndef DISABLE_DX7
 	HRESULT result;
 	LPDIRECTDRAWGAMMACONTROL *gamma_controladdr = &gamma_control;
 
@@ -1564,6 +1571,7 @@ static void set_brightness(void)
 		if (result != DD_OK)
 			fprintf(stderr, "Error setting gamma ramp: %08x\n", (UINT32)result);
 	}
+#endif
 }
 
 
@@ -1938,7 +1946,7 @@ tryagain:
 	}
 
 	// align the destination to 16 bytes
-	dstxoffs = (((UINT32)blit_desc.lpSurface + 16) & ~15) - (UINT32)blit_desc.lpSurface;
+	dstxoffs = (((size_t)blit_desc.lpSurface + 16) & ~15) - (size_t)blit_desc.lpSurface;
 	dstxoffs /= (dstdepth / 8);
 
 	// perform the low-level blit
@@ -2599,3 +2607,5 @@ static void init_vertices_preprocess(LPRECT src)
 	preprocess_vertex[2].sx = -0.5f + rect.left;  preprocess_vertex[2].sy = -0.5f + rect.bottom;
 	preprocess_vertex[3].sx = -0.5f + rect.right; preprocess_vertex[3].sy = -0.5f + rect.bottom;
 }
+
+#endif

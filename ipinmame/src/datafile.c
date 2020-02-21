@@ -56,7 +56,7 @@ const char *mameinfo_filename = NULL;
  *      private data for parsing functions
  ****************************************************************************/
 static mame_file *fp;                                       /* Our file pointer */
-static long dwFilePos;                                          /* file position */
+static UINT64 dwFilePos;                                          /* file position */
 static UINT8 bToken[MAX_TOKEN_LENGTH];          /* Our current token */
 
 /* an array of driver name/drivers array index sorted by driver name
@@ -130,16 +130,15 @@ static int GetGameNameIndex(const char *name)
  *
  *      Returns token, or TOKEN_INVALID if at end of file
  ****************************************************************************/
-static UINT32 GetNextToken(char **ppszTokenText, long *pdwPosition)
+static UINT32 GetNextToken(char **ppszTokenText, UINT64 *pdwPosition)
 {
         UINT32 dwLength;                                                /* Length of symbol */
-        long dwPos;                                                             /* Temporary position */
+        UINT64 dwPos;                                                             /* Temporary position */
         UINT8 *pbTokenPtr = bToken;                             /* Point to the beginning */
-        UINT8 bData;                                                    /* Temporary data byte */
 
         while (1)
         {
-                bData = mame_fgetc(fp);                                  /* Get next character */
+                UINT8 bData = mame_fgetc(fp);                                  /* Temporary data byte */ /* Get next character */
 
                 /* If we're at the end of the file, bail out */
 
@@ -351,7 +350,7 @@ static UINT8 ParseOpen(const char *pszFilename)
 /****************************************************************************
  *      ParseSeek - Move the file position indicator
  ****************************************************************************/
-static UINT8 ParseSeek(long offset, int whence)
+static UINT8 ParseSeek(INT64 offset, int whence)
 {
         int result = mame_fseek(fp, offset, whence);
 
@@ -403,12 +402,11 @@ static int ci_strcmp (const char *s1, const char *s2)
  *      Returns zero if the first n characters of s1 and s2 are equal,
  *      ignoring case.
  **************************************************************************/
-static int ci_strncmp (const char *s1, const char *s2, int n)
+static int ci_strncmp (const char *s1, const char *s2, size_t n)
 {
-        int c1, c2;
-
         while (n)
         {
+                int c1, c2;
                 if ((c1 = tolower (*s1)) != (c2 = tolower (*s2)))
                         return (c1 - c2);
                 else if (!c1)
@@ -444,7 +442,7 @@ static int index_datafile (struct tDatafileIndex **_index)
         /* loop through datafile */
         while ((count < (MAX_DATAFILE_ENTRIES - 1)) && TOKEN_INVALID != token)
         {
-                long tell;
+                UINT64 tell;
                 char *s;
 
                 token = GetNextToken (&s, &tell);
@@ -473,10 +471,10 @@ static int index_datafile (struct tDatafileIndex **_index)
 										idx->offset = tell;
 										idx++;
 										count++;
-										/* done = 1;  Not done, as we must process other clones in list */
+										/* done = 1;  Not done, as we must process other clones in list, see below */
 
 									}
-									if (!done)
+									//if (!done) // see above
 									{
 										token = GetNextToken (&s, &tell);
 
@@ -533,14 +531,14 @@ static int load_datafile_text (const struct GameDriver *drv, char *buffer, int b
         while (TOKEN_INVALID != token)
         {
                 char *s;
-                int len;
-                long tell;
+                UINT64 tell;
 
                 token = GetNextToken (&s, &tell);
                 if (TOKEN_INVALID == token) continue;
 
                 if (found)
                 {
+                        int len;
                         /* end entry when a tag is encountered */
                         if (TOKEN_SYMBOL == token && DATAFILE_TAG == s[0] && TOKEN_LINEBREAK == prev_token) break;
 
@@ -563,7 +561,7 @@ static int load_datafile_text (const struct GameDriver *drv, char *buffer, int b
                         }
 
                         /* Get length of text to add to the buffer */
-                        len = strlen (s);
+                        len = strlen(s);
 
                         /* Check for buffer overflow */
                         /* For some reason we can get a crash if we try */
@@ -663,7 +661,7 @@ int load_driver_history (const struct GameDriver *drv, char *buffer, int bufsize
                 /* load informational text (append) */
                 if (mame_idx)
                 {
-                        int len = strlen (buffer);
+                        size_t len = strlen (buffer);
                         const struct GameDriver *gdrv;
 
                         gdrv = drv;

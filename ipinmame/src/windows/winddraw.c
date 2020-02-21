@@ -61,7 +61,9 @@ static LPDIRECTDRAWSURFACE blit_surface;
 static LPDIRECTDRAWCLIPPER primary_clipper;
 
 // DirectDraw object info
+#ifndef DISABLE_DX7
 static DDCAPS ddraw_caps;
+#endif
 static DDSURFACEDESC primary_desc;
 static DDSURFACEDESC blit_desc;
 static int changed_resolutions;
@@ -70,12 +72,15 @@ static int forced_updates;
 // video bounds
 static int max_width;
 static int max_height;
+#ifndef DISABLE_DX7
 static int pref_depth;
+#endif
 static int effect_min_xscale;
 static int effect_min_yscale;
 static struct rectangle last_bounds;
 
 // mode finding
+#ifndef DISABLE_DX7
 static double best_score;
 static int best_width;
 static int best_height;
@@ -85,6 +90,7 @@ static int best_refresh;
 // derived attributes
 static int needs_6bpp_per_gun;
 static int pixel_aspect_ratio;
+#endif
 
 
 
@@ -92,11 +98,13 @@ static int pixel_aspect_ratio;
 //	PROTOTYPES
 //============================================================
 
+#ifndef DISABLE_DX7
 static double compute_mode_score(int width, int height, int depth, int refresh);
 static int set_resolution(void);
+static void set_brightness(void);
+#endif
 static int create_surfaces(void);
 static int create_blit_surface(void);
-static void set_brightness(void);
 static int create_clipper(void);
 static void erase_surfaces(void);
 static void release_surfaces(void);
@@ -206,8 +214,13 @@ void win_ddraw_wait_vsync(void)
 //	win_ddraw_init
 //============================================================
 
+#ifdef VPINMAME
+int get_ShowVideoWindow();
+#endif
+
 int win_ddraw_init(int width, int height, int depth, int attributes, const struct win_effect_data *effect)
 {
+#ifndef DISABLE_DX7
 	HRESULT result;
 	DDCAPS hel_caps;
 	LPDIRECTDRAW4 *ddraw4addr = &ddraw4;
@@ -286,7 +299,15 @@ cant_get_caps:
 	IDirectDraw_Release(ddraw);
 cant_create_ddraw:
 	ddraw = NULL;
-	return 1;
+#else
+	MessageBox(NULL, "Direct Draw not supported", NULL, MB_OK);
+#endif
+
+	return
+#ifdef VPINMAME
+		!get_ShowVideoWindow() ? 0 : // in case the window is hidden anyway, ignore the error
+#endif
+		1;
 }
 
 
@@ -323,6 +344,7 @@ void win_ddraw_kill(void)
 //	enum_callback
 //============================================================
 
+#ifndef DISABLE_DX7
 static HRESULT WINAPI enum_callback(LPDDSURFACEDESC desc, LPVOID context)
 {
 	int depth = desc->ddpfPixelFormat.DUMMYUNIONNAMEN(1).dwRGBBitCount;
@@ -371,13 +393,14 @@ static HRESULT WINAPI enum2_callback(LPDDSURFACEDESC2 desc, LPVOID context)
 	}
 	return DDENUMRET_OK;
 }
-
+#endif
 
 
 //============================================================
 //	compute_mode_score
 //============================================================
 
+#ifndef DISABLE_DX7
 static double compute_mode_score(int width, int height, int depth, int refresh)
 {
 	static const double depth_matrix[4][2][4] =
@@ -423,7 +446,7 @@ static double compute_mode_score(int width, int height, int depth, int refresh)
 	}
 
 	// compute initial score based on difference between target and current
-	size_score = 1.0 / (1.0 + fabs(width - target_width) + fabs(height - target_height));
+	size_score = 1.0 / (1.0 + abs(width - target_width) + abs(height - target_height));
 
 	// if we're looking for a particular mode, make sure it matches
 	if (win_gfx_width && win_gfx_height && (width != win_gfx_width || height != win_gfx_height))
@@ -463,6 +486,7 @@ static double compute_mode_score(int width, int height, int depth, int refresh)
 	final_score = (size_score * 100.0 + depth_score * 10.0 + refresh_score) / 111.0;
 	return final_score;
 }
+#endif
 
 
 
@@ -470,6 +494,7 @@ static double compute_mode_score(int width, int height, int depth, int refresh)
 //	set_resolution
 //============================================================
 
+#ifndef DISABLE_DX7
 static int set_resolution(void)
 {
 	DDSURFACEDESC currmode = { sizeof(DDSURFACEDESC) };
@@ -556,7 +581,7 @@ cant_get_mode:
 cant_enumerate_modes:
 	return 0;
 }
-
+#endif
 
 
 //============================================================
@@ -580,7 +605,12 @@ static int create_surfaces(void)
 		primary_desc.ddsCaps.dwCaps |= DDSCAPS_FLIP | DDSCAPS_COMPLEX;
 		primary_desc.dwBackBufferCount = 2;
 	}
-
+	if (ddraw == NULL)
+	{
+		if (verbose)
+			fprintf(stderr, "Failed to create directdraw interface");
+		goto cant_create_primary;
+	}
 	// then create the primary surface
 	result = IDirectDraw_CreateSurface(ddraw, &primary_desc, &primary_surface, NULL);
 	if (result != DD_OK)
@@ -602,8 +632,10 @@ static int create_surfaces(void)
 	compute_color_masks(&primary_desc);
 
 	// if this is a full-screen mode, attempt to create a color control object
+#ifndef DISABLE_DX7
 	if (!win_window_mode && win_gfx_brightness != 0.0)
 		set_brightness();
+#endif
 
 	// print out the good stuff
 	if (verbose)
@@ -769,6 +801,7 @@ cant_create_blit:
 //	set_brightness
 //============================================================
 
+#ifndef DISABLE_DX7
 static void set_brightness(void)
 {
 	HRESULT result;
@@ -804,6 +837,7 @@ static void set_brightness(void)
 			fprintf(stderr, "Error setting gamma ramp: %08x\n", (UINT32)result);
 	}
 }
+#endif
 
 
 
@@ -1080,7 +1114,7 @@ tryagain:
 	}
 
 	// align the destination to 16 bytes
-	dstxoffs = (((UINT32)blit_desc.lpSurface + 16) & ~15) - (UINT32)blit_desc.lpSurface;
+	dstxoffs = (int)((((size_t)blit_desc.lpSurface + 16) & ~15) - (size_t)blit_desc.lpSurface);
 	dstxoffs /= (dstdepth / 8);
 
 	// perform the low-level blit
@@ -1354,7 +1388,7 @@ tryagain:
 	dstdepth = temp_desc.ddpfPixelFormat.DUMMYUNIONNAMEN(1).dwRGBBitCount;
 
 	// try to align the destination
-	while (inner.left > outer.left && (((UINT32)temp_desc.lpSurface + ((dstdepth + 7) / 8) * inner.left) & 15) != 0)
+	while (inner.left > outer.left && (((size_t)temp_desc.lpSurface + ((dstdepth + 7) / 8) * inner.left) & 15) != 0)
 		inner.left--, inner.right--;
 
 	// clamp to the display rect

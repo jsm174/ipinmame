@@ -1,20 +1,30 @@
 #include "StdAfx.h"
-#include ".\displayinfolist.h"
-#include <ddraw.h>
+
+#if _MSC_VER >= 1700
+ #ifdef inline
+  #undef inline
+ #endif
+#endif
+
+#include ".\DisplayInfoList.h"
+#ifndef DISABLE_DX7
+ #include <ddraw.h>
+#endif
 
 #ifdef _MSC_VER
 #include "msc.h"
 #endif
 
-static BOOL WINAPI DDEnumCallbackEx(GUID FAR *lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName, LPVOID lpContext, HMONITOR  hm)
+#ifndef DISABLE_DX7
+static BOOL WINAPI DDEnumCallbackEx(GUID FAR *lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName, LPVOID lpContext, HMONITOR hm)
 {
     // Context is a pointer to a display list
     CDisplayInfoList* displayList = (CDisplayInfoList*)lpContext;
 
-	// Add the info to the list
-	displayList->AddDisplay(lpGUID, lpDriverDescription, lpDriverName);
+    // Add the info to the list
+    displayList->AddDisplay(lpGUID, lpDriverDescription, lpDriverName);
 
-	// Continue enumeration (to find other cards)
+    // Continue enumeration (to find other cards)
     return TRUE;
 }
 
@@ -22,6 +32,7 @@ static BOOL WINAPI DDEnumCallback(GUID FAR *lpGUID, LPSTR lpDriverDescription, L
 {
     return DDEnumCallbackEx(lpGUID, lpDriverDescription, lpDriverName, lpContext, NULL);
 }
+#endif
 
 /************************************************
  * Constructors
@@ -58,6 +69,7 @@ void CDisplayInfoList::AddDisplay(GUID FAR *lpGuid, LPSTR lpDriverDesc, LPSTR lp
 
 BOOL CDisplayInfoList::Enumerate()
 {
+#ifndef DISABLE_DX7
 	// Get to DirectDraw
 	HINSTANCE hDDraw = LoadLibrary("ddraw.dll");;
 
@@ -113,6 +125,11 @@ BOOL CDisplayInfoList::Enumerate()
 
 	// Indicate Success
 	return TRUE;
+#else
+	MessageBox(NULL, "Direct Draw not supported", NULL, MB_OK);
+
+	return FALSE;
+#endif
 }
 
 /************************************************
