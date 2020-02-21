@@ -71,8 +71,8 @@ IDR_WSHDLG              REGISTRY                "WSHDlg.rgs"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,9,0,0
- PRODUCTVERSION 2,9,0,0
+ FILEVERSION 3,1,0,0
+ PRODUCTVERSION 3,1,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -88,16 +88,16 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "FileDescription", "COM class for PinMAME"
-            VALUE "FileVersion", "2, 9, 0, 0"
+            VALUE "FileVersion", "3, 1, 0, 0"
             VALUE "InternalName", "VPinMAME"
-            VALUE "LegalCopyright", "© 2000-2017 by S. Ellenoff, T. Haukap, M. Adrian, G. Volkenborn, B. Smith, O. Kaegi, T. Behrens, M. Buecher, D. Rodriguez, R. Perlow and C. Waechter"
+            VALUE "LegalCopyright", "© 2000-2018 by S. Ellenoff, T. Haukap, M. Adrian, G. Volkenborn, B. Smith, O. Kaegi, T. Behrens, M. Buecher, D. Rodriguez, R. Perlow and C. Waechter"
 #ifndef _WIN64
             VALUE "OriginalFilename", "VPinMAME.DLL"
 #else
             VALUE "OriginalFilename", "VPinMAME64.DLL"
 #endif
             VALUE "ProductName", "Visual PinMAME"
-            VALUE "ProductVersion", "2.9"
+            VALUE "ProductVersion", "3.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -120,7 +120,7 @@ BEGIN
     CONTROL         "Skip Pinball Startup &Test",IDC_USECHEAT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,17,97,10
     CONTROL         "Use &Sound",IDC_USESOUND,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,27,55,10
     CONTROL         "Use S&amples",IDC_USESAMPLES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,37,61,10
-    CONTROL         "&Compact Display (No Dots)",IDC_COMPACTSIZE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,47,95,10
+    CONTROL         "&Compact Display (No Dots)",IDC_COMPACTSIZE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,47,103,10
     CONTROL         "&Double Display Size",IDC_DOUBLESIZE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,57,85,10
     CONTROL         "&Ignore ROM CRC errors",IDC_IGNOREROMCRC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,67,88,10
     CONTROL         "Cabinet &Mode",IDC_CABINETMODE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,77,60,10
@@ -130,7 +130,7 @@ BEGIN
     EDITTEXT        IDC_SAMPLERATE,178,12,49,12,ES_AUTOHSCROLL
     RTEXT           "Resampling Quality (0-1):",IDC_STATIC,94,28,81,8
     EDITTEXT        IDC_RESAMPLEQ,178,26,49,12,ES_AUTOHSCROLL
-    RTEXT           "Sound Mode (0-3):",IDC_STATIC,112,42,63,8
+    RTEXT           "Alt. Sound Mode (0-3):",IDC_STATIC,103,42,72,8
     EDITTEXT        IDC_SOUNDMODE,178,40,49,12,ES_AUTOHSCROLL
     RTEXT           "Emulation Fast Frames:",IDC_STATIC,101,56,74,8
     EDITTEXT        IDC_FASTFRAMES,178,54,49,12,ES_AUTOHSCROLL
@@ -186,11 +186,11 @@ BEGIN
     CTEXT           "Portions taken from MAME32 and MAMEW",IDC_STATIC,148,
                     103,160,8
     CTEXT           "Visual PinMAME written by",IDC_STATIC,150,42,160,8
-    CTEXT           "Copyright © 1997-2017 by the authors of MAME, MAME32, MAMEW and PinMAME",
+    CTEXT           "Copyright © 1997-2018 by the authors of MAME, MAME32, MAMEW and PinMAME",
                     IDC_STATIC,148,116,160,16
     CTEXT           "Visual PinMAME is a COM class, designed to use the functionality of PinMAME in scripting languages.",
                     IDC_STATIC,7,135,134,24
-    CTEXT           "Copyright © 2001-2017 by the authors.",IDC_STATIC,150,
+    CTEXT           "Copyright © 2001-2018 by the authors.",IDC_STATIC,150,
                     78,160,8
     CTEXT           "Thanks goes to all people involved producing MAME, MAME32, MAMEW and PinMAME for their GREAT work!!!",
                     IDC_STATIC,149,139,160,24

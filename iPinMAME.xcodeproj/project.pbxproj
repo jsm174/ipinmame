@@ -132,7 +132,6 @@
 		8893346314BE62530095D115 /* fmopl.c in Sources */ = {isa = PBXBuildFile; fileRef = 8893342A14BE62530095D115 /* fmopl.c */; };
 		8893346414BE62530095D115 /* hc55516.c in Sources */ = {isa = PBXBuildFile; fileRef = 8893342C14BE62530095D115 /* hc55516.c */; };
 		8893346514BE62530095D115 /* m114s.c in Sources */ = {isa = PBXBuildFile; fileRef = 8893342E14BE62530095D115 /* m114s.c */; };
-		8893346614BE62530095D115 /* mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = 8893343014BE62530095D115 /* mixer.c */; };
 		8893346714BE62530095D115 /* msm5205.c in Sources */ = {isa = PBXBuildFile; fileRef = 8893343214BE62530095D115 /* msm5205.c */; };
 		8893346814BE62530095D115 /* s14001a.c in Sources */ = {isa = PBXBuildFile; fileRef = 8893343414BE62530095D115 /* s14001a.c */; };
 		8893346914BE62530095D115 /* samples.c in Sources */ = {isa = PBXBuildFile; fileRef = 8893343614BE62530095D115 /* samples.c */; };
@@ -342,6 +341,9 @@
 		C16802FA23FE358700EA85B3 /* mea8000.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802F923FE358700EA85B3 /* mea8000.c */; };
 		C16802FD23FE362800EA85B3 /* stargame.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802FB23FE362700EA85B3 /* stargame.c */; };
 		C16802FE23FE362800EA85B3 /* slalom.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802FC23FE362800EA85B3 /* slalom.c */; };
+		C168030223FEC10B00EA85B3 /* boomerang.c in Sources */ = {isa = PBXBuildFile; fileRef = C16802FF23FEC10B00EA85B3 /* boomerang.c */; };
+		C168030323FEC10B00EA85B3 /* spiritof76.c in Sources */ = {isa = PBXBuildFile; fileRef = C168030023FEC10B00EA85B3 /* spiritof76.c */; };
+		C168030723FEC5B600EA85B3 /* mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = C168030623FEC5B500EA85B3 /* mixer.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -561,8 +563,6 @@
 		8893342D14BE62530095D115 /* hc55516.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hc55516.h; sourceTree = "<group>"; };
 		8893342E14BE62530095D115 /* m114s.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = m114s.c; sourceTree = "<group>"; };
 		8893342F14BE62530095D115 /* m114s.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m114s.h; sourceTree = "<group>"; };
-		8893343014BE62530095D115 /* mixer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mixer.c; sourceTree = "<group>"; };
-		8893343114BE62530095D115 /* mixer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mixer.h; sourceTree = "<group>"; };
 		8893343214BE62530095D115 /* msm5205.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = msm5205.c; sourceTree = "<group>"; };
 		8893343314BE62530095D115 /* msm5205.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = msm5205.h; sourceTree = "<group>"; };
 		8893343414BE62530095D115 /* s14001a.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = s14001a.c; sourceTree = "<group>"; };
@@ -855,6 +855,10 @@
 		C16802F923FE358700EA85B3 /* mea8000.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mea8000.c; sourceTree = "<group>"; };
 		C16802FB23FE362700EA85B3 /* stargame.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = stargame.c; sourceTree = "<group>"; };
 		C16802FC23FE362800EA85B3 /* slalom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = slalom.c; sourceTree = "<group>"; };
+		C16802FF23FEC10B00EA85B3 /* boomerang.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = boomerang.c; sourceTree = "<group>"; };
+		C168030023FEC10B00EA85B3 /* spiritof76.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = spiritof76.c; sourceTree = "<group>"; };
+		C168030523FEC5B500EA85B3 /* mixer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mixer.h; sourceTree = "<group>"; };
+		C168030623FEC5B500EA85B3 /* mixer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mixer.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -877,12 +881,12 @@
 		0BDD4B6C14B20DDF00BE1EAC = {
 			isa = PBXGroup;
 			children = (
-				885D3620151A512C00FE01F5 /* icon~iphone.png */,
-				885D361E151A512200FE01F5 /* icon~ipad.png */,
-				885D361C151A511D00FE01F5 /* icon@2x~iphone.png */,
-				885D361A151A510800FE01F5 /* icon@2x~ipad.png */,
 				0BDD508114B20E4B00BE1EAC /* Classes */,
 				0BDD4B7A14B20DDF00BE1EAC /* Frameworks */,
+				885D361A151A510800FE01F5 /* icon@2x~ipad.png */,
+				885D361C151A511D00FE01F5 /* icon@2x~iphone.png */,
+				885D361E151A512200FE01F5 /* icon~ipad.png */,
+				885D3620151A512C00FE01F5 /* icon~iphone.png */,
 				88452EB314C1477700AE9780 /* images */,
 				88B97199151A4A890085624C /* Other Sources */,
 				0BDD4B7814B20DDF00BE1EAC /* Products */,
@@ -1387,8 +1391,8 @@
 				8893342F14BE62530095D115 /* m114s.h */,
 				C16802F923FE358700EA85B3 /* mea8000.c */,
 				C16802F823FE358700EA85B3 /* mea8000.h */,
-				8893343014BE62530095D115 /* mixer.c */,
-				8893343114BE62530095D115 /* mixer.h */,
+				C168030623FEC5B500EA85B3 /* mixer.c */,
+				C168030523FEC5B500EA85B3 /* mixer.h */,
 				8893343214BE62530095D115 /* msm5205.c */,
 				8893343314BE62530095D115 /* msm5205.h */,
 				8893343414BE62530095D115 /* s14001a.c */,
@@ -1459,6 +1463,7 @@
 				8893349714BE62FE0095D115 /* atarisnd.c */,
 				C16802E123FCF55B00EA85B3 /* barni.c */,
 				8893349814BE62FE0095D115 /* bingo.c */,
+				C16802FF23FEC10B00EA85B3 /* boomerang.c */,
 				8893349914BE62FE0095D115 /* bowarrow.c */,
 				8893349A14BE62FE0095D115 /* bowlgames.c */,
 				8893349B14BE62FE0095D115 /* by35.c */,
@@ -1577,6 +1582,7 @@
 				8893354914BE62FE0095D115 /* spinb.c */,
 				8893354A14BE62FE0095D115 /* spinb.h */,
 				8893354B14BE62FE0095D115 /* spinbgames.c */,
+				C168030023FEC10B00EA85B3 /* spiritof76.c */,
 				C16802FB23FE362700EA85B3 /* stargame.c */,
 				8893354C14BE62FE0095D115 /* stgames.c */,
 				8893354D14BE62FE0095D115 /* stsnd.c */,
@@ -2003,7 +2009,6 @@
 				8893346314BE62530095D115 /* fmopl.c in Sources */,
 				8893346414BE62530095D115 /* hc55516.c in Sources */,
 				8893346514BE62530095D115 /* m114s.c in Sources */,
-				8893346614BE62530095D115 /* mixer.c in Sources */,
 				8893346714BE62530095D115 /* msm5205.c in Sources */,
 				8893346814BE62530095D115 /* s14001a.c in Sources */,
 				C16802FD23FE362800EA85B3 /* stargame.c in Sources */,
@@ -2097,6 +2102,7 @@
 				889335A814BE62FE0095D115 /* s11games.c in Sources */,
 				889335A914BE62FE0095D115 /* s3games.c in Sources */,
 				889335AA14BE62FE0095D115 /* s4.c in Sources */,
+				C168030223FEC10B00EA85B3 /* boomerang.c in Sources */,
 				889335AB14BE62FE0095D115 /* s4games.c in Sources */,
 				889335AC14BE62FE0095D115 /* s6.c in Sources */,
 				889335AD14BE62FE0095D115 /* s6games.c in Sources */,
@@ -2136,6 +2142,7 @@
 				C16802A623FC457400EA85B3 /* idsa.c in Sources */,
 				889335D214BE62FE0095D115 /* t2.c in Sources */,
 				889335D314BE62FE0095D115 /* taf.c in Sources */,
+				C168030323FEC10B00EA85B3 /* spiritof76.c in Sources */,
 				889335D414BE62FE0095D115 /* tom.c in Sources */,
 				889335D514BE62FE0095D115 /* tz.c in Sources */,
 				889335D614BE62FE0095D115 /* wcs.c in Sources */,
@@ -2150,6 +2157,7 @@
 				889335DE14BE62FE0095D115 /* dm.c in Sources */,
 				889335DF14BE62FE0095D115 /* dw.c in Sources */,
 				889335E014BE62FE0095D115 /* fs.c in Sources */,
+				C168030723FEC5B600EA85B3 /* mixer.c in Sources */,
 				889335E114BE62FE0095D115 /* i500.c in Sources */,
 				889335E214BE62FE0095D115 /* jb.c in Sources */,
 				889335E314BE62FE0095D115 /* jm.c in Sources */,

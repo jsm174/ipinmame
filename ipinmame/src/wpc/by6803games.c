@@ -63,6 +63,16 @@ BY6803_ROMEND
 #define input_ports_beatclck input_ports_by6803
 CORE_GAMEDEFNV(beatclck,"Beat the Clock",1985,"Bally",by_mBY6803_61S,0)
 
+INITGAME6803(beatclc2,GEN_BY6803,dispBy7C,FLIP_SW(FLIP_L),4,SNDBRD_BY61, BY6803_DISP7SEG)
+BY6803_ROMSTARTx4(beatclc2,"btc_lights_pro_111385_c70-803-05_u3.cpu", CRC(dff5bad6) SHA1(915495d60be7ca12f00364b6e4b99c822ecfc7aa))
+BY61_SOUNDROM0000(         "btc_u2.snd",CRC(fd22fd2a) SHA1(efad3b94e91d07930ada5366d389f35377dfbd99),
+                           "btc_u3.snd",CRC(22311a4a) SHA1(2c22ba9228e44e68b9308b3bf8803edcd70fa5b9),
+                           "btc_u4.snd",CRC(af1cf23b) SHA1(ebfa3afafd7850dfa2664d3c640fbfa631012455),
+                           "btc_u5.snd",CRC(230cf329) SHA1(45b17a785b81cd5b1d7fdfb720cf1990994b52b7))
+BY6803_ROMEND
+#define input_ports_beatclc2 input_ports_by6803
+CORE_CLONEDEFNV(beatclc2,beatclck,"Beat the Clock (with flasher support)",1985,"Bally",by_mBY6803_61S,0)
+
 /*------------------------------------
 / Lady Luck (6803-0E34: 02/86) - Uses Cheap Squeek (Same as Last MPU-35 Line of games)
 /------------------------------------*/
@@ -319,6 +329,7 @@ CORE_CLONEDEFNV(trucksp2,trucksp3,"Truck Stop (P-2)",1988,"Bally",by_mBY6803_S11
 /*-----------------------------------------------------------
 / Atlantis (6803-2006: 03/89)
 /-----------------------------------------------------------*/
+// rev. 2 exists but yet undumped (https://pinside.com/pinball/forum/topic/bally-atlantis-ownerss-club-fans-welcome/page/11#post-2697513)
 INITGAME6803(atlantis,GEN_BY6803A,dispBy104,FLIP6803,4,SNDBRD_S11CS, BY6803_DISPALPHA)
 BY6803_ROMSTART44(atlantis, "u26_cpu.rom",CRC(b98491e1) SHA1(b867e2b24e93c4ee19169fe93c0ebfe0c1e2fc25),
                             "u27_cpu.rom",CRC(8ea2b4db) SHA1(df55a9fb70d1cabad51dc2b089af7904a823e1d8))
@@ -327,4 +338,4 @@ S11CS_SOUNDROM888(          "u4_snd.rom", CRC(6a48b588) SHA1(c58dbfd920c279d7b9d
                             "u20_snd.rom",CRC(d5a6a773) SHA1(30807e03655d2249c801007350bfb228a2e8a0a4))
 BY6803_ROMEND
 #define input_ports_atlantis input_ports_by6803a
-CORE_GAMEDEFNV(atlantis,"Atlantis",1989,"Bally",by_mBY6803_S11CS,0)
+CORE_GAMEDEFNV(atlantis,"Atlantis (rev. 3)",1989,"Bally",by_mBY6803_S11CS,0)
